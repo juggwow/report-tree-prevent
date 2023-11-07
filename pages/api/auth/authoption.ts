@@ -9,8 +9,8 @@ const authOptions: AuthOptions = {
   providers: [
     LineProvider({
       name: "line",
-      clientId: process.env.NEXT_PUBLIC_LINE_CLIENT_ID as string,
-      clientSecret: process.env.NEXT_PUBLIC_LINE_CLIENT_SECRET as string,
+      clientId: "625444603857-4igpobrhuviu4c5abrsonvsdastn6qnq.apps.googleusercontent.com",
+      clientSecret: "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",
     }),
     GoogleProvider({
       name: "google",
