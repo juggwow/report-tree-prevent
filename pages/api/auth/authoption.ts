@@ -9,13 +9,13 @@ const authOptions: AuthOptions = {
   providers: [
     LineProvider({
       name: "line",
-      clientId: "625444603857-4igpobrhuviu4c5abrsonvsdastn6qnq.apps.googleusercontent.com",
-      clientSecret: "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",
+      clientId: "1661495631",
+      clientSecret: "25a8e3cc63ee4c02653008dd2a228164",
     }),
     GoogleProvider({
       name: "google",
-      clientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID as string,
-      clientSecret: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_SECRET as string,
+      clientId: "625444603857-4igpobrhuviu4c5abrsonvsdastn6qnq.apps.googleusercontent.com",
+      clientSecret: "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",
     }),
   ],
   callbacks: {
