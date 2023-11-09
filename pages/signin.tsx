@@ -17,12 +17,9 @@ export async function getServerSideProps(context: any) {
 
 export default function SignInPage() {
   return (
-    <div className=" mx-auto mt-24 flex flex-col w-96 shadow-xl rounded-xl">
-      <h1 className=" mx-4 mt-8 text-right text-3xl">ยินดีต้นรับสู่</h1>
-      <h1 className=" mx-4 mt-4 text-right text-2xl border-slate-300">
-        PEA S3 Strong Grid
-      </h1>
-      <h3 className=" mx-4 text-right text-2xl mt-8">เข้าสู่ระบบ</h3>
+    <div className=" mx-auto mt-24 flex flex-col w-96 shadow rounded-xl bg-white">
+      <p className=" mx-4 mt-8 text-right text-xl font-bold">ยินดีต้อนรับ</p>
+      <p className=" mx-4 text-right text-2xl mt-8">กรุณาเข้าสู่ระบบ</p>
       <button
         data-testid="google"
         onClick={() => signIn("google")}

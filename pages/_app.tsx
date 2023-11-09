@@ -1,12 +1,12 @@
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import { SessionProvider } from "next-auth/react";
-import { Mitr } from "next/font/google";
+import { Mitr,Itim,IBM_Plex_Sans_Thai_Looped } from "next/font/google";
 import NavBar from "@/components/navbar";
 
-const mitr = Mitr({
-  subsets: ["thai"],
-  weight: ["200", "300", "400", "500", "600", "700"],
+const mitr = IBM_Plex_Sans_Thai_Looped({
+  subsets: ["thai","latin"],
+  weight: [ "400","500","600","700"],
 });
 
 export default function App({

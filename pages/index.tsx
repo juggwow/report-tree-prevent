@@ -1,12 +1,7 @@
 import type { NextPage } from "next";
-import { useEffect, useMemo, useState } from "react";
-import { signIn, useSession, signOut, getSession } from "next-auth/react";
-import { decode, getToken } from "next-auth/jwt";
+import { getSession } from "next-auth/react";
+import Link from 'next/link'
 
-type Myco = {
-  lat: number;
-  lng: number;
-};
 
 export async function getServerSideProps(context: any) {
   const session = await getSession(context);
@@ -32,55 +27,25 @@ export async function getServerSideProps(context: any) {
 }
 
 const Home: NextPage = () => {
-  
-
-  //สร้างเส้นทางบนแผนที่ google map
-  // const calculateRoute = async()=>{
-  //   const directionsService = new google.maps.DirectionsService()
-  // const results = await directionsService.route({
-  //   origin: "27.672932021393862,85.31184012689732",
-  //   destination: "27.670719, 85.320251",
-  //   // eslint-disable-next-line no-undef
-  //   travelMode: google.maps.TravelMode.DRIVING,
-  // })
-  // setDirectionsResponse(results)
-  // }
-
-  // calculateRoute()
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col bg-white p-3 mx-6 mt-24 rounded ">
       <div className="flex justify-center ">
-        <p>This is Sidebar...</p>
+        <Link
+          href="/report-tree"
+          type="button"
+          className="btn btn-primary py-1 px-4 mt-6 border border-slate-300 rounded-full hover:bg-slate-50 hover:shadow-md"
+        >
+          ลงข้อมูล ZPM4/PO งานตัดต้นไม้
+        </Link>
       </div>
       <div className="flex justify-center ">
-        <button
-          onClick={() => signIn("google")}
+        <Link href="/report-prevent"
           type="button"
-          className="btn btn-primary"
+          className="btn btn-primary py-1 px-4 my-6 border border-slate-300 rounded-full hover:bg-slate-50 hover:shadow-md"
         >
-          Sign In with Google
-        </button>
-      </div>
-      <div className="flex justify-center ">
-        <button
-          onClick={() => signIn("line")}
-          type="button"
-          className="btn btn-primary"
-        >
-          Sign In with Line
-        </button>
-      </div>
-      <div className="flex justify-center ">
-        <button
-          onClick={() => {
-            signOut();
-          }}
-          type="button"
-          className="btn btn-primary"
-        >
-          Sign Out
-        </button>
+          ลงข้อมูล ZPM4 งบป้องกันระบบไฟฟ้า
+        </Link>
       </div>
     </div>
   );

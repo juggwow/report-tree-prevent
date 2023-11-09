@@ -6,12 +6,15 @@ export default function NavBar() {
   const session = useSession();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const profileMenuElementRef = useRef<HTMLDivElement | null>(null);
+  const imgElementRef = useRef<HTMLImageElement | null>(null);
 
   useEffect(() => {
     const handleOutsideClick = (e: MouseEvent) => {
       if (
         profileMenuElementRef.current &&
-        !profileMenuElementRef.current.contains(e.target as Node)
+        !profileMenuElementRef.current.contains(e.target as Node)&&
+        imgElementRef.current &&
+        !imgElementRef.current.contains(e.target as Node)
       ) {
         setShowProfileMenu(false);
       }
@@ -22,10 +25,10 @@ export default function NavBar() {
     };
   }, []);
 
-  console.log(session);
   return (
     <div className="flex flex-row w-full justify-between items-center bg-slate-300 z-10">
-      <h1 className="m-4">S3MADPM01</h1>
+      <p className="m-4 sm:hidden">ผบร.กบษ.(ต.3)</p>
+      <p className="m-4 hidden sm:block">แผนกบำรุงรักษาระบบจำหน่าย ผบร.กบษ.(ต.3)</p>
       <div className="flex flex-row items-center justify-end">
         <div className="my-auto mr-4">
           <span>{session.data?.pea?.firstname}</span>
@@ -37,23 +40,24 @@ export default function NavBar() {
                 : " hidden"
             }
           >
-            <Link href="/profile" onClick={()=>setShowProfileMenu(false)} className="block px-4 py-2 text-sm text-gray-700">
+            <Link href="/profile" onClick={()=>setShowProfileMenu(false)} className="block px-4 py-2 text-sm text-gray-700 hover:font-bold">
               แก้ไขข้อมูลส่วนตัว
             </Link>
-            <Link href="/signout" onClick={()=>setShowProfileMenu(false)} className="block px-4 py-2 text-sm text-gray-700">
+            <Link href="/signout" onClick={()=>setShowProfileMenu(false)} className="block px-4 py-2 text-sm text-gray-700 hover:font-bold">
               ออกจากระบบ
             </Link>
           </div>
         </div>
         {session.data && session.data.user && session.data.user.image ? (
           <img
+            ref={imgElementRef}
             onClick={() =>
-              setShowProfileMenu(!showProfileMenu)
+              showProfileMenu?setShowProfileMenu(false):setShowProfileMenu(true)
             }
             className=" rounded-full hover:cursor-pointer mr-4"
             src={session.data.user.image}
-            height={50}
-            width={50}
+            height={40}
+            width={40}
           />
         ) : undefined}
       </div>

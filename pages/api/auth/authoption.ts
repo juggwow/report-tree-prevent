@@ -19,7 +19,10 @@ const authOptions: AuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token }: { token: JWT }): Promise<JWT> {
+    async jwt({ token,trigger }: { token: JWT,trigger?: "signIn"|"update"|"signUp"|undefined }): Promise<JWT> {
+      if(trigger == "update"){
+        delete token.pea
+      }
       return await setJWT(token);
     },
     async session({
@@ -37,6 +40,9 @@ const authOptions: AuthOptions = {
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
+  // events: {
+  //   updateUser: 
+  // }
 };
 
 export default authOptions;

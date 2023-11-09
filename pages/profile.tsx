@@ -1,7 +1,7 @@
 import optionsKarnfaifa from "@/src/karnfaifa";
 import sendProfileForm from "@/src/sendprofileform";
 import { peaUser } from "@/types/next-auth";
-import { getSession, signOut } from "next-auth/react";
+import { getSession, signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
@@ -34,12 +34,24 @@ export async function getServerSideProps(context: any) {
 export default function ProfilePage({ pea }: { pea: peaUser | null }) {
   const router = useRouter();
   const [peaUser, setPeaUser] = useState<peaUser>();
+  const { data: session, update } = useSession()
 
   useEffect(() => {
     if (pea) {
       setPeaUser(pea);
     }
   }, []);
+
+  const handleSubmit = async (e:any) => {
+    e.preventDefault();
+    const path = await sendProfileForm(peaUser);
+    if (path) {
+      if(path == '/'){
+        update()
+      }
+      router.push(path);
+    }
+  }
 
   const profileTextForm = [
     {
@@ -81,13 +93,7 @@ export default function ProfilePage({ pea }: { pea: peaUser | null }) {
       <h3 className=" mx-4 mt-8 text-right text-2xl">แก้ไขข้อมูลผู้ใช้งาน</h3>
       <form
         className="mx-4 my-8 flex flex-col"
-        onSubmit={async (e) => {
-          e.preventDefault();
-          const path = await sendProfileForm(peaUser);
-          if (path) {
-            router.push(path);
-          }
-        }}
+        onSubmit={handleSubmit}
       >
         <span className="ml-5 mt-2 -mb-2 z-10 bg-white max-w-max text-xs text-gray-500">
           สังกัด
