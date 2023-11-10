@@ -10,9 +10,9 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --foreground-rgb: 240, 240, 240;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+    --foreground-rgb: 0, 0, 0;
+    --background-start-rgb: 240, 240, 240;
+    --background-end-rgb: 240, 240, 240;
   }
 }
 
@@ -26,4 +26,43 @@ body {
     rgb(var(--background-start-rgb));
     margin: 0;
     padding: 0;
+}
+
+.MuiDataGrid-root .zpm4Name.MuiDataGrid-cell {
+  white-space: normal !important;
+  word-wrap: break-word !important;
+}
+
+.MuiDataGrid-root .zpm4Name.MuiDataGrid-cell {
+  white-space: normal !important;
+  word-wrap: break-word !important;
+}
+
+
+.MuiDataGrid-filterForm{
+  display: flex;
+  flex-direction: column;
+  height: 180px;
+  position: relative;
+}
+
+.MuiDataGrid-filterForm .MuiFormControl-root:first-child{
+  position: absolute;
+  right: 0%;
+  top: 0%;
+}
+
+
+/* .MuiInputBase-root{
+  width: 100%;
+  
+} */
+
+.MuiFormControl-root{
+  width: 100%;
+}
+
+.MuiDataGrid-cell:first-child:hover{
+  cursor: pointer;
+  font-weight: bold;
 }
