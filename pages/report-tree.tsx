@@ -242,7 +242,7 @@ export default function ReportTree(props: Props) {
         <DataGrid
           rows={
             showTreeData.length == 0
-              ? [{ zpm4Name: "ไม่มีแผนงาน" }]
+              ? [{id:'0', zpm4Name: "ไม่มีแผนงาน",karnfaifa:'',zpm4Po:'',month:'' }]
               : showTreeData
           }
           columns={columns}
