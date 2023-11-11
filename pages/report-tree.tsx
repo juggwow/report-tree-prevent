@@ -1,13 +1,9 @@
 import { getSession } from "next-auth/react";
-import Link from "next/link";
-import { NextPage } from "next";
 import {
   DataGrid,
   GridColDef,
   GridToolbarContainer,
   GridToolbarExport,
-  GridToolbarFilterButton,
-  GridValueGetterParams,
 } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
 import TextField from "@mui/material/TextField";
@@ -21,8 +17,6 @@ import {
   CardActions,
   CardContent,
   CircularProgress,
-  MenuItem,
-  Select,
   Snackbar,
   ToggleButton,
   ToggleButtonGroup,
@@ -144,26 +138,29 @@ export default function ReportTree(props: Props) {
   }, [filter, chooseTreeData]);
 
   async function sendTreeData() {
-    setProgress(true)
+    setProgress(true);
     try {
-      const res = await fetch(
-        `https://script.google.com/macros/s/AKfycby0DVu9COEYPZLlPkbJZEPrj1cWj2DW1WJasZQd6f6AhQLYDR2hcP8RDsOwmOIGaD909Q/exec?karnfaifa=${chooseTreeData[0].karnfaifa}`,
-        {
-          method: "POST",
-          body: JSON.stringify(chooseTreeData),
-        },
-      );
-      const data = await res.json();
-      if (data.massege == "success") {
+      const res = await fetch("/api/send-tree-data", {
+        method: "POST",
+        body: JSON.stringify(chooseTreeData),
+      });
+      if (res.status == 200) {
         setSnackBar({
           open: true,
           sevirity: "success",
           massege: "รายงานใบสั่งซ่อม/ใบสั่งจ้างสำเร็จ",
         });
         router.refresh();
+      } else {
+        setProgress(false);
+        setSnackBar({
+          open: true,
+          sevirity: "error",
+          massege: "เกิดข้อผิดพลาดบางอย่าง กรุณาลองอีกครั้ง",
+        });
       }
     } catch {
-      setProgress(false)
+      setProgress(false);
       setSnackBar({
         open: true,
         sevirity: "error",
@@ -179,14 +176,26 @@ export default function ReportTree(props: Props) {
         <p className="m-3 col-span-1">การดำเนินการ</p>
         <div className="mx-3 mb-3 col-span-1">
           <ToggleButtonGroup
-            onClick={()=>{
-              order.disable?setSnackBar({open: true,sevirity: 'warning',massege:`คุณต้องยกเลิกหมายเลข ${alignment.toUpperCase()} ก่อนจึงจะเปลี่ยนแปลงได้`}):undefined
+            onClick={() => {
+              order.disable
+                ? setSnackBar({
+                    open: true,
+                    sevirity: "warning",
+                    massege: `คุณต้องยกเลิกหมายเลข ${alignment.toUpperCase()} ก่อนจึงจะเปลี่ยนแปลงได้`,
+                  })
+                : undefined;
             }}
             disabled={order.disable}
             color="primary"
             value={alignment}
             exclusive
-            onChange={(e, n) => n?setAlignment(n):alignment=='po'?setAlignment('zpm4'):setAlignment('po')}
+            onChange={(e, n) =>
+              n
+                ? setAlignment(n)
+                : alignment == "po"
+                ? setAlignment("zpm4")
+                : setAlignment("po")
+            }
             aria-label="Platform"
             sx={{ margin: "0 0 0.5rem 0.5rem" }}
           >
@@ -194,10 +203,18 @@ export default function ReportTree(props: Props) {
             <ToggleButton value="zpm4">กฟภ.ดำเนินการ</ToggleButton>
           </ToggleButtonGroup>
         </div>
-        <div className="mx-3 mb-3 col-span-1" 
-            onMouseOver={()=>{
-              order.disable?setSnackBar({open: true,sevirity: 'warning',massege:`คุณต้องกด "ยกเลิกหมายเลข ${alignment.toUpperCase()}" ก่อนจึงจะเปลี่ยนแปลงได้`}):undefined
-            }}>
+        <div
+          className="mx-3 mb-3 col-span-1"
+          onMouseOver={() => {
+            order.disable
+              ? setSnackBar({
+                  open: true,
+                  sevirity: "warning",
+                  massege: `คุณต้องกด "ยกเลิกหมายเลข ${alignment.toUpperCase()}" ก่อนจึงจะเปลี่ยนแปลงได้`,
+                })
+              : undefined;
+          }}
+        >
           <TextField
             disabled={order.disable}
             sx={{ maxWidth: "100%", margin: "0.5rem 0 0.5rem 0.5rem" }}
@@ -230,16 +247,22 @@ export default function ReportTree(props: Props) {
             </Button>
           )}
           {!validatorOrder() && showElementChoose && (
-            <div 
-            onMouseDownCapture={()=>{
-              chooseTreeData.length > 0?setSnackBar({open: true,sevirity: 'warning',massege:`คุณต้องกด "ยกเลิกแผนงาน" ทั้งหมดก่อนจึงจะเปลี่ยนแปลงได้`}):undefined
-            }}>
+            <div
+              onMouseDownCapture={() => {
+                chooseTreeData.length > 0
+                  ? setSnackBar({
+                      open: true,
+                      sevirity: "warning",
+                      massege: `คุณต้องกด "ยกเลิกแผนงาน" ทั้งหมดก่อนจึงจะเปลี่ยนแปลงได้`,
+                    })
+                  : undefined;
+              }}
+            >
               <Button
                 disabled={chooseTreeData.length > 0}
                 variant="outlined"
                 onClick={() => {
-                  if(window.confirm("คุณต้องการยกเลิกหมายเลข PO/ZPM4?"))
-                  {
+                  if (window.confirm("คุณต้องการยกเลิกหมายเลข PO/ZPM4?")) {
                     setOrder({ no: "", disable: false });
                     setShowElementChoose(false);
                   }
@@ -272,14 +295,18 @@ export default function ReportTree(props: Props) {
               ></TextField>
             </div>
             <div className="col-span-4 sm:col-span-1 flex flex-row m-0 p-0">
-            <Autocomplete
-  disablePortal
-  id="combo-box-demo"
-  options={month}
-  onChange={(e,v)=>setFilter({ ...filter, month: v?v.month:'' })}
-  sx={{ width: '100%' }}
-  renderInput={(params) => <TextField {...params} label="กรองเดือน" />}
-/>
+              <Autocomplete
+                disablePortal
+                id="combo-box-demo"
+                options={month}
+                onChange={(e, v) =>
+                  setFilter({ ...filter, month: v ? v.month : "" })
+                }
+                sx={{ width: "100%" }}
+                renderInput={(params) => (
+                  <TextField {...params} label="กรองเดือน" />
+                )}
+              />
             </div>
           </div>
           <DataGrid
@@ -376,8 +403,11 @@ export default function ReportTree(props: Props) {
             <Button
               variant="outlined"
               disabled={chooseTreeData.length == 0}
-              onClick={()=>{
-                window.confirm('ต้องการรายงานแผนงานใช่หรือไม่?')?sendTreeData():undefined}}
+              onClick={() => {
+                window.confirm("ต้องการรายงานแผนงานใช่หรือไม่?")
+                  ? sendTreeData()
+                  : undefined;
+              }}
             >
               ยืนยัน
             </Button>
@@ -385,7 +415,9 @@ export default function ReportTree(props: Props) {
               variant="outlined"
               disabled={chooseTreeData.length == 0}
               onClick={() => {
-                window.confirm('คุณแน่ใจว่าต้องการจะยกเลิกแผนงานทั้งหมด')?setChooseTreeData([]):undefined;
+                window.confirm("คุณแน่ใจว่าต้องการจะยกเลิกแผนงานทั้งหมด")
+                  ? setChooseTreeData([])
+                  : undefined;
               }}
             >
               ยกเลิกการเลือกแผนงานทั้งหมด
@@ -393,13 +425,21 @@ export default function ReportTree(props: Props) {
           </div>
         </div>
       )}
-      <Button variant="outlined" className="mx-auto mt-3 w-40" onClick={()=>{
-        setProgress(true)
-        if(order.no != ''){
-          return window.confirm('คุณได้ใส่ข้อมูลไปบางส่วนหรือทั้งหมดแล้ว คุณแน่ใจว่าจะออกจากหน้านี้?')?router.push('/'):setProgress(false)
-        }
-        router.push('/')
-      }}>
+      <Button
+        variant="outlined"
+        className="mx-auto mt-3 w-40"
+        onClick={() => {
+          setProgress(true);
+          if (order.no != "") {
+            return window.confirm(
+              "คุณได้ใส่ข้อมูลไปบางส่วนหรือทั้งหมดแล้ว คุณแน่ใจว่าจะออกจากหน้านี้?",
+            )
+              ? router.push("/")
+              : setProgress(false);
+          }
+          router.push("/");
+        }}
+      >
         กลับสู่หน้าหลัก
       </Button>
       <Snackbar
@@ -442,12 +482,11 @@ function formatDate(date: Date): string {
 }
 
 const month = [
-  { label: 'Q1', month: 'Q1' },
-  { label: 'Q2', month: 'Q2' },
-  { label: 'Q3', month: 'Q3' },
-  { label: 'Q4', month: 'Q4' },
-]
-
+  { label: "Q1", month: "Q1" },
+  { label: "Q2", month: "Q2" },
+  { label: "Q3", month: "Q3" },
+  { label: "Q4", month: "Q4" },
+];
 
 const columns: GridColDef[] = [
   {
@@ -469,6 +508,6 @@ const columns: GridColDef[] = [
     headerName: "เลขใบสั่งซ่อม ZPM4/ใบสั่งจ้าง PO",
     disableColumnMenu: true,
     sortable: false,
-    width: 300
+    width: 300,
   },
 ];
