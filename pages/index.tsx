@@ -1,6 +1,8 @@
+import { Backdrop, CircularProgress } from "@mui/material";
 import type { NextPage } from "next";
 import { getSession } from "next-auth/react";
 import Link from 'next/link'
+import { useState } from "react";
 
 
 export async function getServerSideProps(context: any) {
@@ -28,11 +30,14 @@ export async function getServerSideProps(context: any) {
 
 const Home: NextPage = () => {
 
+  const[progress,setProgress] = useState(false)
+
   return (
     <div className="flex flex-col bg-white p-3 mx-6 mt-24 rounded ">
       <div className="flex justify-center ">
         <Link
           href="/report-tree"
+          onClick={()=>setProgress(true)}
           type="button"
           className="btn btn-primary py-1 px-4 mt-6 border border-slate-300 rounded-full hover:bg-slate-50 hover:shadow-md"
         >
@@ -41,12 +46,21 @@ const Home: NextPage = () => {
       </div>
       <div className="flex justify-center ">
         <Link href="/report-prevent"
+          onClick={()=>setProgress(true)}
           type="button"
           className="btn btn-primary py-1 px-4 my-6 border border-slate-300 rounded-full hover:bg-slate-50 hover:shadow-md"
         >
           ลงข้อมูล ZPM4 งบป้องกันระบบไฟฟ้า
         </Link>
       </div>
+      
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={progress}
+        onClick={() => setProgress(false)}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </div>
   );
 };
