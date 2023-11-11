@@ -140,24 +140,29 @@ export default function ReportTree(props: Props) {
   async function sendTreeData() {
     setProgress(true);
     try {
-      const res = await fetch("/api/send-tree-data", {
-        method: "POST",
-        body: JSON.stringify(chooseTreeData),
-      });
-      if (res.status == 200) {
+      const res = await fetch(
+        '/api/send-tree-data',
+        {
+          method: "POST",
+          body: JSON.stringify(chooseTreeData),
+        },
+      );
+      if(res.status == 200){
         setSnackBar({
           open: true,
           sevirity: "success",
           massege: "รายงานใบสั่งซ่อม/ใบสั่งจ้างสำเร็จ",
         });
         router.refresh();
-      } else {
+      }
+      else{
         setProgress(false);
         setSnackBar({
           open: true,
           sevirity: "error",
           massege: "เกิดข้อผิดพลาดบางอย่าง กรุณาลองอีกครั้ง",
         });
+
       }
     } catch {
       setProgress(false);
@@ -427,7 +432,7 @@ export default function ReportTree(props: Props) {
       )}
       <Button
         variant="outlined"
-        className="mx-auto mt-3 w-40"
+        className="flex flex-row justify-center mt-3 w-40"
         onClick={() => {
           setProgress(true);
           if (order.no != "") {
