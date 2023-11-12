@@ -53,7 +53,7 @@ const Home: NextPage = () => {
         </Link>
       </div>
 
-      <LoadingBackDrop progress={progress} setProgress={setProgress}/>
+      <LoadingBackDrop progress={progress} setProgress={setProgress} />
     </div>
   );
 };

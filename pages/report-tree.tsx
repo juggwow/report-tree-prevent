@@ -1,12 +1,29 @@
 import { treeData, ReportTreeProps, Order } from "@/types/report-tree";
 import OrderNumber from "@/components/report-tree/order-number";
 import { getSession } from "next-auth/react";
-import { useEffect, useState } from "react";
 import {
+  DataGrid,
+  GridColDef,
+  GridToolbarContainer,
+  GridToolbarExport,
+} from "@mui/x-data-grid";
+import { useEffect, useState } from "react";
+import TextField from "@mui/material/TextField";
+import {
+  Alert,
+  AlertColor,
+  Autocomplete,
+  Backdrop,
   Button,
+  Card,
+  CardActions,
+  CardContent,
+  CircularProgress,
+  Snackbar,
+  Typography,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
-import  TreeDataTable  from "@/components/report-tree/tree-data-table";
+import TreeDataTable from "@/components/report-tree/tree-data-table";
 import ChooseTreeData from "@/components/report-tree/choose-tree-data";
 import AlertSnackBar from "@/components/alert-snack-bar";
 import { AlertSnackBarType } from "@/types/snack-bar";
@@ -36,7 +53,7 @@ export async function getServerSideProps(context: any) {
   );
   const treeData: treeData[] = await res.json();
   return {
-    props: { karnfaifa: session.pea.karnfaifa },
+    props: { treeData },
   };
 }
 
@@ -150,31 +167,32 @@ export default function ReportTree(props: ReportTreeProps) {
         showTreeData={showTreeData}
         chooseTreeData={chooseTreeData}
       />
-      <ChooseTreeData sendTreeData={sendTreeData} chooseTreeData={chooseTreeData} setChooseTreeData={setChooseTreeData}/>
+      <ChooseTreeData
+        sendTreeData={sendTreeData}
+        chooseTreeData={chooseTreeData}
+        setChooseTreeData={setChooseTreeData}
+      />
       <div className="flex flex-row justify-center">
-      <Button
-        variant="outlined"
-        className="mt-3 w-40"
-        onClick={() => {
-          setProgress(true);
-          if (order.no != "") {
-            return window.confirm(
-              "คุณได้ใส่ข้อมูลไปบางส่วนหรือทั้งหมดแล้ว คุณแน่ใจว่าจะออกจากหน้านี้?",
-            )
-              ? router.push("/")
-              : setProgress(false);
-          }
-          router.push("/");
-        }}
-      >
-        กลับสู่หน้าหลัก
-      </Button>
-
+        <Button
+          variant="outlined"
+          className="mt-3 w-40"
+          onClick={() => {
+            setProgress(true);
+            if (order.no != "") {
+              return window.confirm(
+                "คุณได้ใส่ข้อมูลไปบางส่วนหรือทั้งหมดแล้ว คุณแน่ใจว่าจะออกจากหน้านี้?",
+              )
+                ? router.push("/")
+                : setProgress(false);
+            }
+            router.push("/");
+          }}
+        >
+          กลับสู่หน้าหลัก
+        </Button>
       </div>
-      <AlertSnackBar snackBar={snackBar} setSnackBar={setSnackBar}/>
+      <AlertSnackBar snackBar={snackBar} setSnackBar={setSnackBar} />
       <LoadingBackDrop progress={progress} setProgress={setProgress} />
     </div>
   );
 }
-
-
