@@ -34,7 +34,7 @@ export async function getServerSideProps(context: any) {
 export default function ProfilePage({ pea }: { pea: peaUser | null }) {
   const router = useRouter();
   const [peaUser, setPeaUser] = useState<peaUser>();
-  const { data: session, update } = useSession()
+  const { data: session, update } = useSession();
 
   useEffect(() => {
     if (pea) {
@@ -42,16 +42,16 @@ export default function ProfilePage({ pea }: { pea: peaUser | null }) {
     }
   }, []);
 
-  const handleSubmit = async (e:any) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
     const path = await sendProfileForm(peaUser);
     if (path) {
-      if(path == '/'){
-        update()
+      if (path == "/") {
+        update();
       }
       router.push(path);
     }
-  }
+  };
 
   const profileTextForm = [
     {
@@ -91,10 +91,7 @@ export default function ProfilePage({ pea }: { pea: peaUser | null }) {
   return (
     <div className=" mx-auto mt-24 flex flex-col w-96 shadow-xl rounded-xl">
       <h3 className=" mx-4 mt-8 text-right text-2xl">แก้ไขข้อมูลผู้ใช้งาน</h3>
-      <form
-        className="mx-4 my-8 flex flex-col"
-        onSubmit={handleSubmit}
-      >
+      <form className="mx-4 my-8 flex flex-col" onSubmit={handleSubmit}>
         <span className="ml-5 mt-2 -mb-2 z-10 bg-white max-w-max text-xs text-gray-500">
           สังกัด
         </span>
@@ -166,5 +163,3 @@ export default function ProfilePage({ pea }: { pea: peaUser | null }) {
     </div>
   );
 }
-
-

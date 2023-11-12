@@ -14,14 +14,21 @@ const authOptions: AuthOptions = {
     }),
     GoogleProvider({
       name: "google",
-      clientId: "625444603857-4igpobrhuviu4c5abrsonvsdastn6qnq.apps.googleusercontent.com",
+      clientId:
+        "625444603857-4igpobrhuviu4c5abrsonvsdastn6qnq.apps.googleusercontent.com",
       clientSecret: "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",
     }),
   ],
   callbacks: {
-    async jwt({ token,trigger }: { token: JWT,trigger?: "signIn"|"update"|"signUp"|undefined }): Promise<JWT> {
-      if(trigger == "update"){
-        delete token.pea
+    async jwt({
+      token,
+      trigger,
+    }: {
+      token: JWT;
+      trigger?: "signIn" | "update" | "signUp" | undefined;
+    }): Promise<JWT> {
+      if (trigger == "update") {
+        delete token.pea;
       }
       return await setJWT(token);
     },
@@ -41,7 +48,7 @@ const authOptions: AuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
   // events: {
-  //   updateUser: 
+  //   updateUser:
   // }
 };
 

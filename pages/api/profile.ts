@@ -13,7 +13,7 @@ type Data = {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<Data>
+  res: NextApiResponse<Data>,
 ) {
   if (req.method != "POST") {
     res.status(400).end();
@@ -29,14 +29,12 @@ export default async function handler(
     const docRef = doc(
       db,
       process.env.NEXT_PUBLIC_USER_DB_COLLECTION as string,
-      session.sub
+      session.sub,
     );
     await setDoc(docRef, pea);
     res.status(200).end();
-    return
+    return;
   }
-
-
 
   res.status(401).end();
   return;
