@@ -24,7 +24,7 @@ export default function LineLogin(){
     const link = searchParams.get("link")
     console.log(link)
     useEffect(()=>{
-        signIn("line",{callbackUrl: `${link?link:'/'}`})
+        signIn("line",{callbackUrl: link!})
         return
     },[])
     return (
