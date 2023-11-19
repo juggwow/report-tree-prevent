@@ -23,7 +23,7 @@ export default function LineLogin(){
     const searchParams = useSearchParams()
     const link = searchParams.get("link")
     useEffect(()=>{
-        signIn("line",{callbackUrl: `/${link!}`})
+        signIn("line",{callbackUrl: link?`/${link}`:'/'})
         return
     },[])
     return (
