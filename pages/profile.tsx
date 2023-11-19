@@ -61,6 +61,7 @@ export default function ProfilePage({ pea }: { pea: peaUser | null }) {
         setPeaUser({ ...peaUser, firstname: e.target.value });
       },
       value: peaUser?.firstname,
+      pattern: "\w"
     },
     {
       placeholder: "สกุล",
@@ -127,6 +128,7 @@ export default function ProfilePage({ pea }: { pea: peaUser | null }) {
                 {item.placeholder}
               </label>
               <input
+                pattern=""
                 id={item.placeholder}
                 required
                 value={item.value}

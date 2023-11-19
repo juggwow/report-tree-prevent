@@ -1,27 +1,8 @@
 import { treeData, ReportTreeProps, Order } from "@/types/report-tree";
 import OrderNumber from "@/components/report-tree/order-number";
 import { getSession } from "next-auth/react";
-import {
-  DataGrid,
-  GridColDef,
-  GridToolbarContainer,
-  GridToolbarExport,
-} from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
-import TextField from "@mui/material/TextField";
-import {
-  Alert,
-  AlertColor,
-  Autocomplete,
-  Backdrop,
-  Button,
-  Card,
-  CardActions,
-  CardContent,
-  CircularProgress,
-  Snackbar,
-  Typography,
-} from "@mui/material";
+import { Button} from "@mui/material";
 import { useRouter } from "next/navigation";
 import TreeDataTable from "@/components/report-tree/tree-data-table";
 import ChooseTreeData from "@/components/report-tree/choose-tree-data";
@@ -48,13 +29,30 @@ export async function getServerSideProps(context: any) {
     };
   }
 
-  const res = await fetch(
-    `https://script.google.com/macros/s/AKfycby0DVu9COEYPZLlPkbJZEPrj1cWj2DW1WJasZQd6f6AhQLYDR2hcP8RDsOwmOIGaD909Q/exec?karnfaifa=${session.pea.karnfaifa}`,
-  );
-  const treeData: treeData[] = await res.json();
-  return {
-    props: { treeData },
-  };
+
+  try{
+    const res = await fetch(
+      `https://script.google.com/macros/s/AKfycby0DVu9COEYPZLlPkbJZEPrj1cWj2DW1WJasZQd6f6AhQLYDR2hcP8RDsOwmOIGaD909Q/exec?karnfaifa=${session.pea.karnfaifa}`,
+    );
+    const treeData: treeData[] = await res.json();
+    if(res.status == 200){
+      return {
+        props: { treeData },
+      };
+    }
+    return {
+      redirect: {
+        destination: "/404",
+      },
+    };
+  }catch{
+    return {
+      redirect: {
+        destination: "/404",
+      },
+    };
+
+  }
 }
 
 export default function ReportTree(props: ReportTreeProps) {
@@ -146,7 +144,7 @@ export default function ReportTree(props: ReportTreeProps) {
 
   return (
     <div className="flex flex-col p-4 min-h-screen ">
-      <p className="m-3">รายงานต้นไม้</p>
+      <p className="m-3">รายผลการดำเนินงานตัดต้นไม้</p>
       <OrderNumber
         order={order}
         setOrder={setOrder}
