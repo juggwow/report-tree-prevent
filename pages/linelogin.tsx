@@ -22,9 +22,8 @@ export async function getServerSideProps(context: any) {
 export default function LineLogin(){
     const searchParams = useSearchParams()
     const link = searchParams.get("link")
-    console.log(link)
     useEffect(()=>{
-        signIn("google",{callbackUrl: link!})
+        signIn("line",{callbackUrl: '/report-tree'})
         return
     },[])
     return (

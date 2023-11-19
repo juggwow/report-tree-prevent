@@ -1,20 +1,5 @@
 import { signIn, getSession } from "next-auth/react";
 
-export async function getServerSideProps(context: any) {
-  const session = await getSession(context);
-
-  if (session) {
-    return {
-      redirect: {
-        destination: "/",
-      },
-    };
-  }
-  return {
-    props: {},
-  };
-}
-
 export default function SignInPage() {
   return (
     <div className=" mx-auto mt-24 flex flex-col w-96 shadow rounded-xl bg-white">
@@ -22,7 +7,7 @@ export default function SignInPage() {
       <p className=" mx-4 text-right text-2xl mt-8">กรุณาเข้าสู่ระบบ</p>
       <button
         data-testid="google"
-        onClick={() => signIn("google",{callbackUrl: '/report-tree'})}
+        onClick={() => signIn("google")}
         className="mx-4 mt-8 py-1 border border-slate-300 rounded-full hover:bg-slate-50 hover:shadow-md "
       >
         เข้าสู่ระบบด้วยบัญชี Google
