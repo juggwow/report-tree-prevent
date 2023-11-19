@@ -22,8 +22,9 @@ export async function getServerSideProps(context: any) {
 export default function LineLogin(){
     const searchParams = useSearchParams()
     const link = searchParams.get("link")
+    console.log(link)
     useEffect(()=>{
-        signIn("line",{callbackUrl: link?link:'/'})
+        signIn("line",{callbackUrl: `${link?link:'/'}`})
         return
     },[])
     return (
