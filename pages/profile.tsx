@@ -128,7 +128,6 @@ export default function ProfilePage({ pea }: { pea: peaUser | null }) {
                 {item.placeholder}
               </label>
               <input
-                pattern=""
                 id={item.placeholder}
                 required
                 value={item.value}

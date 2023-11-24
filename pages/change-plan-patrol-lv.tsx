@@ -20,23 +20,15 @@ export async function getServerSideProps(context: any) {
         },
       };
     }
+
+    // console.log(session.pea.karnfaifa)
   
   
     try {
         const mongoClient = await clientPromise
-        // `await clientPromise` will use the default database passed in the MONGODB_URI
-        // However you can use another database (e.g. myDatabase) by replacing the `await clientPromise` with the following code:
-        //
-        // `const client = await clientPromise`
-        // `const db = client.db("myDatabase")`
-        //
-        // Then you can execute queries against your database like so:
-        // db.find({}) or any of the MongoDB Node Driver commands
 
         const planLVCollection = mongoClient.db("patrol-LV").collection("plan")
-        const plan = await planLVCollection.find({businessArea: { $regex: /^L01/ },peaNo:{ $regex: /^60/ }},{ projection: { _id: 0 } }).toArray()
-        //const plan2 = plan.map((val)=>{return {...val,_id:val._id.toString()}})
-        console.log(plan)
+        const plan = await planLVCollection.find({businessArea: session.pea.karnfaifa},{ projection: { _id: 0 } }).toArray()
     
         return {
           props: { planLV: plan },
@@ -49,14 +41,12 @@ export async function getServerSideProps(context: any) {
       }
   }
 
-  export default function PatrolLV({planLV}:{planLV:PlanLV[]}){
+  export default function ChangePlanPatrolLV({planLV}:{planLV:PlanLV[]}){
     console.log(planLV)
     return (
         <div>{planLV.map((val,i)=>{return(
             <div key={i}><span>{val.peaNo}</span><hr/></div>
         )})}</div>
-        // <div></div>
-        
     )
   }
 
@@ -66,9 +56,4 @@ export async function getServerSideProps(context: any) {
     distanceCircuit?: any;
     businessName: string;
     businessArea: string;
-
-  }
-
-  interface PlanLVProps{
-    planLV: PlanLV[]
   }
