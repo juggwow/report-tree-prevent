@@ -61,7 +61,7 @@ export default function ProfilePage({ pea }: { pea: peaUser | null }) {
         setPeaUser({ ...peaUser, firstname: e.target.value });
       },
       value: peaUser?.firstname,
-      pattern: "\w"
+      pattern: "w",
     },
     {
       placeholder: "สกุล",

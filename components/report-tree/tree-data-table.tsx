@@ -1,5 +1,6 @@
 import { SetPropsTreeDataTableType, treeData } from "@/types/report-tree";
 import { TextField, Autocomplete } from "@mui/material";
+import CustomToolbar from "../data-grid-custom-toolbar";
 import {
   DataGrid,
   GridColDef,
@@ -144,13 +145,7 @@ const columns: GridColDef[] = [
   },
 ];
 
-function CustomToolbar() {
-  return (
-    <GridToolbarContainer>
-      <GridToolbarExport />
-    </GridToolbarContainer>
-  );
-}
+
 
 function formatDate(date: Date): string {
   const day = date.getDate();

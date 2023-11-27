@@ -4,8 +4,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function ErrorPage() {
-  const router = useRouter()
-  const [progress,setProgress] = useState(false)
+  const router = useRouter();
+  const [progress, setProgress] = useState(false);
   return (
     <div className="flex flex-col p-4 min-h-screen">
       <div>ไม่พบข้อมูล</div>

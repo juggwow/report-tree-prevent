@@ -2,7 +2,7 @@ import { treeData, ReportTreeProps, Order } from "@/types/report-tree";
 import OrderNumber from "@/components/report-tree/order-number";
 import { getSession } from "next-auth/react";
 import { useEffect, useState } from "react";
-import { Button} from "@mui/material";
+import { Button } from "@mui/material";
 import { useRouter } from "next/navigation";
 import TreeDataTable from "@/components/report-tree/tree-data-table";
 import ChooseTreeData from "@/components/report-tree/choose-tree-data";
@@ -29,13 +29,12 @@ export async function getServerSideProps(context: any) {
     };
   }
 
-
-  try{
+  try {
     const res = await fetch(
       `https://script.google.com/macros/s/AKfycby0DVu9COEYPZLlPkbJZEPrj1cWj2DW1WJasZQd6f6AhQLYDR2hcP8RDsOwmOIGaD909Q/exec?karnfaifa=${session.pea.karnfaifa}`,
     );
     const treeData: treeData[] = await res.json();
-    if(res.status == 200){
+    if (res.status == 200) {
       return {
         props: { treeData },
       };
@@ -45,13 +44,12 @@ export async function getServerSideProps(context: any) {
         destination: "/404",
       },
     };
-  }catch{
+  } catch {
     return {
       redirect: {
         destination: "/404",
       },
     };
-
   }
 }
 
