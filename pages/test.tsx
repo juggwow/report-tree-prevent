@@ -1,74 +1,54 @@
-import * as React from "react";
-import { styled } from "@mui/material/styles";
-import ArrowForwardIosSharpIcon from "@mui/icons-material/ArrowForwardIosSharp";
-import MuiAccordion, { AccordionProps } from "@mui/material/Accordion";
-import MuiAccordionSummary, {
-  AccordionSummaryProps,
-} from "@mui/material/AccordionSummary";
-import MuiAccordionDetails from "@mui/material/AccordionDetails";
-import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
+import clientPromise from "@/lib/mongodb";
+import { PlanLV } from "@/types/plan-lv";
+import { Collection, ObjectId } from "mongodb";
+import { getSession } from "next-auth/react";
 
-const Accordion = styled((props: AccordionProps) => (
-  <MuiAccordion disableGutters elevation={0} square {...props} />
-))(({ theme }) => ({
-  border: `1px solid ${theme.palette.divider}`,
-  "&:not(:last-child)": {
-    borderBottom: 0,
-  },
-  "&:before": {
-    display: "none",
-  },
-}));
+export async function getServerSideProps(context: any) {
+  const session = await getSession(context);
 
-const AccordionSummary = styled((props: AccordionSummaryProps) => (
-  <MuiAccordionSummary
-    expandIcon={<ArrowForwardIosSharpIcon sx={{ fontSize: "0.9rem" }} />}
-    {...props}
-  />
-))(({ theme }) => ({
-  backgroundColor:
-    theme.palette.mode === "dark"
-      ? "rgba(255, 255, 255, .05)"
-      : "rgba(0, 0, 0, .03)",
-  flexDirection: "row-reverse",
-  "& .MuiAccordionSummary-expandIconWrapper.Mui-expanded": {
-    transform: "rotate(90deg)",
-  },
-  "& .MuiAccordionSummary-content": {
-    marginLeft: theme.spacing(1),
-  },
-}));
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/signin",
+      },
+    };
+  }
 
-const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
-  padding: theme.spacing(2),
-  borderTop: "1px solid rgba(0, 0, 0, .125)",
-}));
+  if (!session.pea) {
+    return {
+      redirect: {
+        destination: "/profile",
+      },
+    };
+  }
 
-export default function CustomizedAccordions() {
-  const [expanded, setExpanded] = React.useState<string | false>("panel1");
+  try {
+    const mongoClient = await clientPromise;
 
-  return (
-    <div>
-      <Accordion expanded={expanded === "panel3"}>
-        <AccordionSummary aria-controls="panel3d-content" id="panel3d-header">
-          <Typography
-            onMouseOver={() => setExpanded("panel3")}
-            sx={{ margin: "auto 0" }}
-          >
-            Collapsible Group Item #3
-          </Typography>
-          <Button> ทดสอบ </Button>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Typography>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
-            malesuada lacus ex, sit amet blandit leo lobortis eget. Lorem ipsum
-            dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada
-            lacus ex, sit amet blandit leo lobortis eget.
-          </Typography>
-        </AccordionDetails>
-      </Accordion>
-    </div>
-  );
+    const planLVCollection: Collection<PlanLV> = mongoClient
+      .db("patrol-LV")
+      .collection("plan");
+    let plan = await planLVCollection.findOne({
+      _id: new ObjectId("655e09455f16d485454b0ce3"),
+    });
+    plan?._id instanceof ObjectId
+      ? (plan._id = plan._id.toHexString())
+      : undefined,
+      console.log(plan);
+
+    return {
+      props: { plan },
+    };
+  } catch (e) {
+    console.error(e);
+    return {
+      props: { planLV: [] },
+    };
+  }
+}
+
+export default function CustomizedAccordions({ plan }: { plan: PlanLV }) {
+  console.log(plan);
+
+  return <div></div>;
 }

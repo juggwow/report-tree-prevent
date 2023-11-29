@@ -15,18 +15,13 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>,
 ) {
-  if (req.method != "POST") {
-    res.status(400).end();
-    return;
-  }
-
   const session = await getServerSession(req, res, authOptions);
   if (!(session && session.sub && session.pea)) {
     res.status(401).end();
     return;
   }
 
-  let changeReq:ChangePlanLV = JSON.parse(req.body)
+  let changeReq: ChangePlanLV = JSON.parse(req.body);
 
   try {
     const mongoClient = await clientPromise;
@@ -35,57 +30,118 @@ export default async function handler(
       .db("patrol-LV")
       .collection("plan");
 
-    const plan = await planLVCollection
-      .findOne({ _id: new ObjectId(changeReq.plan_id)  })
+    const plan = await planLVCollection.findOne({
+      _id: new ObjectId(changeReq.plan_id),
+    });
 
-    if(!plan){
+    if (!plan) {
       res.status(404).end();
       return;
     }
 
-    if(plan.businessName != session.pea.karnfaifa){
-      res.status(404).end();
+    if (plan.businessName != session.pea.karnfaifa) {
+      res.status(403).end();
       return;
     }
 
-    const insert:InsertPlanLVChangeReq = {
-      plan_id: new ObjectId(changeReq.plan_id),
+    const insert: InsertPlanLVChangeReq = {
       status: "progress",
       userReq: session.pea,
       changeReq: {
         peaNo: changeReq.newPlan.peaNo,
         distanceCircuit: Number(changeReq.newPlan.distanceCircuit),
-        feeder: changeReq.newPlan.feeder
+        feeder: changeReq.newPlan.feeder,
       },
-      reason: changeReq.reason
-    } 
+      oldPlan: {
+        peaNo: changeReq.oldPlan.peaNo,
+        distanceCircuit: Number(changeReq.oldPlan.distanceCircuit),
+        feeder: changeReq.oldPlan.feeder,
+      },
+      reason: changeReq.reason,
+      dateReq: new Date().toISOString(),
+    };
 
-    const changePlanLVReqCollection: Collection<InsertPlanLVChangeReq> = mongoClient.db("patrol-LV").collection("change-request")
-    const mongodbRes = await changePlanLVReqCollection.insertOne(insert)
-    if(!mongodbRes.acknowledged){
-      res.status(500).end()
-      return
+    switch (req.method) {
+      case "PUT": {
+        const filter = { _id: new ObjectId(changeReq.plan_id) };
+        const update = {
+          $set: {
+            "changePlanRequest.$[elem]": insert,
+          },
+        };
+        const options = {
+          arrayFilters: [
+            {
+              "elem.status": "progress",
+              "elem.oldPlan.peaNo": insert.oldPlan.peaNo,
+            },
+          ],
+        };
+
+        const resultUpdate = await planLVCollection.updateOne(
+          filter,
+          update,
+          options,
+        );
+        if (!resultUpdate.acknowledged) {
+          res.status(404).end();
+          return;
+        }
+
+        res.status(200).end();
+        return;
+      }
+      case "POST": {
+        const query = {
+          _id: new ObjectId(changeReq.plan_id),
+          changePlanRequest: {
+            $not: {
+              $elemMatch: {
+                status: "progress",
+              },
+            },
+          },
+        };
+
+        const update = { $addToSet: { changePlanRequest: insert } };
+
+        const resultInsert = await planLVCollection.findOneAndUpdate(
+          query,
+          update,
+        );
+        if (!resultInsert.ok) {
+          res.status(404).end();
+          return;
+        }
+
+        res.status(200).end();
+        return;
+      }
+      default: {
+        res.status(404).end();
+        return;
+      }
     }
-
-    res.status(200).end
   } catch (e) {
     console.error(e);
-    res.status(500).end
+    res.status(500).end;
+    return;
   }
-
-  res.status(200).end();
-  return;
 }
 
-interface InsertPlanLVChangeReq  {
-  plan_id: ObjectId;
+interface InsertPlanLVChangeReq {
   status: "progress" | "success" | "reject";
   userReq: peaUser;
-  reason: string
+  reason: string;
+  oldPlan: {
+    peaNo: string;
+    distanceCircuit: number;
+    feeder: string;
+  };
   changeReq: {
     peaNo: string;
     distanceCircuit: number;
     feeder: string;
-  }
-
+  };
+  dateReq: string;
 }
