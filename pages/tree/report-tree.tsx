@@ -9,6 +9,8 @@ import ChooseTreeData from "@/components/report-tree/choose-tree-data";
 import AlertSnackBar from "@/components/alert-snack-bar";
 import { AlertSnackBarType } from "@/types/snack-bar";
 import LoadingBackDrop from "@/components/loading-backdrop";
+import clientPromise from "@/lib/mongodb";
+import { ObjectId, WithId } from "mongodb";
 
 export async function getServerSideProps(context: any) {
   const session = await getSession(context);
@@ -30,11 +32,26 @@ export async function getServerSideProps(context: any) {
   }
 
   try {
-    const res = await fetch(
-      `https://script.google.com/macros/s/AKfycby0DVu9COEYPZLlPkbJZEPrj1cWj2DW1WJasZQd6f6AhQLYDR2hcP8RDsOwmOIGaD909Q/exec?karnfaifa=${session.pea.karnfaifa}`,
-    );
-    const treeData: treeData[] = await res.json();
-    if (res.status == 200) {
+
+    const query = {businessName: session.pea.karnfaifa}
+    const options = {
+      projection:{
+        _id: 0,
+        id: "$_id",
+        businessName: 1,
+        zpm4Name: "$planName",
+        month: 1,
+        zpm4Po: 1,
+      }
+    }
+
+    const mongoClient = await clientPromise
+    const treeData = (await mongoClient.db("tree").collection<treeData>("plan").find(query,options).toArray()) as unknown as treeData[]
+
+    if (treeData) {
+      treeData.forEach((val,i,arr)=>{
+        arr[i].id = (val.id as ObjectId).toHexString()
+      })
       return {
         props: { treeData },
       };
@@ -58,7 +75,7 @@ export default function ReportTree(props: ReportTreeProps) {
 
   const [filter, setFilter] = useState<treeData>({
     id: "",
-    karnfaifa: "",
+    businessName: "",
     month: "",
     zpm4Name: "",
     zpm4Po: "",
@@ -86,11 +103,11 @@ export default function ReportTree(props: ReportTreeProps) {
     let chooseID: string[] = [];
 
     chooseTreeData.forEach((val) => {
-      chooseID.push(val.id);
+      chooseID.push(val.id as string);
     });
 
     filterData = filterData.filter((val) => {
-      return !chooseID.includes(val.id);
+      return !chooseID.includes(val.id as string);
     });
 
     if (filter.month != "") {
@@ -111,15 +128,16 @@ export default function ReportTree(props: ReportTreeProps) {
   async function sendTreeData() {
     setProgress(true);
     try {
-      const res = await fetch("/api/send-tree-data", {
+      const res = await fetch("/api/tree/report-zpm4po", {
         method: "POST",
         body: JSON.stringify(chooseTreeData),
       });
       if (res.status == 200) {
+        const data = await res.json()
         setSnackBar({
           open: true,
           sevirity: "success",
-          massege: "รายงานใบสั่งซ่อม/ใบสั่งจ้างสำเร็จ",
+          massege: data.massege,
         });
         router.refresh();
       } else {

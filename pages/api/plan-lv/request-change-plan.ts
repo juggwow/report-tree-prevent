@@ -91,6 +91,27 @@ export default async function handler(
         res.status(200).end();
         return;
       }
+      case "PATCH":{
+        const filter = { _id: new ObjectId(changeReq.plan_id) };
+        const update = {
+          $pull: {
+            changePlanRequest: {
+              status: 'progress',
+              "changeReq.peaNo": changeReq.newPlan.peaNo
+            },
+          },
+        };
+        
+        const resultDelete = await planLVCollection.updateOne(filter,update);
+
+        if (!resultDelete.acknowledged) {
+          res.status(404).end();
+          return;
+        }
+
+        res.status(200).end();
+        return;
+      }
       case "POST": {
         const query = {
           _id: new ObjectId(changeReq.plan_id),

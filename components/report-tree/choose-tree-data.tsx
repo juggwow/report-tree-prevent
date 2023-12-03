@@ -11,7 +11,7 @@ export default function ChooseTreeData({chooseTreeData,setChooseTreeData,sendTre
           <div className="flex flex-row flex-wrap gap-3 p-3">
             {chooseTreeData.map((val) => {
               return (
-                <Card key={val.id}>
+                <Card key={val.id as string}>
                   <CardContent>
                     <Typography
                       sx={{ fontSize: 14 }}

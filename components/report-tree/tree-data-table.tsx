@@ -82,7 +82,7 @@ export default function TreeDataTable({
             sx={{ margin: "1rem" }}
             onRowClick={({ row }: { row: treeData }) => {
               console.log(row.zpm4Po);
-              if (row.zpm4Po != "") {
+              if (row.zpm4Po) {
                 window.confirm(
                   `แผนงานนี้ คุณได้รายงานหมายเลขใบสั่งซ่อม/ใบสั่งจ้าง ${row.zpm4Po} มาก่อนหน้านี้แล้ว คุณต้องการแก้ใขใช่หรือไม่?`,
                 )
@@ -131,7 +131,7 @@ const columns: GridColDef[] = [
   },
   { field: "month", headerName: "ไตรมาส", disableColumnMenu: true },
   {
-    field: "karnfaifa",
+    field: "businessName",
     headerName: "กฟฟ.",
     disableColumnMenu: true,
     sortable: false,

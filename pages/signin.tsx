@@ -1,5 +1,23 @@
 import { signIn, getSession } from "next-auth/react";
 
+export async function getServerSideProps(context: any) {
+  const session = await getSession(context);
+
+  if (session) {
+    return {
+      redirect: {
+        destination: "/",
+      },
+    };
+  }
+
+  return {
+    props: {
+      pea: null,
+    },
+  };
+}
+
 export default function SignInPage() {
   return (
     <div className=" mx-auto mt-24 flex flex-col w-96 shadow rounded-xl bg-white">

@@ -1,4 +1,5 @@
 import { AlertColor } from "@mui/material";
+import { ObjectId } from "mongodb";
 
 type Order = {
   no: string;
@@ -12,11 +13,11 @@ type snackBar = {
 };
 
 type treeData = {
-  id: string;
+  id: string | ObjectId;
   zpm4Name: string;
   month: string;
-  karnfaifa: string;
-  zpm4Po: string;
+  businessName: string;
+  zpm4Po?: string;
   reportDate?: string;
   editDate?: string;
 };
