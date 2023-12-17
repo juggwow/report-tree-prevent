@@ -33,28 +33,6 @@ export async function getServerSideProps(context: any) {
 
     const planLVCollection = mongoClient.db("patrol-LV").collection("plan");
 
-    const query = {
-      businessName: session.pea.karnfaifa,
-      changePlanRequest: {
-        $not: {
-          $elemMatch: {
-            status: "progress",
-          },
-        },
-      },
-    };
-
-    const options = {
-      projection: {
-        _id: 1,
-        feeder: 1,
-        peaNo: 1,
-        distanceCircuit: 1,
-        businessArea: 1,
-        businessName: 1,
-      },
-    };
-
     const docs = (await planLVCollection
       .aggregate([
         {

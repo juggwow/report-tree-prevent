@@ -1,12 +1,13 @@
 import { SetPropsTreeDataTableType, treeData } from "@/types/report-tree";
 import { TextField, Autocomplete } from "@mui/material";
-import CustomToolbar from "../data-grid-custom-toolbar";
+import CustomToolbar from "../../data-grid-custom-toolbar";
 import {
   DataGrid,
   GridColDef,
   GridToolbarContainer,
   GridToolbarExport,
 } from "@mui/x-data-grid";
+import formatDate from "@/lib/format-date";
 
 export default function TreeDataTable({
   alignment,
@@ -147,9 +148,4 @@ const columns: GridColDef[] = [
 
 
 
-function formatDate(date: Date): string {
-  const day = date.getDate();
-  const month = date.getMonth();
-  const year = date.getFullYear();
-  return `${day}/${month}/${year}`;
-}
+

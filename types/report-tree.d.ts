@@ -1,5 +1,6 @@
 import { AlertColor } from "@mui/material";
 import { ObjectId } from "mongodb";
+import { peaUser } from "./next-auth";
 
 type Order = {
   no: string;
@@ -54,3 +55,39 @@ type SetPropsChooseTreeDataType = {
     setChooseTreeData: React.Dispatch<React.SetStateAction<treeData[]>>
     sendTreeData: ()=>void
 }
+
+type FormChangePlanTree = {
+  _id: ObjectId|string
+  status?:"progress"|"success"|"reject";
+  userReq?: peaUser
+  dateReq?: string
+  reason?:string
+  typeReq?: "change"|"cancel"|"add"
+  oldPlan?:{
+    planName: string;
+    qauntity:{
+      plentifully?: number;
+      moderate?: number;
+      lightly?: number;
+      clear?: number;
+    }
+    budget: number;
+    systemVolt: "33kV"|"400/230V"|"115kV";
+    month: string;
+    hireType?: "normal"|"special"|"self";
+  }
+  newPlan?:{
+    planName: string;
+    qauntity?:{
+      plentifully?: number;
+      moderate?: number;
+      lightly?: number;
+      clear?: number;
+    }
+    budget: number;
+    systemVolt: string;
+    month: string;
+    hireType?: string;
+  }
+}
+

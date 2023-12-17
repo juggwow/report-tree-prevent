@@ -1,11 +1,11 @@
 import { treeData, ReportTreeProps, Order } from "@/types/report-tree";
-import OrderNumber from "@/components/report-tree/order-number";
+import OrderNumber from "@/components/tree/report-tree/order-number";
 import { getSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { Button } from "@mui/material";
 import { useRouter } from "next/navigation";
-import TreeDataTable from "@/components/report-tree/tree-data-table";
-import ChooseTreeData from "@/components/report-tree/choose-tree-data";
+import TreeDataTable from "@/components/tree/report-tree/tree-data-table";
+import ChooseTreeData from "@/components/tree/report-tree/choose-tree-data";
 import AlertSnackBar from "@/components/alert-snack-bar";
 import { AlertSnackBarType } from "@/types/snack-bar";
 import LoadingBackDrop from "@/components/loading-backdrop";
@@ -33,7 +33,16 @@ export async function getServerSideProps(context: any) {
 
   try {
 
-    const query = {businessName: session.pea.karnfaifa}
+    const query = {
+      businessName: session.pea.karnfaifa,
+      changePlanRequest: {
+        $not:{
+          $elemMatch: {
+            status: "progress",
+          },
+        }
+      }
+    }
     const options = {
       projection:{
         _id: 0,
