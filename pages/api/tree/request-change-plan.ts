@@ -84,19 +84,30 @@ export default async function handler(
             case "add":{
               
              
-                const resultInsert = await mongoClient.db("tree").collection("plan").insertOne({ 
-                  changePlanRequest: {
-                    ...changeReq,
-                    status: "progress",
-                    userReq: session.pea,
-                    dateReq: formatDate(new Date())
-                  },
+                const resultInsert = await mongoClient.db("tree").collection("plan").insertOne(
+                {
                   businessName: session.pea.karnfaifa
                 })
                 if (!resultInsert.acknowledged) {
-                  
                     res.status(404).end();
                     return;
+                }
+
+                const resultUpdate = await mongoClient.db("tree").collection("plan").updateOne({
+                  _id: resultInsert.insertedId
+                },{
+                  $addToSet: {   
+                    changePlanRequest: {
+                      ...changeReq,
+                      status: "progress",
+                      userReq: session.pea,
+                      dateReq: formatDate(new Date())
+                    },
+                  }
+                })
+                if(!resultUpdate.acknowledged){
+                  res.status(404).end();
+                  return;
                 }
                 break
             }

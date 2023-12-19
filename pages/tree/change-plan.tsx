@@ -52,11 +52,14 @@ export async function getServerSideProps(context: any) {
 
     const query = {
       businessName: session.pea.karnfaifa,
+      planName: {
+        $ne: null,
+        $exists: true
+      },
       changePlanRequest: {
         $not: {
           $elemMatch: {
             status: "progress",
-
           },
         },
       },
@@ -163,8 +166,6 @@ export default function ChangePlanTree({ planTree }: { planTree: FormChangePlanT
     },
     typeReq: "change"
   });
-
-  console.log(changePlanRequire)
 
   const [plan, setPlan] = useState(planTree);
   const [defaultValOld,setDefaultValOld] = useState(true)
@@ -353,12 +354,13 @@ export default function ChangePlanTree({ planTree }: { planTree: FormChangePlanT
                 <AccordionDetails>
                   <Typography>
                     <span>ปริมาณงาน</span> <br />
-                    <span>หนาแน่น: {val.oldPlan!.qauntity.plentifully}</span> <br />
-                    <span>หนาแน่น: {val.oldPlan!.qauntity.moderate}</span> <br />
-                    <span>หนาแน่น: {val.oldPlan!.qauntity.lightly}</span> <br />
-                    <span>หนาแน่น: {val.oldPlan!.qauntity.clear}</span> <br />
+                    {val.oldPlan?(<>
+                    <span>หนาแน่น: {val.oldPlan?.qauntity.plentifully}</span> <br />
+                    <span>หนาแน่น: {val.oldPlan?.qauntity.moderate}</span> <br />
+                    <span>หนาแน่น: {val.oldPlan?.qauntity.lightly}</span> <br />
+                    <span>หนาแน่น: {val.oldPlan?.qauntity.clear}</span> <br />
                     <span>แผนงานเดือน : {val.oldPlan!.month}</span> <br />
-                    <span>งบประมาณ: {val.oldPlan!.budget}</span> <br />
+                    <span>งบประมาณ: {val.oldPlan!.budget}</span> <br /></>):undefined}
                   </Typography>
                 </AccordionDetails>
               </Accordion>
