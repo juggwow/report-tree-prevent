@@ -124,11 +124,11 @@ const columns: GridColDef[] = [
   {
     field: "planName",
     headerName: "ชื่อแผนงาน",
-    width: 700,
+    width: 600,
     disableColumnMenu: true,
     sortable: false,
   },
-  { field: "duration", headerName: "ช่วงที่ดำเนินการ", disableColumnMenu: true },
+  { field: "duration", headerName: "ช่วงที่ดำเนินการ", disableColumnMenu: true, width: 150 },
   {
     field: "businessName",
     headerName: "กฟฟ.",

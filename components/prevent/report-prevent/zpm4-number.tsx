@@ -20,17 +20,24 @@ export default function ZPM4Number({
       <p className="m-3 col-span-1">การดำเนินการ</p>
       <div
         className="mx-3 mb-3 col-span-1"
-        onMouseOver={() => {
-          order.disable
-            ? setSnackBar({
+      >
+        <TextField
+          onMouseOver={() => {
+            if(order.disable){
+              setSnackBar({
                 open: true,
                 sevirity: "warning",
                 massege: `คุณต้องกด "ยกเลิกหมายเลข ZPM4" ก่อนจึงจะเปลี่ยนแปลงได้`,
               })
-            : undefined;
-        }}
-      >
-        <TextField
+              if(document.getElementById("cancelZPM4")){
+                document.getElementById("cancelZPM4")?.classList.add('shake')
+                setTimeout(() => {
+                  document.getElementById("cancelZPM4")?.classList.remove('shake');
+                }, 2000);
+  
+              }
+            }
+          }}
           disabled={order.disable}
           sx={{ maxWidth: "100%", margin: "0.5rem 0 0.5rem 0.5rem" }}
           label={"กรุณากรอกหมายเลข ZPM4"}
@@ -56,18 +63,24 @@ export default function ZPM4Number({
         {/^400\d{7}$/.test(order.no) && showElementChoose && (
           <div
             onMouseUp={() => {
-              choosePreventData.length > 0
-                ? setSnackBar({
-                    open: true,
-                    sevirity: "warning",
-                    massege: `คุณต้องกด "ยกเลิกแผนงานทั้งหมด" ก่อนจึงจะเปลี่ยนแปลงได้`,
-                  })
-                : undefined;
+              if(choosePreventData.length){
+                setSnackBar({
+                  open: true,
+                  sevirity: "warning",
+                  massege: `คุณต้องกด "ยกเลิกแผนงานทั้งหมด" ก่อนจึงจะเปลี่ยนแปลงได้`,
+                })
+                document.getElementById("cancelAllPlan")?.focus()
+                document.getElementById("cancelAllPlan")?.classList.add("shake")
+                setTimeout(()=>{
+                  document.getElementById("cancelAllPlan")?.classList.remove("shake")
+                },2000)
+              }
             }}
           >
             <Button
               disabled={choosePreventData.length > 0}
               variant="outlined"
+              id="cancelZPM4"
               onClick={() => {
                 if (window.confirm("คุณต้องการยกเลิกหมายเลข PO/ZPM4?")) {
                   setOrder({ no: "", disable: false });

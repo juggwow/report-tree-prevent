@@ -53,6 +53,7 @@ export default function ChoosePreventData({choosePreventData,setChoosePreventDat
               ยืนยัน
             </Button>
             <Button
+              id = "cancelAllPlan"
               variant="outlined"
               disabled={choosePreventData.length == 0}
               onClick={() => {
