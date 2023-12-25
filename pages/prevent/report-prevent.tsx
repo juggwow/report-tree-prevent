@@ -12,7 +12,7 @@ import ChoosePreventData from "@/components/prevent/report-prevent/choose-preven
 import { useRouter } from "next/navigation";
 import LoadingBackDrop from "@/components/loading-backdrop";
 import { Typography, Stack, Breadcrumbs, Button } from "@mui/material";
-import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import ControlledOpenSpeedDial from "@/components/speed-dial";
 
 export async function getServerSideProps(context: any) {
   const session = await getSession(context);
@@ -20,7 +20,7 @@ export async function getServerSideProps(context: any) {
   if (!session) {
     return {
       redirect: {
-        destination: "/signin",
+        destination: "/signin?link=/prevent/report-prevent",
       },
     };
   }
@@ -216,6 +216,7 @@ export default function ReportPrevent({preventData}:{preventData:PreventData[]})
       </div>
       <AlertSnackBar setSnackBar={setSnackBar} snackBar={snackBar} />
       <LoadingBackDrop progress={progress} setProgress={setProgress} />
+      <ControlledOpenSpeedDial />
     </div>
   );
 }

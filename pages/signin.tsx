@@ -1,12 +1,15 @@
 import { signIn, getSession } from "next-auth/react";
+import HttpsRoundedIcon from '@mui/icons-material/HttpsRounded';
+import { Button } from "@mui/material";
 
 export async function getServerSideProps(context: any) {
   const session = await getSession(context);
+  const link = context.query.link?context.query.link:"/"
 
   if (session) {
     return {
       redirect: {
-        destination: "/",
+        destination: link,
       },
     };
   }
@@ -14,29 +17,32 @@ export async function getServerSideProps(context: any) {
   return {
     props: {
       pea: null,
+      link
     },
   };
 }
 
-export default function SignInPage() {
+export default function SignInPage({link}:{link:string}) {
   return (
-    <div className=" mx-auto mt-24 flex flex-col w-96 shadow rounded-xl bg-white">
-      <p className=" mx-4 mt-8 text-right text-xl font-bold">ยินดีต้อนรับ</p>
-      <p className=" mx-4 text-right text-2xl mt-8">กรุณาเข้าสู่ระบบ</p>
-      <button
-        data-testid="google"
-        onClick={() => signIn("google")}
-        className="mx-4 mt-8 py-1 border border-slate-300 rounded-full hover:bg-slate-50 hover:shadow-md "
+    <div className=" mx-auto mt-3 flex flex-col w-96 shadow rounded-xl bg-white">
+      <HttpsRoundedIcon color="primary" sx={{margin : "1rem auto 0 auto"}}/>
+      <p className="text-center mt-3">เข้าสู่ระบบ</p>
+      <Button
+        color="error"
+        sx={{margin: "1rem"}}
+        variant="outlined"
+        onClick={() => signIn("google",{callbackUrl: link})}
       >
         เข้าสู่ระบบด้วยบัญชี Google
-      </button>
-      <button
-        data-testid="line"
-        onClick={() => signIn("line")}
-        className="mx-4 mt-4 mb-8 py-1 border border-slate-300 rounded-full hover:bg-slate-50 hover:shadow-md "
+      </Button>
+      <Button
+        color="success"
+        sx={{margin: "0 1rem 2rem"}}
+        variant="outlined"
+        onClick={() => signIn("line",{callbackUrl: link})}
       >
         เข้าสู่ระบบดัวยบัญชี Line
-      </button>
+      </Button>
     </div>
   );
 }
