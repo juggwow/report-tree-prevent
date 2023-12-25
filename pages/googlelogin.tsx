@@ -10,9 +10,9 @@ export async function getServerSideProps({ query }:any) {
   }
 }
 
-export default function LineLogin({link}:{link:string}) {
+export default function GoogleLogin({link}:{link:string}) {
   useEffect(() => {
-    signIn("line", { callbackUrl: link });
+    signIn("google", { callbackUrl: link });
     return;
   }, []);
   return <div>sign in...</div>;

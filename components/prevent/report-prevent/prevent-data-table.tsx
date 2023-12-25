@@ -1,5 +1,5 @@
 import { SetPropsTreeDataTableType, treeData } from "@/types/report-tree";
-import { TextField, Autocomplete } from "@mui/material";
+import { TextField, Autocomplete, Switch, FormControlLabel } from "@mui/material";
 import CustomToolbar from "../../data-grid-custom-toolbar";
 import {
   DataGrid,
@@ -35,7 +35,7 @@ export default function PreventDataTable({
             {`ที่ได้ดำเนินการจากใบสั่งซ่อม ZPM4: ${order.no}`}{" "}
           </p>
           <div className="grid grid-cols-4 gap-4 m-3">
-            <div className="col-start-1 col-end-5 sm:col-end-4 m-0 p-0">
+            <div className="col-start-1 col-end-5 sm:col-end-3 m-0 p-0">
               <TextField
                 sx={{ maxWidth: "100%" }}
                 label="กรองตามชื่อแผนงาน"
@@ -45,7 +45,7 @@ export default function PreventDataTable({
                 }}
               ></TextField>
             </div>
-            <div className="col-span-4 sm:col-span-1 flex flex-row m-0 p-0">
+            <div className="col-span-2 sm:col-span-1 flex flex-row m-0 p-0">
               <Autocomplete
                 disablePortal
                 id="combo-box-demo"
@@ -58,6 +58,9 @@ export default function PreventDataTable({
                   <TextField {...params} label="กรองช่วงเวลา" />
                 )}
               />
+            </div>
+            <div className="col-span-2 sm:col-span-1 flex flex-row m-0 p-0">
+              <FormControlLabel control={<Switch defaultChecked onChange={(e)=>setFilter({...filter,hasZPM4: e.target.checked})}/>} label="รวมที่ลงข้อมูลแล้ว"/>
             </div>
           </div>
           <DataGrid

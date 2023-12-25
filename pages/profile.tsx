@@ -7,6 +7,9 @@ import { useEffect, useState } from "react";
 
 export async function getServerSideProps(context: any) {
   const session = await getSession(context);
+  const link = context.query.link?context.query.link:"/"
+
+  console.log(link)
 
   if (!session || !session.sub) {
     return {
@@ -20,6 +23,7 @@ export async function getServerSideProps(context: any) {
     return {
       props: {
         pea: session.pea,
+        link
       },
     };
   }
@@ -27,11 +31,12 @@ export async function getServerSideProps(context: any) {
   return {
     props: {
       pea: null,
+      link
     },
   };
 }
 
-export default function ProfilePage({ pea }: { pea: peaUser | null }) {
+export default function ProfilePage({ pea,link }: { pea: peaUser | null,link:string }) {
   const router = useRouter();
   const [peaUser, setPeaUser] = useState<peaUser>();
   const { data: session, update } = useSession();
@@ -49,7 +54,7 @@ export default function ProfilePage({ pea }: { pea: peaUser | null }) {
       if (path == "/") {
         update();
       }
-      router.push(path);
+      router.push(link);
     }
   };
 

@@ -26,7 +26,7 @@ export async function getServerSideProps(context: any) {
   if (!session.pea) {
     return {
       redirect: {
-        destination: "/profile",
+        destination: "/profile?link=/tree/report-tree",
       },
     };
   }

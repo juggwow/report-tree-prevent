@@ -33,11 +33,15 @@ type PreventData = {
     editDate?: string;
 }
 
+type PreventDataFilter = PreventData & {
+  hasZPM4: boolean
+}
+
 type SetPropsPreventDataTableType = {
   showElementChoose: boolean;
   order: Order;
-  filter: PreventDataData;
-  setFilter: React.Dispatch<React.SetStateAction<PreventData>>
+  filter: PreventDataFilter;
+  setFilter: React.Dispatch<React.SetStateAction<PreventDataFilter>>
   showPreventData: PreventData[]
   choosePreventData: PreventData[]
   setChoosePreventData: React.Dispatch<React.SetStateAction<PreventData[]>>

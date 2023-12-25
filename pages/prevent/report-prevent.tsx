@@ -2,15 +2,17 @@ import AlertSnackBar from "@/components/alert-snack-bar";
 import PreventDataTable from "@/components/prevent/report-prevent/prevent-data-table";
 import ZPM4Number from "@/components/prevent/report-prevent/zpm4-number";
 import clientPromise from "@/lib/mongodb";
-import { Order, snackBar } from "@/types/report-prevent";
+import { Order, PreventDataFilter, snackBar } from "@/types/report-prevent";
 import { ObjectId } from "mongodb";
 import { getSession } from "next-auth/react";
-import Link from "next/link";
-import { useEffect, useState } from "react";
+import Link from "@mui/material/Link";
+import React, { useEffect, useState } from "react";
 import { PreventData } from "@/types/report-prevent";
 import ChoosePreventData from "@/components/prevent/report-prevent/choose-prevent-data";
 import { useRouter } from "next/navigation";
 import LoadingBackDrop from "@/components/loading-backdrop";
+import { Typography, Stack, Breadcrumbs, Button } from "@mui/material";
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 
 export async function getServerSideProps(context: any) {
   const session = await getSession(context);
@@ -26,7 +28,7 @@ export async function getServerSideProps(context: any) {
   if (!session.pea) {
     return {
       redirect: {
-        destination: "/profile",
+        destination: "/profile?link=/prevent/report-prevent",
       },
     };
   }
@@ -98,11 +100,12 @@ export default function ReportPrevent({preventData}:{preventData:PreventData[]})
 
     const [choosePreventData,setChoosePreventData] = useState<PreventData[]>([])
     const [showElementChoose,setShowElementChoose] = useState<boolean>(false)
-    const [filter,setFilter] = useState<PreventData>({
+    const [filter,setFilter] = useState<PreventDataFilter>({
         id: "",
         businessName: "",
         planName: "",
         duration: "",
+        hasZPM4: true
     })
     const [showPreventData,setShowPreventData] = useState<PreventData[]>(preventData) 
     const [progress,setProgress] = useState<boolean>(false)
@@ -129,6 +132,12 @@ export default function ReportPrevent({preventData}:{preventData:PreventData[]})
         filterData = filterData.filter((val) => {
           return val.planName.includes(filter.planName);
         });
+      }
+
+      if(!filter.hasZPM4){
+        filterData = filterData.filter((val)=>{
+          return !val.zpm4
+        })
       }
   
       setShowPreventData(filterData);
@@ -170,6 +179,7 @@ export default function ReportPrevent({preventData}:{preventData:PreventData[]})
   return (
     <div className="flex flex-col p-4 min-h-screen">
         <p className="m-3">รายผลการดำเนินงานกิจกรรมป้องกันระบบไฟฟ้า</p>
+        <CustomSeparator setProgress={setProgress} />
         <ZPM4Number
             order={order}
             setOrder={setOrder}
@@ -192,11 +202,42 @@ export default function ReportPrevent({preventData}:{preventData:PreventData[]})
           setChoosePreventData={setChoosePreventData}
           sendPreventData={sendPreventData}
         />
-      <div>
-        <Link href="/">กลับสู่หน้าหลัก</Link>
+      <div className="flex flex-row justify-center">
+        <Button
+          variant="outlined"
+          className="mt-3 w-40"
+          onClick={() => {
+            setProgress(true);
+            router.push("/");
+          }}
+        >
+          กลับสู่หน้าหลัก
+        </Button>
       </div>
       <AlertSnackBar setSnackBar={setSnackBar} snackBar={snackBar} />
       <LoadingBackDrop progress={progress} setProgress={setProgress} />
     </div>
+  );
+}
+
+function CustomSeparator({setProgress}:{setProgress:React.Dispatch<React.SetStateAction<boolean>>}) {
+  const breadcrumbs = [
+    <Link sx={{fontSize: "12px"}} underline="hover" key="1" color="inherit" href="/" onClick={()=>setProgress(true)}>
+      หน้าหลัก
+    </Link>,
+    <Typography sx={{fontSize: "12px"}} key="2" color="text.primary">
+      ป้องกันระบบไฟฟ้า
+    </Typography>,
+    <Typography sx={{fontSize: "12px"}} key="3" color="text.primary">
+      รายงานผล
+    </Typography>,
+  ];
+
+  return (
+    <Stack sx={{margin: "0 0 1rem 1rem"}} spacing={2}>
+      <Breadcrumbs separator="›" aria-label="breadcrumb">
+        {breadcrumbs}
+      </Breadcrumbs>
+    </Stack>
   );
 }
