@@ -1,6 +1,8 @@
 import { useSession } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import BorderColorRoundedIcon from '@mui/icons-material/BorderColorRounded';
+import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 
 export default function NavBar() {
   const session = useSession();
@@ -47,14 +49,14 @@ export default function NavBar() {
               onClick={() => setShowProfileMenu(false)}
               className="block px-4 py-2 text-sm text-gray-700 hover:font-bold"
             >
-              แก้ไขข้อมูลส่วนตัว
+              <BorderColorRoundedIcon color="inherit" sx={{marginRight: "1rem"}}/>แก้ไขข้อมูลส่วนตัว
             </Link>
             <Link
               href="/signout"
               onClick={() => setShowProfileMenu(false)}
               className="block px-4 py-2 text-sm text-gray-700 hover:font-bold"
             >
-              ออกจากระบบ
+              <LogoutRoundedIcon color="inherit" sx={{marginRight: "1rem"}}/>ออกจากระบบ
             </Link>
           </div>
         </div>
