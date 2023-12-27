@@ -6,7 +6,7 @@ export async function getServerSideProps({ query }: any) {
   
   return {
     props: {
-      link: link ? `${link}${liff&&liff=="TRUE"?"&liff=TRUE":''}` : "/",
+      link: link ? `${link}${liff&&liff=="TRUE"?"?liff=TRUE":''}` : "/",
     },
   };
 }
