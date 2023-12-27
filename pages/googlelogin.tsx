@@ -2,10 +2,11 @@ import { getSession, signIn } from "next-auth/react";
 import { useEffect } from "react";
 
 export async function getServerSideProps({ query }: any) {
-  const link = query.link;
+  const {link,liff} = query;
+  
   return {
     props: {
-      link: link ? link : "/",
+      link: link ? `${link}${liff&&liff=="TRUE"?"?liff=TRUE":''}` : "/",
     },
   };
 }

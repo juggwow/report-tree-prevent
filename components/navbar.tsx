@@ -3,10 +3,12 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import BorderColorRoundedIcon from '@mui/icons-material/BorderColorRounded';
 import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
+import { useSearchParams } from 'next/navigation'
 
 
-export default function NavBar({liff}:{liff:boolean}) {
+export default function NavBar() {
   const session = useSession();
+  const search = useSearchParams()
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const profileMenuElementRef = useRef<HTMLDivElement | null>(null);
   const imgElementRef = useRef<HTMLImageElement | null>(null);
@@ -28,9 +30,8 @@ export default function NavBar({liff}:{liff:boolean}) {
     };
   }, []);
 
-  console.log(liff)
 
-  if(liff){
+  if(search.get('liff')=="TRUE"){
     return (
       <></>
     )
