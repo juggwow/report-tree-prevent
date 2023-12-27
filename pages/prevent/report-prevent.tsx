@@ -177,7 +177,7 @@ export default function ReportPrevent({preventData}:{preventData:PreventData[]})
       }
     }
   return (
-    <div className="flex flex-col p-4 min-h-screen">
+    <div className="flex  flex-col p-4 min-h-screen">
         <p className="m-3">รายผลการดำเนินงานกิจกรรมป้องกันระบบไฟฟ้า</p>
         <CustomSeparator setProgress={setProgress} />
         <ZPM4Number
