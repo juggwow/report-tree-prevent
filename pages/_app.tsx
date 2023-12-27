@@ -24,7 +24,7 @@ export default function App({
     <main className={mitr.className}>
       <SessionProvider session={session}>
         <ThemeProvider theme={theme}>
-          <NavBar />
+          <NavBar {...pageProps} />
           <Component {...pageProps} />
         </ThemeProvider>
       </SessionProvider>

@@ -32,95 +32,105 @@ export default async function handler(
       .db("tree")
       .collection<FormChangePlanTree>("plan");
 
-    if(["change","cancel"].includes(changeReq.typeReq!)){
-      
-        const plan = await mongoClient.db("tree").collection("plan").findOne({_id: new ObjectId(changeReq._id as string),});
-    
-        if (!plan) {
-          res.status(404).end();
-          return;
-        }
-    
-        if (plan.businessName != session.pea.karnfaifa) {
-          res.status(403).end();
-          return;
-        }
+    if (["change", "cancel"].includes(changeReq.typeReq!)) {
+      const plan = await mongoClient
+        .db("tree")
+        .collection("plan")
+        .findOne({ _id: new ObjectId(changeReq._id as string) });
+
+      if (!plan) {
+        res.status(404).end();
+        return;
+      }
+
+      if (plan.businessName != session.pea.karnfaifa) {
+        res.status(403).end();
+        return;
+      }
     }
 
-    
     switch (req.method) {
       case "POST": {
-        switch(changeReq.typeReq){
-            case "change":
-            case "cancel":
-              {
-                const query = {
-                  _id: new ObjectId(changeReq._id as string),
-                  changePlanRequest: {
-                    $not: {
-                      $elemMatch: {
-                        status: "progress",
-                      },
-                    },
-                  },
-                };
-                const update = { $addToSet: { changePlanRequest: {
-                    ...changeReq,
+        switch (changeReq.typeReq) {
+          case "change":
+          case "cancel": {
+            const query = {
+              _id: new ObjectId(changeReq._id as string),
+              changePlanRequest: {
+                $not: {
+                  $elemMatch: {
                     status: "progress",
-                    userReq: session.pea,
-                    dateReq: formatDate(new Date())
-                } } };
-        
-                const resultInsert = await planTreeCollection.findOneAndUpdate(
-                  query,
-                  update,
-                );
-                if (!resultInsert.ok) {
-                    res.status(404).end();
-                    return;
-                }
-                break
-            }
-            case "add":{
-              
-             
-                const resultInsert = await mongoClient.db("tree").collection("plan").insertOne(
-                {
-                  businessName: session.pea.karnfaifa
-                })
-                if (!resultInsert.acknowledged) {
-                    res.status(404).end();
-                    return;
-                }
+                  },
+                },
+              },
+            };
+            const update = {
+              $addToSet: {
+                changePlanRequest: {
+                  ...changeReq,
+                  status: "progress",
+                  userReq: session.pea,
+                  dateReq: formatDate(new Date()),
+                },
+              },
+            };
 
-                const resultUpdate = await mongoClient.db("tree").collection("plan").updateOne({
-                  _id: resultInsert.insertedId
-                },{
-                  $addToSet: {   
+            const resultInsert = await planTreeCollection.findOneAndUpdate(
+              query,
+              update,
+            );
+            if (!resultInsert.ok) {
+              res.status(404).end();
+              return;
+            }
+            break;
+          }
+          case "add": {
+            const resultInsert = await mongoClient
+              .db("tree")
+              .collection("plan")
+              .insertOne({
+                businessName: session.pea.karnfaifa,
+              });
+            if (!resultInsert.acknowledged) {
+              res.status(404).end();
+              return;
+            }
+
+            const resultUpdate = await mongoClient
+              .db("tree")
+              .collection("plan")
+              .updateOne(
+                {
+                  _id: resultInsert.insertedId,
+                },
+                {
+                  $addToSet: {
                     changePlanRequest: {
                       ...changeReq,
                       status: "progress",
                       userReq: session.pea,
-                      dateReq: formatDate(new Date())
+                      dateReq: formatDate(new Date()),
                     },
-                  }
-                })
-                if(!resultUpdate.acknowledged){
-                  res.status(404).end();
-                  return;
-                }
-                break
+                  },
+                },
+              );
+            if (!resultUpdate.acknowledged) {
+              res.status(404).end();
+              return;
             }
-            default:{
-                res.status(404).end();
-                return;
-            }
+            break;
+          }
+          default: {
+            res.status(404).end();
+            return;
+          }
         }
         res.status(200).end();
         return;
       }
-      case "PUT":{
-        console.log("test")
+      case "PUT": {
+        console.log("test");
         const filter = { _id: new ObjectId(changeReq._id) };
         const update = {
           $set: {
@@ -146,17 +156,17 @@ export default async function handler(
         res.status(200).end();
         return;
       }
-      case "PATCH":{
+      case "PATCH": {
         const filter = { _id: new ObjectId(changeReq._id) };
         const update = {
           $pull: {
             changePlanRequest: {
-              status: 'progress',
+              status: "progress",
             },
           },
         };
-        
-        const resultDelete = await planTreeCollection.updateOne(filter,update);
+
+        const resultDelete = await planTreeCollection.updateOne(filter, update);
 
         if (!resultDelete.acknowledged) {
           res.status(404).end();

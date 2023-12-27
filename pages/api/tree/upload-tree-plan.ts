@@ -12,51 +12,53 @@ type Data = {
 };
 
 export default async function handler(
-    req: NextApiRequest,
-    res: NextApiResponse<Data>,
+  req: NextApiRequest,
+  res: NextApiResponse<Data>,
 ) {
-    // let uploadPlanTree = JSON.parse(req.body);
-    let uploadPlanTree: UploadTreePlan[] = req.body;
+  // let uploadPlanTree = JSON.parse(req.body);
+  let uploadPlanTree: UploadTreePlan[] = req.body;
 
-    const mongoClient = await clientPromise;
+  const mongoClient = await clientPromise;
 
-    const planTreeCollection: Collection<UploadTreePlan> = mongoClient
-      .db("tree")
-      .collection("plan");
+  const planTreeCollection: Collection<UploadTreePlan> = mongoClient
+    .db("tree")
+    .collection("plan");
 
-    switch (req.method){
-      case 'POST' :{
-        if(uploadPlanTree.length == 0){
-          res.status(400).end()
-          return
-        }
-
-        const lookupPlan = await planTreeCollection.findOne({businessName: uploadPlanTree[0].businessName})
-        if(lookupPlan){
-          const resultDeleteAllPlan = await planTreeCollection.deleteMany({businessName: uploadPlanTree[0].businessName})
-          console.log(resultDeleteAllPlan.deletedCount)
-          if(!resultDeleteAllPlan.acknowledged){
-            res.status(400).end()
-            return
-          }
-        }
-
-        const resultUpload = await planTreeCollection.insertMany(uploadPlanTree)
-        if(!resultUpload.acknowledged){
-          res.status(400).end()
-          return
-        }
-
-        res.status(200).end()
-        return
+  switch (req.method) {
+    case "POST": {
+      if (uploadPlanTree.length == 0) {
+        res.status(400).end();
+        return;
       }
+
+      const lookupPlan = await planTreeCollection.findOne({
+        businessName: uploadPlanTree[0].businessName,
+      });
+      if (lookupPlan) {
+        const resultDeleteAllPlan = await planTreeCollection.deleteMany({
+          businessName: uploadPlanTree[0].businessName,
+        });
+        console.log(resultDeleteAllPlan.deletedCount);
+        if (!resultDeleteAllPlan.acknowledged) {
+          res.status(400).end();
+          return;
+        }
+      }
+
+      const resultUpload = await planTreeCollection.insertMany(uploadPlanTree);
+      if (!resultUpload.acknowledged) {
+        res.status(400).end();
+        return;
+      }
+
+      res.status(200).end();
+      return;
     }
+  }
 
-    res.status(404).end()
-    return
-
+  res.status(404).end();
+  return;
 }
-
 
 type UploadTreePlan = {
   businessName: string;
@@ -66,9 +68,9 @@ type UploadTreePlan = {
     moderate?: number;
     lightly?: number;
     clear?: number;
-  }
+  };
   budget: number;
-  systemVolt: "33kV"|"400/230V"|"115kV";
+  systemVolt: "33kV" | "400/230V" | "115kV";
   month: string;
-  hireType: "normal"|"special";
-}
+  hireType: "normal" | "special";
+};

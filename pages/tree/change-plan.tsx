@@ -1,11 +1,7 @@
 import clientPromise from "@/lib/mongodb";
 import { Collection, ObjectId } from "mongodb";
 import { getSession } from "next-auth/react";
-import {
-  useCallback,
-  useReducer,
-  useState,
-} from "react";
+import { useCallback, useReducer, useState } from "react";
 import { styled } from "@mui/material/styles";
 import ArrowForwardIosSharpIcon from "@mui/icons-material/ArrowForwardIosSharp";
 import MuiAccordion, { AccordionProps } from "@mui/material/Accordion";
@@ -15,14 +11,11 @@ import MuiAccordionSummary, {
 import MuiAccordionDetails from "@mui/material/AccordionDetails";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
-import {
-  Pagination,
-  TextField,
-} from "@mui/material";
+import { Pagination, TextField } from "@mui/material";
 import AlertSnackBar from "@/components/alert-snack-bar";
 import { AlertSnackBarType } from "@/types/snack-bar";
 import ChangePlanTreeFormDialog from "@/components/tree/change-plan/form-dialog";
-import {  FormChangePlanTree } from "@/types/report-tree";
+import { FormChangePlanTree } from "@/types/report-tree";
 
 export async function getServerSideProps(context: any) {
   const session = await getSession(context);
@@ -54,7 +47,7 @@ export async function getServerSideProps(context: any) {
       businessName: session.pea.karnfaifa,
       planName: {
         $ne: null,
-        $exists: true
+        $exists: true,
       },
       changePlanRequest: {
         $not: {
@@ -67,15 +60,15 @@ export async function getServerSideProps(context: any) {
 
     const options = {
       projection: {
-        _id:1,
-        oldPlan:{
-            planName: "$planName",
-            qauntity: "$qauntity",
-            budget: "$budget",
-            systemVolt: "$systemVolt",
-            month: "$month",
-            hireType: "$hireType",
-        }
+        _id: 1,
+        oldPlan: {
+          planName: "$planName",
+          qauntity: "$qauntity",
+          budget: "$budget",
+          systemVolt: "$systemVolt",
+          month: "$month",
+          hireType: "$hireType",
+        },
       },
     };
 
@@ -135,40 +128,45 @@ const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
   borderTop: "1px solid rgba(0, 0, 0, .125)",
 }));
 
-export default function ChangePlanTree({ planTree }: { planTree: FormChangePlanTree[] }) {
-  const [changePlanRequire, setChangePlanRequire] = useState<FormChangePlanTree>({
-    _id: "",
-    oldPlan: {
+export default function ChangePlanTree({
+  planTree,
+}: {
+  planTree: FormChangePlanTree[];
+}) {
+  const [changePlanRequire, setChangePlanRequire] =
+    useState<FormChangePlanTree>({
+      _id: "",
+      oldPlan: {
         planName: "",
         qauntity: {
-            plentifully: 0,
-            moderate: 0,
-            lightly: 0,
-            clear: 0
+          plentifully: 0,
+          moderate: 0,
+          lightly: 0,
+          clear: 0,
         },
         budget: 0,
         systemVolt: "33kV",
         month: "",
-        hireType: "normal"
-    },
-    newPlan: {
+        hireType: "normal",
+      },
+      newPlan: {
         planName: "",
         qauntity: {
-            plentifully: 0,
-            moderate: 0,
-            lightly: 0,
-            clear: 0
+          plentifully: 0,
+          moderate: 0,
+          lightly: 0,
+          clear: 0,
         },
         budget: 0,
         systemVolt: "33kV",
         month: "",
-        hireType: "normal"
-    },
-    typeReq: "change"
-  });
+        hireType: "normal",
+      },
+      typeReq: "change",
+    });
 
   const [plan, setPlan] = useState(planTree);
-  const [defaultValOld,setDefaultValOld] = useState(true)
+  const [defaultValOld, setDefaultValOld] = useState(true);
 
   const reducer = useCallback(
     (
@@ -176,8 +174,8 @@ export default function ChangePlanTree({ planTree }: { planTree: FormChangePlanT
         plan: FormChangePlanTree[];
         page: number;
         planFilter: {
-            planName: string;
-            month: string;
+          planName: string;
+          month: string;
         };
         totalPage: number;
       },
@@ -185,8 +183,8 @@ export default function ChangePlanTree({ planTree }: { planTree: FormChangePlanT
         page: number;
         plan: FormChangePlanTree[];
         planFilter: {
-            planName: string;
-            month: string;
+          planName: string;
+          month: string;
         };
         deletePlan?: string;
       },
@@ -194,18 +192,18 @@ export default function ChangePlanTree({ planTree }: { planTree: FormChangePlanT
       let p = action.plan;
       if (action.deletePlan) {
         p = p.filter((val) => {
-          return val._id as string != action.deletePlan;
+          return (val._id as string) != action.deletePlan;
         });
         setPlan(p);
       }
       if (action.planFilter.planName != "") {
         p = p.filter((val) => {
-          return val.oldPlan!.planName.match(action.planFilter.planName) ;
+          return val.oldPlan!.planName.match(action.planFilter.planName);
         });
       }
       if (action.planFilter.month != "") {
         p = p.filter((val) => {
-          return val.oldPlan!.month == action.planFilter.month ;
+          return val.oldPlan!.month == action.planFilter.month;
         });
       }
       return {
@@ -231,8 +229,8 @@ export default function ChangePlanTree({ planTree }: { planTree: FormChangePlanT
     plan: plan.slice(0, 10),
     page: 1,
     planFilter: {
-        planName: '',
-        month: ""
+      planName: "",
+      month: "",
     },
     totalPage: Math.round(planTree.length / 10),
   });
@@ -256,7 +254,7 @@ export default function ChangePlanTree({ planTree }: { planTree: FormChangePlanT
     setSnackBar({ sevirity: "success", massege: "สำเร็จ", open: true });
 
     setOpenDialog(false);
-    if(["change" , "cancel"].includes(changePlanRequire.typeReq!)){
+    if (["change", "cancel"].includes(changePlanRequire.typeReq!)) {
       dispatch({
         page: state.page,
         plan,
@@ -268,34 +266,42 @@ export default function ChangePlanTree({ planTree }: { planTree: FormChangePlanT
 
   return (
     <div className="h-full">
-      <Button onClick={()=>{
-          setDefaultValOld(false)
+      <Button
+        onClick={() => {
+          setDefaultValOld(false);
           setChangePlanRequire({
             _id: "",
             reason: "",
             typeReq: "add",
-            newPlan:{
+            newPlan: {
               systemVolt: "",
               planName: "",
               budget: 0,
               month: "",
               hireType: "",
-              qauntity:{
+              qauntity: {
                 plentifully: 0,
                 moderate: 0,
                 lightly: 0,
-                clear: 0
-              }
-            }
-          })
-          setOpenDialog(true)
-      }}>เพิ่มแผนงาน</Button>
+                clear: 0,
+              },
+            },
+          });
+          setOpenDialog(true);
+        }}
+      >
+        เพิ่มแผนงาน
+      </Button>
       <TextField
         sx={{ maxWidth: "100%" }}
         label="กรองตาม PEA NO."
         variant="outlined"
         onChange={(e) => {
-          dispatch({ page: 1, plan, planFilter: {...state.planFilter,planName: e.target.value} });
+          dispatch({
+            page: 1,
+            plan,
+            planFilter: { ...state.planFilter, planName: e.target.value },
+          });
         }}
       ></TextField>
       {state.plan.length == 0 ? (
@@ -309,7 +315,7 @@ export default function ChangePlanTree({ planTree }: { planTree: FormChangePlanT
           return (
             <div key={i}>
               <Accordion expanded={expanded === val._id}>
-                <AccordionSummary 
+                <AccordionSummary
                   aria-controls={`${val.oldPlan!.planName}-content`}
                   id={`${val.oldPlan!.planName}-header`}
                 >
@@ -328,9 +334,9 @@ export default function ChangePlanTree({ planTree }: { planTree: FormChangePlanT
                         oldPlan: val.oldPlan!,
                         newPlan: val.oldPlan!,
                         reason: "",
-                        typeReq: "change"
+                        typeReq: "change",
                       });
-                      setDefaultValOld(true)
+                      setDefaultValOld(true);
                     }}
                   >
                     {" "}
@@ -343,7 +349,6 @@ export default function ChangePlanTree({ planTree }: { planTree: FormChangePlanT
                         _id: val._id as string,
                         reason: "",
                         typeReq: "cancel",
-                        
                       });
                     }}
                   >
@@ -354,13 +359,26 @@ export default function ChangePlanTree({ planTree }: { planTree: FormChangePlanT
                 <AccordionDetails>
                   <Typography>
                     <span>ปริมาณงาน</span> <br />
-                    {val.oldPlan?(<>
-                    <span>หนาแน่น: {val.oldPlan?.qauntity.plentifully}</span> <br />
-                    <span>หนาแน่น: {val.oldPlan?.qauntity.moderate}</span> <br />
-                    <span>หนาแน่น: {val.oldPlan?.qauntity.lightly}</span> <br />
-                    <span>หนาแน่น: {val.oldPlan?.qauntity.clear}</span> <br />
-                    <span>แผนงานเดือน : {val.oldPlan!.month}</span> <br />
-                    <span>งบประมาณ: {val.oldPlan!.budget}</span> <br /></>):undefined}
+                    {val.oldPlan ? (
+                      <>
+                        <span>
+                          หนาแน่น: {val.oldPlan?.qauntity.plentifully}
+                        </span>{" "}
+                        <br />
+                        <span>
+                          หนาแน่น: {val.oldPlan?.qauntity.moderate}
+                        </span>{" "}
+                        <br />
+                        <span>
+                          หนาแน่น: {val.oldPlan?.qauntity.lightly}
+                        </span>{" "}
+                        <br />
+                        <span>หนาแน่น: {val.oldPlan?.qauntity.clear}</span>{" "}
+                        <br />
+                        <span>แผนงานเดือน : {val.oldPlan!.month}</span> <br />
+                        <span>งบประมาณ: {val.oldPlan!.budget}</span> <br />
+                      </>
+                    ) : undefined}
                   </Typography>
                 </AccordionDetails>
               </Accordion>
@@ -387,5 +405,3 @@ export default function ChangePlanTree({ planTree }: { planTree: FormChangePlanT
     </div>
   );
 }
-
-

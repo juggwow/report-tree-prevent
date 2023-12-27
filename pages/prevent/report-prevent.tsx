@@ -32,49 +32,52 @@ export async function getServerSideProps(context: any) {
       },
     };
   }
-  
-  try {
 
+  try {
     const query = {
       businessName: session.pea.karnfaifa,
       changePlanRequest: {
-        $not:{
+        $not: {
           $elemMatch: {
             status: "progress",
           },
-        }
-      }
-    }
+        },
+      },
+    };
     const options = {
-      projection:{
+      projection: {
         _id: 0,
         id: "$_id",
-        businessName : 1,
-        planName : 1,
+        businessName: 1,
+        planName: 1,
         duration: 1,
         zpm4: 1,
         reportDate: 1,
-        editDate: 1
-      }
-    }
+        editDate: 1,
+      },
+    };
 
-    const mongoClient = await clientPromise
-    const preventData = (await mongoClient.db("prevent").collection("plan").find(query,options).toArray()) as unknown as PreventData[]
+    const mongoClient = await clientPromise;
+    const preventData = (await mongoClient
+      .db("prevent")
+      .collection("plan")
+      .find(query, options)
+      .toArray()) as unknown as PreventData[];
 
     if (!preventData) {
-        return {
-          redirect: {
-            destination: "/404",
-          },
-        };
-    }
-    
-    preventData.forEach((val,i,arr)=>{
-        arr[i].id = (val.id as ObjectId).toHexString()
-      })
       return {
-        props: { preventData },
+        redirect: {
+          destination: "/404",
+        },
       };
+    }
+
+    preventData.forEach((val, i, arr) => {
+      arr[i].id = (val.id as ObjectId).toHexString();
+    });
+    return {
+      props: { preventData },
+    };
   } catch {
     return {
       redirect: {
@@ -84,90 +87,86 @@ export async function getServerSideProps(context: any) {
   }
 }
 
-export default function ReportPrevent({preventData}:{preventData:PreventData[]}) {
+export default function ReportPrevent({
+  preventData,
+}: {
+  preventData: PreventData[];
+}) {
+  const router = useRouter();
+  const [order, setOrder] = useState<Order>({
+    no: "",
+    disable: false,
+  });
 
-    const router = useRouter()
-    const [order,setOrder] = useState<Order>({
-        no : '',
-        disable: false
-    })
+  const [snackBar, setSnackBar] = useState<snackBar>({
+    open: false,
+    sevirity: "success",
+    massege: "",
+  });
 
-    const [snackBar,setSnackBar] = useState<snackBar>({
-        open: false,
-        sevirity: "success",
-        massege: ''
-    })
+  const [choosePreventData, setChoosePreventData] = useState<PreventData[]>([]);
+  const [showElementChoose, setShowElementChoose] = useState<boolean>(false);
+  const [filter, setFilter] = useState<PreventDataFilter>({
+    id: "",
+    businessName: "",
+    planName: "",
+    duration: "",
+    hasZPM4: true,
+  });
+  const [showPreventData, setShowPreventData] =
+    useState<PreventData[]>(preventData);
+  const [progress, setProgress] = useState<boolean>(false);
 
-    const [choosePreventData,setChoosePreventData] = useState<PreventData[]>([])
-    const [showElementChoose,setShowElementChoose] = useState<boolean>(false)
-    const [filter,setFilter] = useState<PreventDataFilter>({
-        id: "",
-        businessName: "",
-        planName: "",
-        duration: "",
-        hasZPM4: true
-    })
-    const [showPreventData,setShowPreventData] = useState<PreventData[]>(preventData) 
-    const [progress,setProgress] = useState<boolean>(false)
+  useEffect(() => {
+    let filterData = preventData;
+    let chooseID: string[] = [];
 
-    useEffect(() => {
-      let filterData = preventData;
-      let chooseID: string[] = [];
-  
-      choosePreventData.forEach((val) => {
-        chooseID.push(val.id as string);
-      });
-  
+    choosePreventData.forEach((val) => {
+      chooseID.push(val.id as string);
+    });
+
+    filterData = filterData.filter((val) => {
+      return !chooseID.includes(val.id as string);
+    });
+
+    if (filter.duration != "") {
       filterData = filterData.filter((val) => {
-        return !chooseID.includes(val.id as string);
+        return val.duration == filter.duration;
       });
-  
-      if (filter.duration != "") {
-        filterData = filterData.filter((val) => {
-          return val.duration == filter.duration;
-        });
-      }
-  
-      if (filter.planName != "") {
-        filterData = filterData.filter((val) => {
-          return val.planName.includes(filter.planName);
-        });
-      }
+    }
 
-      if(!filter.hasZPM4){
-        filterData = filterData.filter((val)=>{
-          return !val.zpm4
-        })
-      }
-  
-      setShowPreventData(filterData);
-    }, [filter, choosePreventData]);
+    if (filter.planName != "") {
+      filterData = filterData.filter((val) => {
+        return val.planName.includes(filter.planName);
+      });
+    }
 
-    async function sendPreventData() {
-      setProgress(true);
-      console.log(choosePreventData)
-      try {
-        const res = await fetch("/api/prevent/report-zpm4", {
-          method: "POST",
-          body: JSON.stringify(choosePreventData),
+    if (!filter.hasZPM4) {
+      filterData = filterData.filter((val) => {
+        return !val.zpm4;
+      });
+    }
+
+    setShowPreventData(filterData);
+  }, [filter, choosePreventData]);
+
+  async function sendPreventData() {
+    setProgress(true);
+    console.log(choosePreventData);
+    try {
+      const res = await fetch("/api/prevent/report-zpm4", {
+        method: "POST",
+        body: JSON.stringify(choosePreventData),
+      });
+      if (res.status == 200) {
+        const data = await res.json();
+        setSnackBar({
+          open: true,
+          sevirity: "success",
+          massege: data.massege,
         });
-        if (res.status == 200) {
-          const data = await res.json()
-          setSnackBar({
-            open: true,
-            sevirity: "success",
-            massege: data.massege,
-          });
-          router.refresh();
-        } else {
-          setProgress(false);
-          setSnackBar({
-            open: true,
-            sevirity: "error",
-            massege: "เกิดข้อผิดพลาดบางอย่าง กรุณาลองอีกครั้ง",
-          });
-        }
-      } catch {
+        router.refresh();
+      } else {
         setProgress(false);
         setSnackBar({
           open: true,
@@ -175,33 +174,41 @@ export default function ReportPrevent({preventData}:{preventData:PreventData[]})
           massege: "เกิดข้อผิดพลาดบางอย่าง กรุณาลองอีกครั้ง",
         });
       }
+    } catch {
+      setProgress(false);
+      setSnackBar({
+        open: true,
+        sevirity: "error",
+        massege: "เกิดข้อผิดพลาดบางอย่าง กรุณาลองอีกครั้ง",
+      });
     }
+  }
   return (
     <div className="flex  flex-col p-4 min-h-screen">
-        <p className="m-3">รายผลการดำเนินงานกิจกรรมป้องกันระบบไฟฟ้า</p>
-        <CustomSeparator setProgress={setProgress} />
-        <ZPM4Number
-            order={order}
-            setOrder={setOrder}
-            setSnackBar={setSnackBar}
-            showElementChoose={showElementChoose}
-            setShowElementChoose={setShowElementChoose}
-            choosePreventData={choosePreventData}
-        />
-        <PreventDataTable 
-            showElementChoose = {showElementChoose}
-            order = {order}
-            filter = {filter}
-            setFilter = {setFilter}
-            showPreventData = {showPreventData}
-            choosePreventData = {choosePreventData}
-            setChoosePreventData = {setChoosePreventData}
-        />
-        <ChoosePreventData 
-          choosePreventData={choosePreventData}
-          setChoosePreventData={setChoosePreventData}
-          sendPreventData={sendPreventData}
-        />
+      <p className="m-3">รายผลการดำเนินงานกิจกรรมป้องกันระบบไฟฟ้า</p>
+      <CustomSeparator setProgress={setProgress} />
+      <ZPM4Number
+        order={order}
+        setOrder={setOrder}
+        setSnackBar={setSnackBar}
+        showElementChoose={showElementChoose}
+        setShowElementChoose={setShowElementChoose}
+        choosePreventData={choosePreventData}
+      />
+      <PreventDataTable
+        showElementChoose={showElementChoose}
+        order={order}
+        filter={filter}
+        setFilter={setFilter}
+        showPreventData={showPreventData}
+        choosePreventData={choosePreventData}
+        setChoosePreventData={setChoosePreventData}
+      />
+      <ChoosePreventData
+        choosePreventData={choosePreventData}
+        setChoosePreventData={setChoosePreventData}
+        sendPreventData={sendPreventData}
+      />
       <div className="flex flex-row justify-center">
         <Button
           variant="outlined"
@@ -221,21 +228,32 @@ export default function ReportPrevent({preventData}:{preventData:PreventData[]})
   );
 }
 
-function CustomSeparator({setProgress}:{setProgress:React.Dispatch<React.SetStateAction<boolean>>}) {
+function CustomSeparator({
+  setProgress,
+}: {
+  setProgress: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
   const breadcrumbs = [
-    <Link sx={{fontSize: "12px"}} underline="hover" key="1" color="inherit" href="/" onClick={()=>setProgress(true)}>
+    <Link
+      sx={{ fontSize: "12px" }}
+      underline="hover"
+      key="1"
+      color="inherit"
+      href="/"
+      onClick={() => setProgress(true)}
+    >
       หน้าหลัก
     </Link>,
-    <Typography sx={{fontSize: "12px"}} key="2" color="text.primary">
+    <Typography sx={{ fontSize: "12px" }} key="2" color="text.primary">
       ป้องกันระบบไฟฟ้า
     </Typography>,
-    <Typography sx={{fontSize: "12px"}} key="3" color="text.primary">
+    <Typography sx={{ fontSize: "12px" }} key="3" color="text.primary">
       รายงานผล
     </Typography>,
   ];
 
   return (
-    <Stack sx={{margin: "0 0 1rem 1rem"}} spacing={2}>
+    <Stack sx={{ margin: "0 0 1rem 1rem" }} spacing={2}>
       <Breadcrumbs separator="›" aria-label="breadcrumb">
         {breadcrumbs}
       </Breadcrumbs>

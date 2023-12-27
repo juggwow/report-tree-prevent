@@ -32,35 +32,38 @@ export async function getServerSideProps(context: any) {
   }
 
   try {
-
     const query = {
       businessName: session.pea.karnfaifa,
       changePlanRequest: {
-        $not:{
+        $not: {
           $elemMatch: {
             status: "progress",
           },
-        }
-      }
-    }
+        },
+      },
+    };
     const options = {
-      projection:{
+      projection: {
         _id: 0,
         id: "$_id",
         businessName: 1,
         zpm4Name: "$planName",
         month: 1,
         zpm4Po: 1,
-      }
-    }
+      },
+    };
 
-    const mongoClient = await clientPromise
-    const treeData = (await mongoClient.db("tree").collection<treeData>("plan").find(query,options).toArray()) as unknown as treeData[]
+    const mongoClient = await clientPromise;
+    const treeData = (await mongoClient
+      .db("tree")
+      .collection<treeData>("plan")
+      .find(query, options)
+      .toArray()) as unknown as treeData[];
 
     if (treeData) {
-      treeData.forEach((val,i,arr)=>{
-        arr[i].id = (val.id as ObjectId).toHexString()
-      })
+      treeData.forEach((val, i, arr) => {
+        arr[i].id = (val.id as ObjectId).toHexString();
+      });
       return {
         props: { treeData },
       };
@@ -142,7 +145,7 @@ export default function ReportTree(props: ReportTreeProps) {
         body: JSON.stringify(chooseTreeData),
       });
       if (res.status == 200) {
-        const data = await res.json()
+        const data = await res.json();
         setSnackBar({
           open: true,
           sevirity: "success",

@@ -33,7 +33,8 @@ export async function getServerSideProps(context: any) {
 
     const planTreeCollection = mongoClient.db("tree").collection("plan");
 
-    let docs = await planTreeCollection.aggregate([
+    let docs = (await planTreeCollection
+      .aggregate([
         {
           $match: {
             businessName: session.pea.karnfaifa,
@@ -62,8 +63,9 @@ export async function getServerSideProps(context: any) {
             dateReq: "$changePlanRequest.dateReq",
           },
         },
-      ]).toArray() as FormChangePlanTree[];
-      
+      ])
+      .toArray()) as FormChangePlanTree[];
+
     //const plan = await planLVCollection.find(query,options).toArray();
     let changePlanTreeReq: FormChangePlanTree[] = [];
     docs.forEach((val) => {
@@ -73,7 +75,8 @@ export async function getServerSideProps(context: any) {
       });
     });
 
-    docs = await planTreeCollection.aggregate([
+    docs = (await planTreeCollection
+      .aggregate([
         {
           $match: {
             businessName: session.pea.karnfaifa,
@@ -97,29 +100,30 @@ export async function getServerSideProps(context: any) {
             userReq: "$changePlanRequest.userReq",
             reason: "$changePlanRequest.reason",
             oldPlan: {
-                planName: "$planName",
-                qauntity:{
-                    plentifully: "$qauntity.plentifully",
-                    moderate: "$qauntity.moderate",
-                    lightly: "$qauntity.lightly",
-                    clear: "$qauntity.clear"
-                },
-                budget: "$budget",
-                systemVolt: "$systemVolt",
-                month: "$month",
-                hireType: "$hireType"
+              planName: "$planName",
+              qauntity: {
+                plentifully: "$qauntity.plentifully",
+                moderate: "$qauntity.moderate",
+                lightly: "$qauntity.lightly",
+                clear: "$qauntity.clear",
+              },
+              budget: "$budget",
+              systemVolt: "$systemVolt",
+              month: "$month",
+              hireType: "$hireType",
             },
             typeReq: "$changePlanRequest.typeReq",
             dateReq: "$changePlanRequest.dateReq",
           },
         },
-      ]).toArray() as FormChangePlanTree[];
+      ])
+      .toArray()) as FormChangePlanTree[];
 
     docs.forEach((val) => {
-        changePlanTreeReq.push({
-          ...val,
-          _id: val._id instanceof ObjectId ? val._id.toHexString() : val._id,
-        });
+      changePlanTreeReq.push({
+        ...val,
+        _id: val._id instanceof ObjectId ? val._id.toHexString() : val._id,
+      });
     });
 
     return {
@@ -138,7 +142,7 @@ export default function ChangePlanReqList({
 }: {
   changePlanTreeReq: FormChangePlanTree[];
 }) {
-  const router = useRouter()
+  const router = useRouter();
   const [openDialog, setOpenDialog] = useState(false);
   const [snackBar, setSnackBar] = useState<AlertSnackBarType>({
     open: false,
@@ -146,36 +150,37 @@ export default function ChangePlanReqList({
     massege: "",
   });
 
-  const [changePlanRequire, setChangePlanRequire] = useState<FormChangePlanTree>({
-    _id: "",
-    oldPlan: {
+  const [changePlanRequire, setChangePlanRequire] =
+    useState<FormChangePlanTree>({
+      _id: "",
+      oldPlan: {
         planName: "",
         qauntity: {
-            plentifully: 0,
-            moderate: 0,
-            lightly: 0,
-            clear: 0
+          plentifully: 0,
+          moderate: 0,
+          lightly: 0,
+          clear: 0,
         },
         budget: 0,
         systemVolt: "33kV",
         month: "",
-        hireType: "normal"
-    },
-    newPlan: {
+        hireType: "normal",
+      },
+      newPlan: {
         planName: "",
         qauntity: {
-            plentifully: 0,
-            moderate: 0,
-            lightly: 0,
-            clear: 0
+          plentifully: 0,
+          moderate: 0,
+          lightly: 0,
+          clear: 0,
         },
         budget: 0,
         systemVolt: "33kV",
         month: "",
-        hireType: "normal"
-    },
-    typeReq: "change"
-  });
+        hireType: "normal",
+      },
+      typeReq: "change",
+    });
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
@@ -187,34 +192,34 @@ export default function ChangePlanReqList({
       setSnackBar({ sevirity: "error", massege: "เกิดข้อผิดพลาด", open: true });
       return;
     }
-    console.log(changePlanRequire)
+    console.log(changePlanRequire);
     setSnackBar({ sevirity: "success", massege: "สำเร็จ", open: true });
     setOpenDialog(false);
-    router.reload()
+    router.reload();
   };
 
-  const handleEdit = async(changePlanRequire:FormChangePlanTree)=>{
+  const handleEdit = async (changePlanRequire: FormChangePlanTree) => {
     {
-                setChangePlanRequire(changePlanRequire);
-                setOpenDialog(true);
-              }
-  }
+      setChangePlanRequire(changePlanRequire);
+      setOpenDialog(true);
+    }
+  };
 
-  const handleCancel = async(changePlanRequire:FormChangePlanTree)=>{
-                const res = await fetch("/api/tree/request-change-plan", {
-                  method: "PATCH",
-                  body: JSON.stringify(changePlanRequire),
-                });
-                if (res.status != 200) {
-                  setSnackBar({ sevirity: "error", massege: "เกิดข้อผิดพลาด", open: true });
-                  return;
-                }
-                console.log(changePlanRequire)
-                setOpenDialog(false);
+  const handleCancel = async (changePlanRequire: FormChangePlanTree) => {
+    const res = await fetch("/api/tree/request-change-plan", {
+      method: "PATCH",
+      body: JSON.stringify(changePlanRequire),
+    });
+    if (res.status != 200) {
+      setSnackBar({ sevirity: "error", massege: "เกิดข้อผิดพลาด", open: true });
+      return;
+    }
+    console.log(changePlanRequire);
+    setOpenDialog(false);
 
-                setSnackBar({ sevirity: "success", massege: "สำเร็จ", open: true });
-                router.reload()
-  }
+    setSnackBar({ sevirity: "success", massege: "สำเร็จ", open: true });
+    router.reload();
+  };
 
   return (
     <div className="grid grid-cols-6 gap-3 mx-auto m-3 p-3">
@@ -226,10 +231,8 @@ export default function ChangePlanReqList({
           >
             <ChangePlanTreeCard
               plan={val}
-              onClickEdit={() => handleEdit(val) }
-              onClickCancel={() => handleCancel(val) 
-                
-              }
+              onClickEdit={() => handleEdit(val)}
+              onClickCancel={() => handleCancel(val)}
             />
           </div>
         );
@@ -248,4 +251,3 @@ export default function ChangePlanReqList({
     </div>
   );
 }
-

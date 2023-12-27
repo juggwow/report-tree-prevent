@@ -117,38 +117,38 @@ export default function ChangePlanReqList({
     setOpenDialog(false);
   };
 
-  const handleEdit = async(changePlanRequire:ChangePlanLV)=>{
+  const handleEdit = async (changePlanRequire: ChangePlanLV) => {
     {
-                setChangePlanRequire({
-                  plan_id: String(changePlanRequire.plan_id),
-                  newPlan: changePlanRequire.newPlan,
-                  oldPlan: changePlanRequire.oldPlan,
-                  reason: changePlanRequire.reason,
-                });
-                setOpenDialog(true);
-              }
-  }
+      setChangePlanRequire({
+        plan_id: String(changePlanRequire.plan_id),
+        newPlan: changePlanRequire.newPlan,
+        oldPlan: changePlanRequire.oldPlan,
+        reason: changePlanRequire.reason,
+      });
+      setOpenDialog(true);
+    }
+  };
 
-  const handleCancel = async(changePlanRequire:ChangePlanLV)=>{
-    const body={
-                  plan_id: String(changePlanRequire.plan_id),
-                  newPlan: changePlanRequire.newPlan,
-                  oldPlan: changePlanRequire.oldPlan,
-                  reason: changePlanRequire.reason,
-                }
-                const res = await fetch("/api/plan-lv/request-change-plan", {
-                  method: "PATCH",
-                  body: JSON.stringify(body),
-                });
-                if (res.status != 200) {
-                  setSnackBar({ sevirity: "error", massege: "เกิดข้อผิดพลาด", open: true });
-                  return;
-                }
-                setSnackBar({ sevirity: "success", massege: "สำเร็จ", open: true });
-                setOpenDialog(false);
+  const handleCancel = async (changePlanRequire: ChangePlanLV) => {
+    const body = {
+      plan_id: String(changePlanRequire.plan_id),
+      newPlan: changePlanRequire.newPlan,
+      oldPlan: changePlanRequire.oldPlan,
+      reason: changePlanRequire.reason,
+    };
+    const res = await fetch("/api/plan-lv/request-change-plan", {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    });
+    if (res.status != 200) {
+      setSnackBar({ sevirity: "error", massege: "เกิดข้อผิดพลาด", open: true });
+      return;
+    }
+    setSnackBar({ sevirity: "success", massege: "สำเร็จ", open: true });
+    setOpenDialog(false);
 
-                setSnackBar({ sevirity: "success", massege: "สำเร็จ", open: true });
-  }
+    setSnackBar({ sevirity: "success", massege: "สำเร็จ", open: true });
+  };
 
   return (
     <div className="grid grid-cols-6 gap-3 mx-auto m-3 p-3">
@@ -160,19 +160,21 @@ export default function ChangePlanReqList({
           >
             <ChangePlanLVCard
               plan={val}
-              onClickEdit={() => handleEdit({
-                plan_id: String(val._id),
+              onClickEdit={() =>
+                handleEdit({
+                  plan_id: String(val._id),
                   newPlan: val.changeReq,
                   oldPlan: val.oldPlan,
                   reason: val.reason,
-              }) }
-              onClickCancel={() => handleCancel({
-                plan_id: String(val._id),
+                })
+              }
+              onClickCancel={() =>
+                handleCancel({
+                  plan_id: String(val._id),
                   newPlan: val.changeReq,
                   oldPlan: val.oldPlan,
                   reason: val.reason,
-              }) 
-                
+                })
               }
             />
           </div>

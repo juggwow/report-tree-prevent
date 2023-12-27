@@ -25,35 +25,41 @@ export default async function handler(
   const session = await getServerSession(req, res, authOptions);
   if (session && session.sub && session.pea && session.pea.karnfaifa) {
     try {
-      const mongoClient = await clientPromise
+      const mongoClient = await clientPromise;
 
-      const planTreeCollection = mongoClient.db("tree").collection("plan")
+      const planTreeCollection = mongoClient.db("tree").collection("plan");
 
-      const data:treeData[] = JSON.parse(req.body)
+      const data: treeData[] = JSON.parse(req.body);
 
-      data.forEach(async(val)=>{
-        const doc = await planTreeCollection.findOne({_id: new ObjectId(val.id as string)},{projection:{businessName:1}})
-        if(!(doc && doc.businessName == session.pea?.karnfaifa)){
-          res.status(404).end()
-          return
+      data.forEach(async (val) => {
+        const doc = await planTreeCollection.findOne(
+          { _id: new ObjectId(val.id as string) },
+          { projection: { businessName: 1 } },
+        );
+        if (!(doc && doc.businessName == session.pea?.karnfaifa)) {
+          res.status(404).end();
+          return;
         }
-        const resultUpdate = await planTreeCollection.updateOne({
-          _id: new ObjectId(val.id as string),
-        },{
-          $set : {
-            "editReport" : val.editDate,
-            "reportDate" : val.reportDate,
-            "zpm4Po": val.zpm4Po
-          }
-        })
-        if(!resultUpdate.acknowledged){
-          res.status(404).end()
-          return
+        const resultUpdate = await planTreeCollection.updateOne(
+          {
+            _id: new ObjectId(val.id as string),
+          },
+          {
+            $set: {
+              editReport: val.editDate,
+              reportDate: val.reportDate,
+              zpm4Po: val.zpm4Po,
+            },
+          },
+        );
+        if (!resultUpdate.acknowledged) {
+          res.status(404).end();
+          return;
         }
-      })
+      });
 
-      res.status(200).send({massege: `รายงาน ZPM4/PO สำเร็จ`})
-      return
+      res.status(200).send({ massege: `รายงาน ZPM4/PO สำเร็จ` });
+      return;
     } catch {
       res.status(401).end();
       return;
