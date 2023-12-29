@@ -14,19 +14,19 @@ type Data = {
 };
 
 type RequestData = {
-    riskPoint: string; 
-    place: string; 
-    uploadedImage: {
+    riskPoint?: string; 
+    place?: string; 
+    uploadedImage?: {
         id: string,
         url: string
     }
-    lat: string;
-    lon: string;
-    karnfaifa: {
+    lat?: string;
+    lon?: string;
+    karnfaifa?: {
         businessName: string;
         fullName: string;
         aoj:string
-    }
+    } 
 }
 
 export default async function handler(
@@ -45,6 +45,10 @@ export default async function handler(
 
     const data:RequestData = JSON.parse(req.body)
 
+    if(!(data.karnfaifa && data.riskPoint && data.place && data.uploadedImage && data.lat && data.lon) ){
+        res.status(405).end()
+        return
+    }
     const mongoClient = await clientPromise;
     const vineBeGoneCollection = mongoClient.db("vine-be-gone").collection("risk")
     const doc = await vineBeGoneCollection.insertOne({

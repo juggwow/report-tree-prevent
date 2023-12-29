@@ -1,5 +1,5 @@
 import { Box, Button, Card, CardActions, CardContent, Grid, TextField, Typography } from "@mui/material";
-import { useState, ChangeEvent, useRef} from "react";
+import { useState, ChangeEvent, useRef, useEffect} from "react";
 import { styled } from "@mui/material/styles";
 import InsertPhotoIcon from '@mui/icons-material/InsertPhoto';
 import exifr from "exifr";
@@ -10,6 +10,7 @@ import AlertSnackBar from "@/components/alert-snack-bar";
 import { snackBar } from "@/types/report-prevent";
 import LoadingBackDrop from "@/components/loading-backdrop";
 import Head from "next/head";
+import { signIn, useSession } from "next-auth/react";
 
 type Karnfaifa = {
     businessName: string;
@@ -88,6 +89,11 @@ export async function getServerSideProps(context: any) {
 }
 
 export default function VineBeGoneNow() {
+  const { status } = useSession()
+  if(status != "authenticated"){
+    signIn("line",{callbackUrl:"/vine-be-gone-now?liff=TRUE"})
+  }
+
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [geolocation, setGeolocation] = useState<Geolocation | null>(null);
   const [snackBar,setSnackBar] = useState<snackBar>({
@@ -244,7 +250,7 @@ export default function VineBeGoneNow() {
                             <LocationOnIcon color="primary"/>
                         </Grid>
                         <Grid item xs={11}>
-                            ตำแหน่งปัจจุบัน: {geolocation.lat},{geolocation.lon}
+                            ตำแหน่ง: {geolocation.lat},{geolocation.lon}
                         </Grid>
                         <Grid item xs={1}>
                             <BusinessIcon color="primary"/>
