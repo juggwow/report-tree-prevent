@@ -94,6 +94,7 @@ export default function VineBeGoneNow() {
     signIn("line",{callbackUrl:"/vine-be-gone-now?liff=TRUE"})
   }
 
+  const [positionError,setPositionError] = useState<string>()
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [geolocation, setGeolocation] = useState<Geolocation | null>(null);
   const [snackBar,setSnackBar] = useState<snackBar>({
@@ -197,7 +198,7 @@ export default function VineBeGoneNow() {
               });
               setIsCompleteUpload(true)
             }
-            else{
+            else if("geolocation" in navigator){
               navigator.geolocation.getCurrentPosition(async (position)=>{
                 setGeolocation({
                   lat: position.coords.latitude.toFixed(6).toString(),
@@ -205,7 +206,26 @@ export default function VineBeGoneNow() {
                   karnfaifa: await findBusinessArea(position.coords.latitude,position.coords.longitude),
                 });
                 setIsCompleteUpload(true)
+              },(error)=>{
+                switch (error.code) {
+                    case error.PERMISSION_DENIED:
+                        setPositionError("ผู้ใช้ปฏิเสธคำขอตำแหน่ง");
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        setPositionError("ไม่พบข้อมูลตำแหน่ง");
+                        break;
+                    case error.TIMEOUT:
+                        setPositionError("หมดเวลาคำขอตำแหน่ง");
+                        break;
+                }
+                setGeolocation(null)
+                setIsCompleteUpload(true)
               })
+            }
+            else{
+              setGeolocation(null)
+              setIsCompleteUpload(true)
+              setPositionError("Browser ของคุณไม่รองรับตำแหน่ง")
             }
           })
       };
@@ -228,12 +248,11 @@ export default function VineBeGoneNow() {
         sx={{width:"100%"}}
         startIcon={<InsertPhotoIcon />}
       >
-        Upload Photo
+        Upload or Take Photo
         <VisuallyHiddenInput
           type="file"
           accept="image/*"
           onChange={handleImageChange}
-          capture="environment"
         />
       </Button>
       {selectedImage && isCompletedUpload && (
@@ -274,7 +293,7 @@ export default function VineBeGoneNow() {
                             <LocationOffIcon color="error"/>
                         </Grid>
                         <Grid item xs={11}>
-                            ไฟล์รูปของคุณไม่มีตำแหน่ง หรือ Browser ไม่อนุญาติให้หาตำแหน่งของคุณ กรุณาลองใหม่อีกครั้ง 
+                            ไฟล์รูปไม่มีตำแหน่ง และ {positionError} กรุณาลองใหม่อีกครั้ง
                         </Grid>
                     </Grid>
                   </CardContent>
