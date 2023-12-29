@@ -5,6 +5,15 @@ import AddAPhotoIcon from '@mui/icons-material/AddAPhoto';
 import exifr from "exifr";
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import BusinessIcon from '@mui/icons-material/Business';
+import { findAOJ } from "@/lib/find-AOJ";
+
+export async function getServerSideProps(context:any) {
+  // console.log(findAOJ(7.032826, 100.472274))
+  // const test = "" 
+  return {
+    props: {}
+  }
+}
 
 type Geolocation = {
   lat: string;
@@ -93,22 +102,24 @@ export default function VineBeGoneNow() {
             style={{ maxWidth: "100%", height: "300px", objectFit:"contain", margin: "auto" }}
           />
             
-                <CardContent>
+                {geolocation && (
+                  <CardContent>
                     <Grid container spacing={2}>
                         <Grid item xs={1}>
                             <LocationOnIcon color="primary"/>
                         </Grid>
                         <Grid item xs={11}>
-                            {geolocation? (`${geolocation.source=="current"?"ตำแหน่งปัจุบัน":"ตำแหน่งรูปภาพ"}: ${geolocation.lat},${geolocation.long}`):("ไม่มีตำแหน่ง")}
+                            ตำแหน่งปัจจุบัน: {geolocation.lat},{geolocation.long}`
                         </Grid>
                         <Grid item xs={1}>
                             <BusinessIcon color="primary"/>
                         </Grid>
                         <Grid item xs={11}>
-                            {geolocation && "การไฟฟ้าส่วนภูมิภาคสาขาหาดใหญ่"}
+                            {"การไฟฟ้าส่วนภูมิภาคสาขาหาดใหญ่"}
                         </Grid>
                     </Grid>
-                </CardContent>
+                  </CardContent>
+                )}
                 <CardActions sx={{direction:"flex",justifyContent:"end"}}>
                     <Button onClick={handleCancel}>Cancel</Button>
                     {geolocation && <Button>Send</Button>}
