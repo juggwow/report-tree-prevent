@@ -90,7 +90,7 @@ export async function getServerSideProps(context: any) {
 
 export default function VineBeGoneNow() {
   const { status } = useSession()
-  if(status != "authenticated"){
+  if(status == "unauthenticated"){
     signIn("line",{callbackUrl:"/vine-be-gone-now?liff=TRUE"})
   }
 
