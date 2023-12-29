@@ -17,7 +17,7 @@ const businessNameMap = new Map([
   ["12032",{businessName: "กฟส.โคกโพธิ์", fullName: "การไฟฟ้าส่วนภูมิภาคสาขาอำเภอโคกโพธิ์"}],
   ["12033",{businessName: "กฟส.หนองจิก", fullName: "การไฟฟ้าส่วนภูมิภาคสาขาอำเภอหนองจิก"}],
   ["12041",{businessName: "กฟส.สงขลา", fullName: "การไฟฟ้าส่วนภูมิภาคสาขาเมืองสงขลา"}],
-  ["12042",{businessName: "กฟส.สิงหนคร", fullName: "การไฟฟ้าส่วนภูมิภาคสาขาสิงหนคร"}],
+  ["12044",{businessName: "กฟส.สิงหนคร", fullName: "การไฟฟ้าส่วนภูมิภาคสาขาสิงหนคร"}],
   ["12051",{businessName: "กฟจ.สตูล", fullName: "การไฟฟ้าส่วนภูมิภาคจังหวัดสตูล"}],
   ["12052",{businessName: "กฟส.ละงู", fullName: "การไฟฟ้าส่วนภูมิภาคสาขาอำเภอละงู"}],
   ["12053",{businessName: "กฟส.ควนกาหลง", fullName: "การไฟฟ้าส่วนภูมิภาคสาขาอำเภอควนกาหลง"}],
@@ -27,7 +27,7 @@ const businessNameMap = new Map([
   ["12064",{businessName: "กฟส.ปากพะยูน", fullName: "การไฟฟ้าส่วนภูมิภาคสาขาอำเภอปากพะยูน"}],
   ["12071",{businessName: "กฟส.หาดใหญ่", fullName: "การไฟฟ้าส่วนภูมิภาคสาขาหาดใหญ่"}],
   ["12072",{businessName: "กฟส.รัตภูมิ", fullName: "การไฟฟ้าส่วนภูมิภาคสาขารัตภูมิ"}],
-  ["12073",{businessName: "กฟส.นาหม่อม", fullName: "การไฟฟ้าส่วนภูมิภาคสาขานาหม่อม"}],
+  ["12074",{businessName: "กฟส.นาหม่อม", fullName: "การไฟฟ้าส่วนภูมิภาคสาขานาหม่อม"}],
   ["12081",{businessName: "กฟอ.สุไหงโกลก", fullName: "การไฟฟ้าส่วนภูมิภาคอำเภอสุไหงโก-ลก"}],
   ["12091",{businessName: "กฟอ.เบตง", fullName: "การไฟฟ้าส่วนภูมิภาคอำเภอเบตง"}],
   ["12101",{businessName: "กฟอ.สายบุรี", fullName: "การไฟฟ้าส่วนภูมิภาคอำเภอสายบุรี"}],
@@ -42,8 +42,10 @@ const businessNameMap = new Map([
   ["12134",{businessName: "กฟส.เทพา", fullName: "การไฟฟ้าส่วนภูมิภาคสาขาเทพา"}],
 ])
 
-export function findAOJ(lat: number, lon: number): undefined | null | {businessName: string, fullName: string} {
+export function findAOJ(lat: number, lon: number): undefined | null | {businessName: string, fullName: string, aoj:string} {
   const myUTM = utm.convertLatLngToUtm(lat, lon, 1);
+
+  console.log(lat,lon)
 
   const targetPoint = turf.point([myUTM.Easting, myUTM.Northing]);
 
@@ -55,7 +57,9 @@ export function findAOJ(lat: number, lon: number): undefined | null | {businessN
                 const area = turf.polygon(subAOJS)
                 const containArea = turf.booleanPointInPolygon(targetPoint, area)
                 if(containArea){
-                  return businessNameMap.get(subAOJS.properties.CODE.toString().slice(0,5));
+                  const info = businessNameMap.get(subAOJS.properties.CODE.toString().slice(0,5))
+                  return info?{...info,aoj: subAOJS.properties.CODE.toString()}:null
+                  // return {...businessNameMap.get(subAOJS.properties.CODE.toString().slice(0,5)),aoj:subAOJS.properties.CODE.toString() as string};
                 }
             }
         }
@@ -63,7 +67,8 @@ export function findAOJ(lat: number, lon: number): undefined | null | {businessN
             const area = turf.polygon(aojs.geometry.coordinates);
             const containingArea = turf.booleanPointInPolygon(targetPoint, area);
             if(containingArea){
-              return businessNameMap.get(aojs.properties.CODE.toString().slice(0,5));
+              const info = businessNameMap.get(aojs.properties.CODE.toString().slice(0,5));
+              return info?{...info,aoj:aojs.properties.CODE.toString()}:null
             }
         }
     } catch (e) {}

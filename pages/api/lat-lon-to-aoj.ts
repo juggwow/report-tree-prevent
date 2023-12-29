@@ -8,7 +8,8 @@ export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse<Data>,
 ){
-    const body = req.body;
+  console.log (req.body)
+  const body = JSON.parse(req.body);
 
   if (!body.lat || !body.lon) {
     return res.status(400).json({ error: 'Invalid input' });

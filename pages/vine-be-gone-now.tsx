@@ -1,25 +1,27 @@
-import { Box, Button, Card, CardActions, CardContent, Grid, Typography } from "@mui/material";
-import { useState, ChangeEvent } from "react";
+import { Box, Button, Card, CardActions, CardContent, Grid, TextField, Typography } from "@mui/material";
+import { useState, ChangeEvent, useRef, useEffect } from "react";
 import { styled } from "@mui/material/styles";
 import AddAPhotoIcon from '@mui/icons-material/AddAPhoto';
 import exifr from "exifr";
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import BusinessIcon from '@mui/icons-material/Business';
-import { findAOJ } from "@/lib/find-AOJ";
+import AlertSnackBar from "@/components/alert-snack-bar";
+import { snackBar } from "@/types/report-prevent";
+import LoadingBackDrop from "@/components/loading-backdrop";
+import { signIn } from "next-auth/react";
 
-export async function getServerSideProps(context:any) {
-  // console.log(findAOJ(7.032826, 100.472274))
-  // const test = "" 
-  return {
-    props: {}
-  }
+type Karnfaifa = {
+    businessName: string;
+    fullName: string;
+    aoj:string
 }
-
 type Geolocation = {
   lat: string;
-  long: string;
-  source: "image" | "current";
+  lon: string;
+  karnfaifa: Karnfaifa | null;
 };
+
+type RequestData = Geolocation & {riskPoint: string; place: string; file: string}
 
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -33,17 +35,104 @@ const VisuallyHiddenInput = styled("input")({
   width: 1,
 });
 
+const findBusinessArea = async(lat:number,lon:number):Promise<Karnfaifa|null>=>{
+  console.log(lat,lon)
+  const res = await fetch('/api/lat-lon-to-aoj', {
+    method: "POST",
+    body: JSON.stringify({
+      lat,
+      lon
+  })})
+  if(res.status != 200){
+    return null
+  }
+  return (await res.json()) as Karnfaifa
+}
+
+export async function getServerSideProps(context: any) {
+  if(context.query.liff != "TRUE"){
+    return {
+      redirect: {
+        desination: "/404?liff=TRUE"
+      }
+    }
+  }
+
+  return {
+    props : null
+  }
+}
+
 export default function VineBeGoneNow() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [geolocation, setGeolocation] = useState<Geolocation | null>(null);
+  const [snackBar,setSnackBar] = useState<snackBar>({
+    sevirity: "success",
+    massege: "",
+    open: false
+  })
+  const [progress,setProgress]= useState<boolean>(false)
+
+  const formRef = useRef<HTMLFormElement|null>(null)
 
   const handleCancel = ()=>{
-    setGeolocation(null),
+    setGeolocation(null)
     setSelectedImage(null)
+    formRef.current?.reset()
   }
 
+  const handleSubmit = async(e:ChangeEvent<HTMLFormElement>)=>{
+    e.preventDefault()
+    const form = formRef.current
+    if(!form){
+      setSnackBar({
+        sevirity: "error",
+        massege: "เกิดข้อผิดพลาด",
+        open: true
+      })
+      return
+    }
+
+    if(!selectedImage || !geolocation){
+      setSnackBar({
+        sevirity: "error",
+        massege: "เกิดข้อผิดพลาด",
+        open: true
+      })
+      return
+    }
+    const body:RequestData = {
+      ...geolocation,
+      riskPoint : form['riskPoint'].value,
+      place: form['place'].value,
+      file: selectedImage
+    }
+    setProgress(true)
+    const res = await fetch("/api/vine-be-gone-now/report-risk",{
+      method: "POST",
+      body: JSON.stringify(body)
+    })
+    setProgress(false)
+    if(res.status != 200){
+      setSnackBar({
+        sevirity: "error",
+        massege: "เกิดข้อผิดพลาด",
+        open: true
+      })
+      return
+    }
+
+    handleCancel()
+    setSnackBar({
+      sevirity: "success",
+      massege: "สำเร็จ",
+      open: true
+    })
+  }
 
   const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setGeolocation(null)
+    setSelectedImage(null)  
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
@@ -53,21 +142,21 @@ export default function VineBeGoneNow() {
 
         exifr
           .gps(file)
-          .then((val) => {
+          .then(async (val) => {
             if (val) {
               setGeolocation({
                 lat: val.latitude.toFixed(6).toString(),
-                long: val.longitude.toFixed(6).toString(),
-                source: "image",
+                lon: val.longitude.toFixed(6).toString(),
+                karnfaifa: await findBusinessArea(val.latitude,val.longitude),
               });
             }
             else{
-                navigator.geolocation.getCurrentPosition((geo) => {
+                navigator.geolocation.getCurrentPosition(async (geo) => {
                     if (geo) {
                       setGeolocation({
                         lat: geo.coords.latitude.toFixed(6).toString(),
-                        long: geo.coords.longitude.toFixed(6).toString(),
-                        source: "current",
+                        lon: geo.coords.longitude.toFixed(6).toString(),
+                        karnfaifa: await findBusinessArea(geo.coords.latitude,geo.coords.longitude),
                       });
                     }
                   });
@@ -79,7 +168,8 @@ export default function VineBeGoneNow() {
   };
 
   return (
-    <Box sx={{maxWidth:"430px", margin:"1rem auto 0"}}>
+    <form ref={formRef} onSubmit={handleSubmit}>
+      <Box sx={{maxWidth:"430px", margin:"1rem auto 0"}}>
       <Button
         component="label"
         variant="contained"
@@ -101,32 +191,39 @@ export default function VineBeGoneNow() {
             alt="Selected"
             style={{ maxWidth: "100%", height: "300px", objectFit:"contain", margin: "auto" }}
           />
-            
-                {geolocation && (
+                {geolocation&&(
                   <CardContent>
                     <Grid container spacing={2}>
                         <Grid item xs={1}>
                             <LocationOnIcon color="primary"/>
                         </Grid>
                         <Grid item xs={11}>
-                            ตำแหน่งปัจจุบัน: {geolocation.lat},{geolocation.long}`
+                            ตำแหน่งปัจจุบัน: {geolocation.lat},{geolocation.lon}
                         </Grid>
                         <Grid item xs={1}>
                             <BusinessIcon color="primary"/>
                         </Grid>
                         <Grid item xs={11}>
-                            {"การไฟฟ้าส่วนภูมิภาคสาขาหาดใหญ่"}
+                            {geolocation.karnfaifa?geolocation.karnfaifa.fullName:"ตำแหน่งจุดเสี่ยงอยู่นอกพิ้นที่การไฟฟ้าเขต ยะลา"}
+                        </Grid>
+                        <Grid item xs={12} sx={{paddingTop: "0"}}>
+                          <TextField name="riskPoint" required type="text" variant="standard" label="จุดเสี่ยงที่พบ" sx={{maxWidth:"100%", fontSize:"14px"}}/>
+                        </Grid>
+                        <Grid item xs={12} sx={{paddingTop: "0"}}>
+                          <TextField name="place" required type="text" variant="standard" label="หมายเลขเสา/สถานที่" sx={{maxWidth:"100%" , fontSize:"14px"}}/>
                         </Grid>
                     </Grid>
                   </CardContent>
                 )}
                 <CardActions sx={{direction:"flex",justifyContent:"end"}}>
                     <Button onClick={handleCancel}>Cancel</Button>
-                    {geolocation && <Button>Send</Button>}
+                    {geolocation && geolocation.karnfaifa && <Button type="submit">Send</Button>}
                 </CardActions>
-                
             </Card>
       )}
     </Box>
+    <AlertSnackBar setSnackBar={setSnackBar} snackBar={snackBar}/>
+    <LoadingBackDrop setProgress={setProgress} progress={progress}/>
+    </form>
   );
 }
