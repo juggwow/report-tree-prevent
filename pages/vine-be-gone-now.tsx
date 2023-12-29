@@ -94,6 +94,7 @@ export default function VineBeGoneNow() {
     signIn("line",{callbackUrl:"/vine-be-gone-now?liff=TRUE"})
   }
 
+  const [debug,setDebug] = useState("")
   const [positionError,setPositionError] = useState<string>()
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [geolocation, setGeolocation] = useState<Geolocation | null>(null);
@@ -191,6 +192,7 @@ export default function VineBeGoneNow() {
           .gps(file)
           .then(async (val) => {
             if (val) {
+              setDebug("exifr")
               setGeolocation({
                 lat: val.latitude.toFixed(6).toString(),
                 lon: val.longitude.toFixed(6).toString(),
@@ -201,6 +203,7 @@ export default function VineBeGoneNow() {
             }
             else if("geolocation" in navigator){
               navigator.geolocation.getCurrentPosition(async (position)=>{
+                setDebug("have position")
                 setGeolocation({
                   lat: position.coords.latitude.toFixed(6).toString(),
                   lon: position.coords.longitude.toFixed(6).toString(),
@@ -209,6 +212,7 @@ export default function VineBeGoneNow() {
                 setIsCompleteUpload(true)
                 setProgress(false)
               },(error)=>{
+                setDebug("handle Error")
                 switch (error.code) {
                     case error.PERMISSION_DENIED:
                         setPositionError("ผู้ใช้ปฏิเสธคำขอตำแหน่ง");
@@ -226,6 +230,7 @@ export default function VineBeGoneNow() {
               })
             }
             else{
+              setDebug("Browser Not Available")
               setGeolocation(null)
               setIsCompleteUpload(true)
               setProgress(false)
@@ -311,6 +316,7 @@ export default function VineBeGoneNow() {
     </Box>
     <AlertSnackBar setSnackBar={setSnackBar} snackBar={snackBar}/>
     <LoadingBackDrop setProgress={setProgress} progress={progress}/>
+    {debug}
     </form>
     </>
   );
