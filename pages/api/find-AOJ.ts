@@ -16,7 +16,7 @@ export default async function handler(
 
   const result = findAOJ(body.lat, body.lon);
   if (result) {
-    res.status(200).json({ areaCode: result });
+    res.status(200).json(result);
   } else {
     res.status(404).json({ error: 'Area not found' });
   }
