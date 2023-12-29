@@ -107,6 +107,7 @@ export default function VineBeGoneNow() {
   const [isCompletedUpload,setIsCompleteUpload] = useState<boolean>(false)
 
   const formRef = useRef<HTMLFormElement|null>(null)
+  const imgRef = useRef<HTMLImageElement|null>(null)
 
   const handleCancel = ()=>{
     setIsCompleteUpload(false)
@@ -176,70 +177,119 @@ export default function VineBeGoneNow() {
     })
   }
 
+  const imgClick = () =>{
+    if(!imgRef.current){
+      console.log("no gps")
+      return
+    }
+    exifr.gps(imgRef.current).then(async(val)=>{
+      setGeolocation({
+        lat: val.latitude.toFixed(6),
+        lon: val.longitude.toFixed(6),
+        karnfaifa: await findBusinessArea(val.latitude,val.longitude)
+      })
+      setIsCompleteUpload(true)
+      setProgress(false)
+
+    }
+    ).catch(async()=>{
+      navigator.geolocation.getCurrentPosition(async (position)=>{
+        setDebug("have position")
+        setGeolocation({
+          lat: position.coords.latitude.toFixed(6).toString(),
+          lon: position.coords.longitude.toFixed(6).toString(),
+          karnfaifa: await findBusinessArea(position.coords.latitude,position.coords.longitude),
+        });
+        setIsCompleteUpload(true)
+        setProgress(false)
+      },(error)=>{
+        setDebug("handle Error")
+        switch (error.code) {
+            case error.PERMISSION_DENIED:
+                setPositionError("ผู้ใช้ปฏิเสธคำขอตำแหน่ง");
+                break;
+            case error.POSITION_UNAVAILABLE:
+                setPositionError("ไม่พบข้อมูลตำแหน่ง");
+                break;
+            case error.TIMEOUT:
+                setPositionError("หมดเวลาคำขอตำแหน่ง");
+                break;
+        }
+        setGeolocation(null)
+        setIsCompleteUpload(true)
+        setProgress(false)
+      })
+    })
+
+  }
+
   const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
     setGeolocation(null)
     setSelectedImage(null)
     setIsCompleteUpload(false)
+    setProgress(true)
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
         const result = reader.result as string;
         setSelectedImage(result);
-        setProgress(true)
-        exifr
-          .gps(file)
-          .then(async (val) => {
-            if (val) {
-              setDebug("exifr")
-              setGeolocation({
-                lat: val.latitude.toFixed(6).toString(),
-                lon: val.longitude.toFixed(6).toString(),
-                karnfaifa: await findBusinessArea(val.latitude,val.longitude),
-              });
-              setIsCompleteUpload(true)
-              setProgress(false)
-            }
-            else if("geolocation" in navigator){
-              navigator.geolocation.getCurrentPosition(async (position)=>{
-                setDebug("have position")
-                setGeolocation({
-                  lat: position.coords.latitude.toFixed(6).toString(),
-                  lon: position.coords.longitude.toFixed(6).toString(),
-                  karnfaifa: await findBusinessArea(position.coords.latitude,position.coords.longitude),
-                });
-                setIsCompleteUpload(true)
-                setProgress(false)
-              },(error)=>{
-                setDebug("handle Error")
-                switch (error.code) {
-                    case error.PERMISSION_DENIED:
-                        setPositionError("ผู้ใช้ปฏิเสธคำขอตำแหน่ง");
-                        break;
-                    case error.POSITION_UNAVAILABLE:
-                        setPositionError("ไม่พบข้อมูลตำแหน่ง");
-                        break;
-                    case error.TIMEOUT:
-                        setPositionError("หมดเวลาคำขอตำแหน่ง");
-                        break;
-                }
-                setGeolocation(null)
-                setIsCompleteUpload(true)
-                setProgress(false)
-              })
-            }
-            else{
-              setDebug("Browser Not Available")
-              setGeolocation(null)
-              setIsCompleteUpload(true)
-              setProgress(false)
-              setPositionError("Browser ของคุณไม่รองรับตำแหน่ง")
-            }
-          })
-          .catch((reason)=>{
-            setDebug("in catch"+JSON.stringify(reason))
-          })
-          .finally(()=>setIsCompleteUpload(true))
+        setTimeout(imgClick,1000)
+
+        
+        // setProgress(true)
+        // exifr
+        //   .gps(file)
+        //   .then(async (val) => {
+        //     if (val) {
+        //       setDebug("exifr")
+        //       setGeolocation({
+        //         lat: val.latitude.toFixed(6).toString(),
+        //         lon: val.longitude.toFixed(6).toString(),
+        //         karnfaifa: await findBusinessArea(val.latitude,val.longitude),
+        //       });
+        //       setIsCompleteUpload(true)
+        //       setProgress(false)
+        //     }
+        //     else if("geolocation" in navigator){
+        //       navigator.geolocation.getCurrentPosition(async (position)=>{
+        //         setDebug("have position")
+        //         setGeolocation({
+        //           lat: position.coords.latitude.toFixed(6).toString(),
+        //           lon: position.coords.longitude.toFixed(6).toString(),
+        //           karnfaifa: await findBusinessArea(position.coords.latitude,position.coords.longitude),
+        //         });
+        //         setIsCompleteUpload(true)
+        //         setProgress(false)
+        //       },(error)=>{
+        //         setDebug("handle Error")
+        //         switch (error.code) {
+        //             case error.PERMISSION_DENIED:
+        //                 setPositionError("ผู้ใช้ปฏิเสธคำขอตำแหน่ง");
+        //                 break;
+        //             case error.POSITION_UNAVAILABLE:
+        //                 setPositionError("ไม่พบข้อมูลตำแหน่ง");
+        //                 break;
+        //             case error.TIMEOUT:
+        //                 setPositionError("หมดเวลาคำขอตำแหน่ง");
+        //                 break;
+        //         }
+        //         setGeolocation(null)
+        //         setIsCompleteUpload(true)
+        //         setProgress(false)
+        //       })
+        //     }
+        //     else{
+        //       setDebug("Browser Not Available")
+        //       setGeolocation(null)
+        //       setIsCompleteUpload(true)
+        //       setProgress(false)
+        //       setPositionError("Browser ของคุณไม่รองรับตำแหน่ง")
+        //     }
+        //   })
+        //   .catch((reason)=>{
+        //     setDebug("in catch"+JSON.stringify(reason))
+        //   })
       };
       reader.readAsDataURL(file);
     }
@@ -267,9 +317,10 @@ export default function VineBeGoneNow() {
           onChange={handleImageChange}
         />
       </Button>
-      {selectedImage && isCompletedUpload && (
+      {selectedImage && (
         <Card sx={{width: "100%", margin: "1rem auto 0", padding: "1rem 0.5rem 0.5rem", fontSize:"14px"}}>
           <img
+            ref={imgRef}
             src={selectedImage}
             alt="Selected"
             style={{ maxWidth: "100%", height: "300px", objectFit:"contain", margin: "auto" }}
@@ -298,7 +349,7 @@ export default function VineBeGoneNow() {
                     </Grid>
                   </CardContent>
                 )}
-                {!geolocation&&(
+                {!geolocation&&isCompletedUpload&&(
                   <CardContent>
                     <Grid container spacing={2}>
                         <Grid item xs={1}>
@@ -311,15 +362,15 @@ export default function VineBeGoneNow() {
                   </CardContent>
                 )}
                 <CardActions sx={{direction:"flex",justifyContent:"end"}}>
-                    <Button onClick={handleCancel}>Cancel</Button>
-                    {geolocation && geolocation.karnfaifa && <Button type="submit">Send</Button>}
+                    {isCompletedUpload && <Button onClick={handleCancel}>Cancel</Button>}
+                    {geolocation && geolocation.karnfaifa && isCompletedUpload && <Button type="submit">Send</Button>}
                 </CardActions>
             </Card>
       )}
     </Box>
     <AlertSnackBar setSnackBar={setSnackBar} snackBar={snackBar}/>
     <LoadingBackDrop setProgress={setProgress} progress={progress}/>
-    {debug}
+    {/* {debug} */}
     </form>
     </>
   );
