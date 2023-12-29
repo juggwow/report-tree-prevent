@@ -1,10 +1,8 @@
-import fs from 'fs';
-const path = require('path')
+import AOJ from '@/src/AOJ';
 const turf = require('@turf/turf');
 const utmObj = require('utm-latlng');
 
-const filepath = path.join(__dirname,'../../../../AOJ.json')
-const shapefileData = JSON.parse(fs.readFileSync(filepath, 'utf8'));
+const shapefileData = JSON.parse(AOJ);
 const utm = new utmObj();
 
 const businessNameMap = new Map([
