@@ -186,7 +186,7 @@ export default function VineBeGoneNow() {
       reader.onloadend = () => {
         const result = reader.result as string;
         setSelectedImage(result);
-
+        setProgress(true)
         exifr
           .gps(file)
           .then(async (val) => {
@@ -197,6 +197,7 @@ export default function VineBeGoneNow() {
                 karnfaifa: await findBusinessArea(val.latitude,val.longitude),
               });
               setIsCompleteUpload(true)
+              setProgress(false)
             }
             else if("geolocation" in navigator){
               navigator.geolocation.getCurrentPosition(async (position)=>{
@@ -206,6 +207,7 @@ export default function VineBeGoneNow() {
                   karnfaifa: await findBusinessArea(position.coords.latitude,position.coords.longitude),
                 });
                 setIsCompleteUpload(true)
+                setProgress(false)
               },(error)=>{
                 switch (error.code) {
                     case error.PERMISSION_DENIED:
@@ -220,11 +222,13 @@ export default function VineBeGoneNow() {
                 }
                 setGeolocation(null)
                 setIsCompleteUpload(true)
+                setProgress(false)
               })
             }
             else{
               setGeolocation(null)
               setIsCompleteUpload(true)
+              setProgress(false)
               setPositionError("Browser ของคุณไม่รองรับตำแหน่ง")
             }
           })

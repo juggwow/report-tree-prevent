@@ -8,7 +8,6 @@ export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse<Data>,
 ){
-  console.log (req.body)
   const body = JSON.parse(req.body);
 
   if (!body.lat || !body.lon) {
