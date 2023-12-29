@@ -174,6 +174,7 @@ export default function VineBeGoneNow() {
     setIsCompleteUpload(false)  
     const file = event.target.files?.[0];
     if (file) {
+      console.log(file)
       const reader = new FileReader();
       reader.onloadend = () => {
         const result = reader.result as string;
@@ -188,8 +189,18 @@ export default function VineBeGoneNow() {
                 lon: val.longitude.toFixed(6).toString(),
                 karnfaifa: await findBusinessArea(val.latitude,val.longitude),
               });
+              setIsCompleteUpload(true)
             }
-            setIsCompleteUpload(true)
+            else{
+              navigator.geolocation.getCurrentPosition(async (position)=>{
+                setGeolocation({
+                  lat: position.coords.latitude.toFixed(6).toString(),
+                  lon: position.coords.longitude.toFixed(6).toString(),
+                  karnfaifa: await findBusinessArea(position.coords.latitude,position.coords.longitude),
+                });
+                setIsCompleteUpload(true)
+              })
+            }
           })
       };
       reader.readAsDataURL(file);
@@ -216,7 +227,7 @@ export default function VineBeGoneNow() {
           type="file"
           accept="image/*"
           onChange={handleImageChange}
-          capture={false}
+          capture="environment"
         />
       </Button>
       {selectedImage && isCompletedUpload && (
@@ -257,7 +268,7 @@ export default function VineBeGoneNow() {
                             <LocationOffIcon color="error"/>
                         </Grid>
                         <Grid item xs={11}>
-                            ไฟล์รูปของคุณไม่มีตำแหน่ง กรุณาเปลี่ยนรูป 
+                            ไฟล์รูปของคุณไม่มีตำแหน่ง หรือ Browser ไม่อนุญาติให้หาตำแหน่งของคุณ กรุณาลองใหม่อีกครั้ง 
                         </Grid>
                     </Grid>
                   </CardContent>
