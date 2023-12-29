@@ -179,10 +179,9 @@ export default function VineBeGoneNow() {
   const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
     setGeolocation(null)
     setSelectedImage(null)
-    setIsCompleteUpload(false)  
+    setIsCompleteUpload(false)
     const file = event.target.files?.[0];
     if (file) {
-      console.log(file)
       const reader = new FileReader();
       reader.onloadend = () => {
         const result = reader.result as string;
@@ -237,6 +236,10 @@ export default function VineBeGoneNow() {
               setPositionError("Browser ของคุณไม่รองรับตำแหน่ง")
             }
           })
+          .catch((reason)=>{
+            setDebug("in catch"+JSON.stringify(reason))
+          })
+          .finally(()=>setIsCompleteUpload(true))
       };
       reader.readAsDataURL(file);
     }
