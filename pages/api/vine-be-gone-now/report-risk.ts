@@ -16,7 +16,10 @@ type Data = {
 type RequestData = {
     riskPoint: string; 
     place: string; 
-    file: string
+    uploadedImage: {
+        id: string,
+        url: string
+    }
     lat: string;
     lon: string;
     karnfaifa: {
@@ -40,19 +43,7 @@ export default async function handler(
         return;
     }
 
-    const providers = await getProviders()
-    console.log(providers)
-
     const data:RequestData = JSON.parse(req.body)
-    const uploadResult = await fetch("https://script.google.com/macros/s/AKfycbyTltbACbFhsd7ubH22dGXUyI0OShWmJe551lVfUg7KhgZkpJTl4F6AwElGk09ZKZPw/exec",{
-      method: "POST",
-      body: data.file
-    })
-    const uploadedImage = await uploadResult.json()
-    if(uploadedImage.error){
-        res.status(405).end();
-        return;
-    }
 
     const mongoClient = await clientPromise;
     const vineBeGoneCollection = mongoClient.db("vine-be-gone").collection("risk")
@@ -63,7 +54,7 @@ export default async function handler(
         lat: data.lat,
         lon: data.lon,
         karnfaifa: data.karnfaifa,
-        uploadedImage
+        uploadedImage: data.uploadedImage
     })
     if(!doc.acknowledged){
         res.status(405).end()

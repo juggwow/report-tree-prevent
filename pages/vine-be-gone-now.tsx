@@ -1,14 +1,15 @@
 import { Box, Button, Card, CardActions, CardContent, Grid, TextField, Typography } from "@mui/material";
-import { useState, ChangeEvent, useRef, useEffect } from "react";
+import { useState, ChangeEvent, useRef} from "react";
 import { styled } from "@mui/material/styles";
-import AddAPhotoIcon from '@mui/icons-material/AddAPhoto';
+import InsertPhotoIcon from '@mui/icons-material/InsertPhoto';
 import exifr from "exifr";
 import LocationOnIcon from '@mui/icons-material/LocationOn';
+import LocationOffIcon from '@mui/icons-material/LocationOff';
 import BusinessIcon from '@mui/icons-material/Business';
 import AlertSnackBar from "@/components/alert-snack-bar";
 import { snackBar } from "@/types/report-prevent";
 import LoadingBackDrop from "@/components/loading-backdrop";
-import { signIn } from "next-auth/react";
+import Head from "next/head";
 
 type Karnfaifa = {
     businessName: string;
@@ -21,7 +22,16 @@ type Geolocation = {
   karnfaifa: Karnfaifa | null;
 };
 
-type RequestData = Geolocation & {riskPoint: string; place: string; file: string}
+type ResponeUploadImageSuccess = {
+  url: string,
+  id: string
+} 
+
+type ResponeUploadImageFail = {
+  error : string
+}
+
+type RequestData = Geolocation & {riskPoint: string; place: string; uploadedImage: ResponeUploadImageSuccess}
 
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -36,7 +46,6 @@ const VisuallyHiddenInput = styled("input")({
 });
 
 const findBusinessArea = async(lat:number,lon:number):Promise<Karnfaifa|null>=>{
-  console.log(lat,lon)
   const res = await fetch('/api/lat-lon-to-aoj', {
     method: "POST",
     body: JSON.stringify({
@@ -49,17 +58,32 @@ const findBusinessArea = async(lat:number,lon:number):Promise<Karnfaifa|null>=>{
   return (await res.json()) as Karnfaifa
 }
 
+const uploadPhoto = async(file:string):Promise<ResponeUploadImageSuccess|null>=>{
+  const uploadResult = await fetch("https://script.google.com/macros/s/AKfycbyTltbACbFhsd7ubH22dGXUyI0OShWmJe551lVfUg7KhgZkpJTl4F6AwElGk09ZKZPw/exec",{
+    method: "POST",
+    body: file
+  })
+  const uploadedImage:ResponeUploadImageSuccess|ResponeUploadImageFail = await uploadResult.json()
+  if ('error' in uploadedImage) {
+    return null;
+  }
+  return uploadedImage
+}
+
 export async function getServerSideProps(context: any) {
-  if(context.query.liff != "TRUE"){
+  const liff = context.query.liff
+  if(liff != "TRUE"){
     return {
       redirect: {
-        desination: "/404?liff=TRUE"
+        destination: "/404"
       }
     }
   }
 
   return {
-    props : null
+    props : {
+      vine: true
+    }
   }
 }
 
@@ -72,10 +96,12 @@ export default function VineBeGoneNow() {
     open: false
   })
   const [progress,setProgress]= useState<boolean>(false)
+  const [isCompletedUpload,setIsCompleteUpload] = useState<boolean>(false)
 
   const formRef = useRef<HTMLFormElement|null>(null)
 
   const handleCancel = ()=>{
+    setIsCompleteUpload(false)
     setGeolocation(null)
     setSelectedImage(null)
     formRef.current?.reset()
@@ -87,7 +113,7 @@ export default function VineBeGoneNow() {
     if(!form){
       setSnackBar({
         sevirity: "error",
-        massege: "เกิดข้อผิดพลาด",
+        massege: "เกิดข้อผิดพลาด ฟอร์มของคุณไม่ถูกต้อง",
         open: true
       })
       return
@@ -96,18 +122,30 @@ export default function VineBeGoneNow() {
     if(!selectedImage || !geolocation){
       setSnackBar({
         sevirity: "error",
-        massege: "เกิดข้อผิดพลาด",
+        massege: "เกิดข้อผิดพลาด ไม่มีรูปภาพ หรือไม่มีตำแหน่ง",
         open: true
       })
       return
     }
+
+    setProgress(true)
+    const uploadedImage = await uploadPhoto(selectedImage)
+    if(!uploadedImage){
+      setProgress(false)
+      setSnackBar({
+        sevirity: "error",
+        massege: "เกิดข้อผิดพลาด ไม่สามารถอัปโหลดรูปภาพได้",
+        open: true
+      })
+      return
+    }
+
     const body:RequestData = {
       ...geolocation,
       riskPoint : form['riskPoint'].value,
       place: form['place'].value,
-      file: selectedImage
+      uploadedImage
     }
-    setProgress(true)
     const res = await fetch("/api/vine-be-gone-now/report-risk",{
       method: "POST",
       body: JSON.stringify(body)
@@ -116,7 +154,7 @@ export default function VineBeGoneNow() {
     if(res.status != 200){
       setSnackBar({
         sevirity: "error",
-        massege: "เกิดข้อผิดพลาด",
+        massege: "เกิดข้อผิดพลาดกับระบบ",
         open: true
       })
       return
@@ -132,7 +170,8 @@ export default function VineBeGoneNow() {
 
   const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
     setGeolocation(null)
-    setSelectedImage(null)  
+    setSelectedImage(null)
+    setIsCompleteUpload(false)  
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
@@ -150,17 +189,7 @@ export default function VineBeGoneNow() {
                 karnfaifa: await findBusinessArea(val.latitude,val.longitude),
               });
             }
-            else{
-                navigator.geolocation.getCurrentPosition(async (geo) => {
-                    if (geo) {
-                      setGeolocation({
-                        lat: geo.coords.latitude.toFixed(6).toString(),
-                        lon: geo.coords.longitude.toFixed(6).toString(),
-                        karnfaifa: await findBusinessArea(geo.coords.latitude,geo.coords.longitude),
-                      });
-                    }
-                  });
-            }
+            setIsCompleteUpload(true)
           })
       };
       reader.readAsDataURL(file);
@@ -168,23 +197,29 @@ export default function VineBeGoneNow() {
   };
 
   return (
+    <>
+    <Head>
+      <title>เถาวัลย์จงหายไป</title>
+      <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+    </Head>
     <form ref={formRef} onSubmit={handleSubmit}>
+
       <Box sx={{maxWidth:"430px", margin:"1rem auto 0"}}>
       <Button
         component="label"
         variant="contained"
         sx={{width:"100%"}}
-        startIcon={<AddAPhotoIcon />}
+        startIcon={<InsertPhotoIcon />}
       >
-        Take photo
+        Upload Photo
         <VisuallyHiddenInput
           type="file"
           accept="image/*"
           onChange={handleImageChange}
-          capture="environment"
+          capture={false}
         />
       </Button>
-      {selectedImage && (
+      {selectedImage && isCompletedUpload && (
         <Card sx={{width: "100%", margin: "1rem auto 0", padding: "1rem 0.5rem 0.5rem", fontSize:"14px"}}>
           <img
             src={selectedImage}
@@ -215,6 +250,18 @@ export default function VineBeGoneNow() {
                     </Grid>
                   </CardContent>
                 )}
+                {!geolocation&&(
+                  <CardContent>
+                    <Grid container spacing={2}>
+                        <Grid item xs={1}>
+                            <LocationOffIcon color="error"/>
+                        </Grid>
+                        <Grid item xs={11}>
+                            ไฟล์รูปของคุณไม่มีตำแหน่ง กรุณาเปลี่ยนรูป 
+                        </Grid>
+                    </Grid>
+                  </CardContent>
+                )}
                 <CardActions sx={{direction:"flex",justifyContent:"end"}}>
                     <Button onClick={handleCancel}>Cancel</Button>
                     {geolocation && geolocation.karnfaifa && <Button type="submit">Send</Button>}
@@ -225,5 +272,6 @@ export default function VineBeGoneNow() {
     <AlertSnackBar setSnackBar={setSnackBar} snackBar={snackBar}/>
     <LoadingBackDrop setProgress={setProgress} progress={progress}/>
     </form>
+    </>
   );
 }

@@ -45,8 +45,6 @@ const businessNameMap = new Map([
 export function findAOJ(lat: number, lon: number): undefined | null | {businessName: string, fullName: string, aoj:string} {
   const myUTM = utm.convertLatLngToUtm(lat, lon, 1);
 
-  console.log(lat,lon)
-
   const targetPoint = turf.point([myUTM.Easting, myUTM.Northing]);
 
   for (const aojs of shapefileData.features) {
