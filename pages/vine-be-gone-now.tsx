@@ -93,8 +93,6 @@ export default function VineBeGoneNow() {
   if(status == "unauthenticated"){
     signIn("line",{callbackUrl:"/vine-be-gone-now?liff=TRUE"})
   }
-
-  const [debug,setDebug] = useState("")
   const [positionError,setPositionError] = useState<string>()
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [geolocation, setGeolocation] = useState<Geolocation | null>(null);
@@ -114,6 +112,20 @@ export default function VineBeGoneNow() {
     setGeolocation(null)
     setSelectedImage(null)
     formRef.current?.reset()
+  }
+
+  const handleGeolocationError = (error:GeolocationPositionError) =>{
+    switch (error.code) {
+      case error.PERMISSION_DENIED:
+          setPositionError("ผู้ใช้ปฏิเสธคำขอตำแหน่ง");
+          break;
+      case error.POSITION_UNAVAILABLE:
+          setPositionError("ไม่พบข้อมูลตำแหน่ง");
+          break;
+      case error.TIMEOUT:
+          setPositionError("หมดเวลาคำขอตำแหน่ง");
+          break;
+    }
   }
 
   const handleSubmit = async(e:ChangeEvent<HTMLFormElement>)=>{
@@ -177,7 +189,7 @@ export default function VineBeGoneNow() {
     })
   }
 
-  const imgClick = () =>{
+  const retrieveGeoArterPhotoUploap = () =>{
     if(!imgRef.current){
       return
     }
@@ -187,8 +199,9 @@ export default function VineBeGoneNow() {
     const timeoutPromise = new Promise<{}>((_, reject) => {
       setTimeout(() => {
         reject(new Error('Timeout exceeded'));
-      }, 2000);
+      }, 5000);
     });
+
     Promise.race([gpsPromise, timeoutPromise]).then(async(val: { latitude?: number; longitude?: number })=>{
       if (val && val.latitude && val.longitude) {
         setGeolocation({
@@ -200,7 +213,6 @@ export default function VineBeGoneNow() {
         setProgress(false)
       } else {
         navigator.geolocation.getCurrentPosition(async (position)=>{
-          setDebug("have position")
           setGeolocation({
             lat: position.coords.latitude.toFixed(6).toString(),
             lon: position.coords.longitude.toFixed(6).toString(),
@@ -209,18 +221,7 @@ export default function VineBeGoneNow() {
           setIsCompleteUpload(true)
           setProgress(false)
         },(error)=>{
-          setDebug("handle Error")
-          switch (error.code) {
-              case error.PERMISSION_DENIED:
-                  setPositionError("ผู้ใช้ปฏิเสธคำขอตำแหน่ง");
-                  break;
-              case error.POSITION_UNAVAILABLE:
-                  setPositionError("ไม่พบข้อมูลตำแหน่ง");
-                  break;
-              case error.TIMEOUT:
-                  setPositionError("หมดเวลาคำขอตำแหน่ง");
-                  break;
-          }
+          handleGeolocationError(error)
           setGeolocation(null)
           setIsCompleteUpload(true)
           setProgress(false)
@@ -228,7 +229,6 @@ export default function VineBeGoneNow() {
       }
     }).catch(async()=>{
       navigator.geolocation.getCurrentPosition(async (position)=>{
-        setDebug("have position")
         setGeolocation({
           lat: position.coords.latitude.toFixed(6).toString(),
           lon: position.coords.longitude.toFixed(6).toString(),
@@ -237,60 +237,12 @@ export default function VineBeGoneNow() {
         setIsCompleteUpload(true)
         setProgress(false)
       },(error)=>{
-        setDebug("handle Error")
-        switch (error.code) {
-            case error.PERMISSION_DENIED:
-                setPositionError("ผู้ใช้ปฏิเสธคำขอตำแหน่ง");
-                break;
-            case error.POSITION_UNAVAILABLE:
-                setPositionError("ไม่พบข้อมูลตำแหน่ง");
-                break;
-            case error.TIMEOUT:
-                setPositionError("หมดเวลาคำขอตำแหน่ง");
-                break;
-        }
+        handleGeolocationError(error)
         setGeolocation(null)
         setIsCompleteUpload(true)
         setProgress(false)
       })
     })
-    // exifr.gps(imgRef.current).then(async(val)=>{
-    //   setGeolocation({
-    //     lat: val.latitude.toFixed(6),
-    //     lon: val.longitude.toFixed(6),
-    //     karnfaifa: await findBusinessArea(val.latitude,val.longitude)
-    //   })
-    //   setIsCompleteUpload(true)
-    //   setProgress(false)
-    // }).catch(async()=>{
-    //   navigator.geolocation.getCurrentPosition(async (position)=>{
-    //     setDebug("have position")
-    //     setGeolocation({
-    //       lat: position.coords.latitude.toFixed(6).toString(),
-    //       lon: position.coords.longitude.toFixed(6).toString(),
-    //       karnfaifa: await findBusinessArea(position.coords.latitude,position.coords.longitude),
-    //     });
-    //     setIsCompleteUpload(true)
-    //     setProgress(false)
-    //   },(error)=>{
-    //     setDebug("handle Error")
-    //     switch (error.code) {
-    //         case error.PERMISSION_DENIED:
-    //             setPositionError("ผู้ใช้ปฏิเสธคำขอตำแหน่ง");
-    //             break;
-    //         case error.POSITION_UNAVAILABLE:
-    //             setPositionError("ไม่พบข้อมูลตำแหน่ง");
-    //             break;
-    //         case error.TIMEOUT:
-    //             setPositionError("หมดเวลาคำขอตำแหน่ง");
-    //             break;
-    //     }
-    //     setGeolocation(null)
-    //     setIsCompleteUpload(true)
-    //     setProgress(false)
-    //   })
-    // })
-
   }
 
   const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -304,62 +256,7 @@ export default function VineBeGoneNow() {
       reader.onloadend = () => {
         const result = reader.result as string;
         setSelectedImage(result);
-        setTimeout(imgClick,1000)
-
-        
-        // setProgress(true)
-        // exifr
-        //   .gps(file)
-        //   .then(async (val) => {
-        //     if (val) {
-        //       setDebug("exifr")
-        //       setGeolocation({
-        //         lat: val.latitude.toFixed(6).toString(),
-        //         lon: val.longitude.toFixed(6).toString(),
-        //         karnfaifa: await findBusinessArea(val.latitude,val.longitude),
-        //       });
-        //       setIsCompleteUpload(true)
-        //       setProgress(false)
-        //     }
-        //     else if("geolocation" in navigator){
-        //       navigator.geolocation.getCurrentPosition(async (position)=>{
-        //         setDebug("have position")
-        //         setGeolocation({
-        //           lat: position.coords.latitude.toFixed(6).toString(),
-        //           lon: position.coords.longitude.toFixed(6).toString(),
-        //           karnfaifa: await findBusinessArea(position.coords.latitude,position.coords.longitude),
-        //         });
-        //         setIsCompleteUpload(true)
-        //         setProgress(false)
-        //       },(error)=>{
-        //         setDebug("handle Error")
-        //         switch (error.code) {
-        //             case error.PERMISSION_DENIED:
-        //                 setPositionError("ผู้ใช้ปฏิเสธคำขอตำแหน่ง");
-        //                 break;
-        //             case error.POSITION_UNAVAILABLE:
-        //                 setPositionError("ไม่พบข้อมูลตำแหน่ง");
-        //                 break;
-        //             case error.TIMEOUT:
-        //                 setPositionError("หมดเวลาคำขอตำแหน่ง");
-        //                 break;
-        //         }
-        //         setGeolocation(null)
-        //         setIsCompleteUpload(true)
-        //         setProgress(false)
-        //       })
-        //     }
-        //     else{
-        //       setDebug("Browser Not Available")
-        //       setGeolocation(null)
-        //       setIsCompleteUpload(true)
-        //       setProgress(false)
-        //       setPositionError("Browser ของคุณไม่รองรับตำแหน่ง")
-        //     }
-        //   })
-        //   .catch((reason)=>{
-        //     setDebug("in catch"+JSON.stringify(reason))
-        //   })
+        setTimeout(retrieveGeoArterPhotoUploap,1000)
       };
       reader.readAsDataURL(file);
     }
@@ -440,7 +337,6 @@ export default function VineBeGoneNow() {
     </Box>
     <AlertSnackBar setSnackBar={setSnackBar} snackBar={snackBar}/>
     <LoadingBackDrop setProgress={setProgress} progress={progress}/>
-    {/* {debug} */}
     </form>
     </>
   );
