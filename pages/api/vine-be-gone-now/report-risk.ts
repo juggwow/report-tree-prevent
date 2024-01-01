@@ -60,15 +60,16 @@ export default async function handler(
         return
     }
 
-    sendMessageToMaintenance(data,doc.insertedId)
     sendMessageToReporter(session.sub)
-
+    sendMessageToMaintenance(data,doc.insertedId)
+    
     res.status(200).end()
     return
 }
 
 
 async function sendMessageToReporter(user:string){
+    console.log(user)
     const lineApiUrl = 'https://api.line.me/v2/bot/message/push';
     const accessToken = 'Cnps9+Xgzybwu7N36fvxzef+iWWZAHAIW71klZ72y6fHaEOQH2xrlC5ELes26j77qXtSaTX2wsBAwVMk9shh3HA4+3yZ7O/eEMmkY3vRM5OMylg/QZakY3LwXibylLfI5rQZNf0LKOS3zEJH7BG3uQdB04t89/1O/w1cDnyilFU=';
 
@@ -94,11 +95,14 @@ async function sendMessageToReporter(user:string){
     };
 
     const resLineApi = await fetch(lineApiUrl, requestOptions)
+    console.log(await resLineApi.json())
 }
 
 
 
 async function sendMessageToMaintenance(data:RequestData,id: ObjectId){
+
+    console.log(data,id)
 
     const mongoClient = await clientPromise;
     const userCollection = mongoClient.db("user").collection("user")
@@ -174,6 +178,6 @@ async function sendMessageToMaintenance(data:RequestData,id: ObjectId){
     };
 
     const resLineApi = await fetch(lineApiUrl, requestOptions)
-    
+    console.log(await resLineApi.json())
 }
   
