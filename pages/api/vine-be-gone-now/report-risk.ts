@@ -141,7 +141,7 @@ async function sendMessageToMaintenance(data:RequestData,id: ObjectId){
         messages: [
             {
             type: 'template',
-            altText: 'risk point image',
+            altText: 'มีผู้รายงานจุดเสี่ยงในระบบไฟฟ้า',
             template: {
                 type: 'buttons',
                 thumbnailImageUrl: data.uploadedImage?.url,
@@ -174,29 +174,6 @@ async function sendMessageToMaintenance(data:RequestData,id: ObjectId){
     };
 
     const resLineApi = await fetch(lineApiUrl, requestOptions)
-
-    console.log(await resLineApi.json())
-
-
     
 }
-
-// db.collection.aggregate([
-//     {
-//       $match: {
-//         'hobbies.hobby': 'reading'
-//       }
-//     },
-//     {
-//       $unwind: '$hobbies'
-//     },
-//     {
-//       $project: {
-//         _id: 1,
-//         name: 1,
-//         hobby: '$hobbies.hobby',
-//         level: '$hobbies.level'
-//       }
-//     }
-//   ]);
   

@@ -89,7 +89,7 @@ export async function getServerSideProps(context: any) {
 }
 
 export default function VineBeGoneNow() {
-  const { status } = useSession()
+  const { data,status } = useSession()
   if(status == "unauthenticated"){
     signIn("line",{callbackUrl:"/vine-be-gone-now?liff=TRUE"})
   }
@@ -337,6 +337,9 @@ export default function VineBeGoneNow() {
     </Box>
     <AlertSnackBar setSnackBar={setSnackBar} snackBar={snackBar}/>
     <LoadingBackDrop setProgress={setProgress} progress={progress}/>
+    {data?.provider}
+    {data?.sub}
+    {!data?.provider&&"ไม่มี"}
     </form>
     </>
   );
