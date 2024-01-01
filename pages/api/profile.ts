@@ -6,6 +6,8 @@ import db from "@/firebase";
 import { peaUser } from "@/types/next-auth";
 import authOptions from "./auth/authoption";
 import NextAuth from "next-auth/next";
+import clientPromise from "@/lib/mongodb";
+import { ObjectId } from "mongodb";
 
 type Data = {
   name: string;
@@ -26,14 +28,31 @@ export default async function handler(
     if (!pea.role) {
       pea = { ...pea, role: "operator" };
     }
-    const docRef = doc(
-      db,
-      process.env.NEXT_PUBLIC_USER_DB_COLLECTION as string,
-      session.sub,
-    );
-    await setDoc(docRef, pea);
-    res.status(200).end();
-    return;
+    const mongoClient = await clientPromise;
+    const userCollection = mongoClient.db("user").collection("user")
+    const findDoc = await userCollection.findOne({sub: session.sub})
+    if(findDoc){
+      const filter = {sub: session.sub}
+      const update = {
+        $set: {...pea,provider:session.provider  }
+      }
+      const resultUpdate = await userCollection.findOneAndUpdate(filter,update)
+      if(!resultUpdate.ok){
+        res.status(500).end()
+        return
+      }
+      res.status(200).end()
+      return
+    }
+    else {
+      const doc = await userCollection.insertOne({...pea,sub:session.sub,provider:session.provider})
+      if(!doc.acknowledged){
+        res.status(500).end()
+        return
+      }
+      res.status(200).end();
+      return;
+    }
   }
 
   res.status(401).end();

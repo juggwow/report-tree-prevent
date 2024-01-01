@@ -1,4 +1,4 @@
-import { AuthOptions, Session } from "next-auth";
+import { Account, AuthOptions, Session } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { JWT } from "next-auth/jwt";
 import LineProvider from "next-auth/providers/line";
@@ -22,14 +22,16 @@ const authOptions: AuthOptions = {
     async jwt({
       token,
       trigger,
+      account
     }: {
       token: JWT;
       trigger?: "signIn" | "update" | "signUp" | undefined;
+      account: Account|null
     }): Promise<JWT> {
       if (trigger == "update") {
         delete token.pea;
       }
-      return await setJWT(token);
+      return await setJWT(token,account);
     },
     async session({
       session,
@@ -41,6 +43,7 @@ const authOptions: AuthOptions = {
       if (token) {
         session.pea = token.pea;
         session.sub = token.sub;
+        session.provider = token.provider;
       }
       return session;
     },

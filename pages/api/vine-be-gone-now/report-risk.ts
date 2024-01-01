@@ -1,13 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
-import { doc, setDoc } from "firebase/firestore";
-import db from "@/firebase";
-import { peaUser } from "@/types/next-auth";
 import authOptions from "../auth/authoption";
 import clientPromise from "@/lib/mongodb";
-import { treeData } from "@/types/report-tree";
 import { ObjectId } from "mongodb";
-import { getProviders } from "next-auth/react";
 
 type Data = {
   massege: string;
@@ -65,6 +60,13 @@ export default async function handler(
         return
     }
 
+    sendMessageToMaintenance(data,doc.insertedId)
+
     res.status(200).end()
     return
+}
+
+
+function sendMessageToMaintenance(data:RequestData,id: ObjectId){
+    
 }

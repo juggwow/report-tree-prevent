@@ -77,6 +77,9 @@ export default function ProfilePage({
       if (path == "/") {
         update();
       }
+      if(link == "/"){
+        router.push("/")
+      }
       router.push(link);
     } else {
       setSnackBar({
