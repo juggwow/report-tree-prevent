@@ -96,6 +96,8 @@ async function sendMessageToReporter(user:string){
 
     const resLineApi = await fetch(lineApiUrl, requestOptions)
     console.log(`res ตอนส่งหาคนรายงาน ${resLineApi.status}`)
+    console.log(await resLineApi.json())
+
 }
 
 
@@ -180,5 +182,6 @@ async function sendMessageToMaintenance(data:RequestData,id: ObjectId){
 
     const resLineApi = await fetch(lineApiUrl, requestOptions)
     console.log(`res ตอนส่งหาคนแก้ไข ${resLineApi.status}`)
+    console.log(await resLineApi.json())
 }
   
