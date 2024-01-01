@@ -33,7 +33,7 @@ export default async function handler(
         return;
     }
     const session = await getServerSession(req, res, authOptions);
-    if (!(session && session.sub)){
+    if (!(session && session.sub && session.provider == "line")){
         res.status(400).end();
         return;
     }
@@ -61,12 +61,142 @@ export default async function handler(
     }
 
     sendMessageToMaintenance(data,doc.insertedId)
+    sendMessageToReporter(session.sub)
 
     res.status(200).end()
     return
 }
 
 
-function sendMessageToMaintenance(data:RequestData,id: ObjectId){
+async function sendMessageToReporter(user:string){
+    const lineApiUrl = 'https://api.line.me/v2/bot/message/push';
+    const accessToken = 'Cnps9+Xgzybwu7N36fvxzef+iWWZAHAIW71klZ72y6fHaEOQH2xrlC5ELes26j77qXtSaTX2wsBAwVMk9shh3HA4+3yZ7O/eEMmkY3vRM5OMylg/QZakY3LwXibylLfI5rQZNf0LKOS3zEJH7BG3uQdB04t89/1O/w1cDnyilFU=';
+
+    const headers = new Headers({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`
+    });
+
+    const body = {
+        to : user,
+        messages:[
+            {
+                type:"text",
+                text:"ขอบคุณที่รายงานสิ่งผิดปกติในระบบไฟฟ้าให้กับเรา หากมีการแก้ไขแล้ว เราจะแจ้งให้คุณได้ทราบในภายหลัง"
+            },
+        ]
+    }
+
+    const requestOptions = {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(body),
+    };
+
+    const resLineApi = await fetch(lineApiUrl, requestOptions)
+}
+
+
+
+async function sendMessageToMaintenance(data:RequestData,id: ObjectId){
+
+    const mongoClient = await clientPromise;
+    const userCollection = mongoClient.db("user").collection("user")
+
+    const result = await userCollection.aggregate([
+      {
+        $match: {
+          provider: "line",
+          karnfaifa: data.karnfaifa?.businessName
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          sub: { $addToSet: "$sub" }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          sub: 1
+        }
+      }
+    ]).toArray();
+
+    if(result.length == 0){
+        return
+    }
+
+    const lineApiUrl = 'https://api.line.me/v2/bot/message/multicast';
+    const accessToken = 'Cnps9+Xgzybwu7N36fvxzef+iWWZAHAIW71klZ72y6fHaEOQH2xrlC5ELes26j77qXtSaTX2wsBAwVMk9shh3HA4+3yZ7O/eEMmkY3vRM5OMylg/QZakY3LwXibylLfI5rQZNf0LKOS3zEJH7BG3uQdB04t89/1O/w1cDnyilFU=';
+
+    const headers = new Headers({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`
+    });
+
+    const body = {
+        to: result[0].sub,
+        messages: [
+            {
+            type: 'template',
+            altText: 'risk point image',
+            template: {
+                type: 'buttons',
+                thumbnailImageUrl: data.uploadedImage?.url,
+                imageAspectRatio: 'square',
+                imageSize: 'contain',
+                imageBackgroundColor: '#F3E6E6',
+                title: 'ได้รับแจ้งสิ่งผิดปกติในระบบไฟฟ้า',
+                text: `สิ่งผิดปกติ: ${data.riskPoint}\nหมายเลขเสา/สถานที่: ${data.place}`,
+                actions: [
+                {
+                    type: 'uri',
+                    label: 'แผนที่',
+                    uri: `https://www.google.com/maps?q=${data.lat},${data.lon}`
+                },
+                {
+                    type: 'uri',
+                    label: 'แก้ไข',
+                    uri: 'https://www.google.co.th'
+                }
+                ]
+            }
+            }
+        ]
+    };
+
+    const requestOptions = {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(body),
+    };
+
+    const resLineApi = await fetch(lineApiUrl, requestOptions)
+
+    console.log(await resLineApi.json())
+
+
     
 }
+
+// db.collection.aggregate([
+//     {
+//       $match: {
+//         'hobbies.hobby': 'reading'
+//       }
+//     },
+//     {
+//       $unwind: '$hobbies'
+//     },
+//     {
+//       $project: {
+//         _id: 1,
+//         name: 1,
+//         hobby: '$hobbies.hobby',
+//         level: '$hobbies.level'
+//       }
+//     }
+//   ]);
+  
