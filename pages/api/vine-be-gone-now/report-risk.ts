@@ -60,8 +60,8 @@ export default async function handler(
         return
     }
 
-    sendMessageToReporter(session.sub)
-    sendMessageToMaintenance(data,doc.insertedId)
+    await sendMessageToReporter(session.sub)
+    await sendMessageToMaintenance(data,doc.insertedId)
     
     res.status(200).end()
     return
