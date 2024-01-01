@@ -337,9 +337,6 @@ export default function VineBeGoneNow() {
     </Box>
     <AlertSnackBar setSnackBar={setSnackBar} snackBar={snackBar}/>
     <LoadingBackDrop setProgress={setProgress} progress={progress}/>
-    {data?.provider}
-    {data?.sub}
-    {!data?.provider&&"ไม่มี"}
     </form>
     </>
   );
