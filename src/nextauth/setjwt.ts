@@ -16,6 +16,8 @@ export default async function setJWT(token: JWT,account: Account|null): Promise<
   if (!token.sub) {
     return token;
   }
+  //เพิ่ม provider
+  account? token.provider = account.provider :undefined
   //ค้นห้าข้อมูล PEA ใน Firestore
   const mongoClient = await clientPromise
   const userCollection = mongoClient.db("user").collection("user")
@@ -34,5 +36,5 @@ export default async function setJWT(token: JWT,account: Account|null): Promise<
     }
   }
   const docSnap = await userCollection.findOne(query,options) as unknown as peaUser | null
-  return docSnap? { ...token, pea: docSnap,provider: account?.provider }:{...token,provider:account?.provider}
+  return docSnap? { ...token, pea: docSnap}:token
 }

@@ -47,7 +47,7 @@ export default async function handler(
     const mongoClient = await clientPromise;
     const vineBeGoneCollection = mongoClient.db("vine-be-gone").collection("risk")
     const doc = await vineBeGoneCollection.insertOne({
-        user: session.sub,
+        sub: session.sub,
         riskPoint: data.riskPoint, 
         place: data.place, 
         lat: data.lat,

@@ -34,7 +34,7 @@ export default async function handler(
     if(findDoc){
       const filter = {sub: session.sub}
       const update = {
-        $set: {...pea,provider:session.provider  }
+        $set: {...pea  }
       }
       const resultUpdate = await userCollection.findOneAndUpdate(filter,update)
       if(!resultUpdate.ok){
