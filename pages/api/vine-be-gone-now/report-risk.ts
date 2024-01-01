@@ -95,7 +95,7 @@ async function sendMessageToReporter(user:string){
     };
 
     const resLineApi = await fetch(lineApiUrl, requestOptions)
-    console.log(await resLineApi.json())
+    console.log(`res ตอนส่งหาคนรายงาน ${resLineApi.status}`)
 }
 
 
@@ -129,6 +129,7 @@ async function sendMessageToMaintenance(data:RequestData,id: ObjectId){
     ]).toArray();
 
     if(result.length == 0){
+        console.log('ไม่เจอ user คนแก้ไข')
         return
     }
 
@@ -178,6 +179,6 @@ async function sendMessageToMaintenance(data:RequestData,id: ObjectId){
     };
 
     const resLineApi = await fetch(lineApiUrl, requestOptions)
-    console.log(await resLineApi.json())
+    console.log(`res ตอนส่งหาคนแก้ไข ${resLineApi.status}`)
 }
   
