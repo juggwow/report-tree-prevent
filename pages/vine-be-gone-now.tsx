@@ -11,28 +11,9 @@ import { snackBar } from "@/types/report-prevent";
 import LoadingBackDrop from "@/components/loading-backdrop";
 import Head from "next/head";
 import { signIn, useSession } from "next-auth/react";
+import { Karnfaifa, RequestData,Geolocation, ResponeUploadImageFail, ResponeUploadImageSuccess } from "@/types/vine-be-gone-now";
 
-type Karnfaifa = {
-    businessName: string;
-    fullName: string;
-    aoj:string
-}
-type Geolocation = {
-  lat: string;
-  lon: string;
-  karnfaifa: Karnfaifa | null;
-};
 
-type ResponeUploadImageSuccess = {
-  url: string,
-  id: string
-} 
-
-type ResponeUploadImageFail = {
-  error : string
-}
-
-type RequestData = Geolocation & {riskPoint: string; place: string; uploadedImage: ResponeUploadImageSuccess}
 
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
