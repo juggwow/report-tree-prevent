@@ -132,16 +132,6 @@ export default function ProfilePage({
       </h3>
       <form className="mx-4 my-8 flex flex-col" onSubmit={handleSubmit}>
         <Autocomplete
-          onMouseEnter={() => {
-            if (pea) {
-              setSnackBar({
-                massege: "ไม่อนุญาติให้แก่ไข กรุณาติดต่อ 0883874774",
-                sevirity: "warning",
-                open: true,
-              });
-            }
-          }}
-          disabled={pea ? true : false}
           disablePortal
           id="karnfaifa"
           options={optionsKarnfaifa}

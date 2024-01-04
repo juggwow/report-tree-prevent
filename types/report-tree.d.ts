@@ -27,6 +27,10 @@ interface ReportTreeProps {
   treeData: treeData[];
 }
 
+type TreeDataFilter = treeData & {
+  hasZPM4: boolean
+}
+
 type SetPropsOrderNumberType = {
   order: Order;
   setOrder: React.Dispatch<React.SetStateAction<Order>>;
@@ -42,8 +46,8 @@ type SetPropsTreeDataTableType = {
     alignment: string;
     showElementChoose: boolean;
     order: Order;
-    filter: treeData;
-    setFilter: React.Dispatch<React.SetStateAction<treeData>>
+    filter: TreeDataFilter;
+    setFilter: React.Dispatch<React.SetStateAction<TreeDataFilter>>
     showTreeData: treeData[]
     chooseTreeData: treeData[]
     setChooseTreeData: React.Dispatch<React.SetStateAction<treeData[]>>

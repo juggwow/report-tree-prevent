@@ -152,7 +152,6 @@ export default function ReportPrevent({
 
   async function sendPreventData() {
     setProgress(true);
-    console.log(choosePreventData);
     try {
       const res = await fetch("/api/prevent/report-zpm4", {
         method: "POST",

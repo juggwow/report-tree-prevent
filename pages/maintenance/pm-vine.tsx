@@ -2,6 +2,31 @@ import { Autocomplete, Grid, Pagination, TextField, Typography } from '@mui/mate
 import React, { useEffect, useState } from "react";
 import MaintenanceImgMediaCard from '@/components/maintenance/pm-media-card';
 import { ImgMediaCardProp, MaintenanceVineBeGoneData } from '@/types/vine-be-gone-now';
+import { getSession } from 'next-auth/react';
+
+export async function getServerSideProps(context: any) {
+    const session = await getSession(context);
+  
+    if (!session) {
+      return {
+        redirect: {
+          destination: "/signin?link=/maintenance/pm-vine",
+        },
+      };
+    }
+  
+    if (!session.pea) {
+      return {
+        redirect: {
+          destination: "/profile?link=/maintenance/pm-vine",
+        },
+      };
+    }
+
+    return {
+        props: {}
+    }
+}
 
 
 
@@ -10,7 +35,7 @@ export default function MaintenanceVineBeGone() {
     const [page,setPage] = useState<number>(1)
     const [totalDocuments,setTotalDocuments] = useState(6)
     const [typeDoc,setTypeDoc] = useState<FilterOption>(filterOptions[2])
-    const [showData,setShowData] = useState<null[] | ImgMediaCardProp[]>(createArrayObject(6,null))
+    const [showData,setShowData] = useState<null[] | ImgMediaCardProp[] | null>(createArrayObject(6,null))
 
     const handleChangeAutoComplete = (e:React.SyntheticEvent<Element, Event>,v: FilterOption | null)=>{
         setTypeDoc(v?v:filterOptions[2])
@@ -20,10 +45,17 @@ export default function MaintenanceVineBeGone() {
     useEffect(() => {
         const getData = async()=>{
             const result = await fetch(`/api/maintenance/pm-vine?page=${page}&typeDoc=${typeDoc.value}`)
-            const data = (await result.json()) as MaintenanceVineBeGoneData
-            setShowData(data.filteredDocuments)
-            setTotalDocuments(data.totalDocuments)
-            console.log(data)
+            if(result.status!=200){
+                setShowData(null)
+                setTotalDocuments(0)
+                return
+            }
+            const data = await result.json()
+            
+            if(data.filteredDocuments && data.totalDocuments){
+                setShowData(data.filteredDocuments)
+                setTotalDocuments(data.totalDocuments)
+            }
         }
         setShowData(createArrayObject(6,null))
         getData()
@@ -47,7 +79,11 @@ export default function MaintenanceVineBeGone() {
                 <Typography>จำนวน: {totalDocuments}</Typography>
                 <Pagination count={Math.ceil(totalDocuments/6)} page={page} onChange={(e,v)=>setPage(v)} />
             </Grid>
-            {showData.map((v,i)=>{return(
+            {!showData && 
+                <Grid item xs={12}  sx={{display:"flex",justifyContent:"center"}}> 
+                    <Typography>ไม่พบข้อมูล</Typography>
+                </Grid>}
+            {showData && showData.map((v,i)=>{return(
                 <Grid key={i} item xs={12} sm={6} md={4} sx={{display:"flex",justifyContent:"center"}}> 
                     <MaintenanceImgMediaCard data={v}/>
                 </Grid>

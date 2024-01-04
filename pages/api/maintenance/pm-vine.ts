@@ -15,7 +15,7 @@ export default async function handler(
   res: NextApiResponse<Data>,
 ) {
     const session = await getServerSession(req, res, authOptions);
-    if (!(session && session.sub && session.provider == "line")){
+    if (!(session && session.sub)){
         res.status(400).end();
         return;
     }
@@ -23,7 +23,6 @@ export default async function handler(
     const mongoClient = await clientPromise;
     const vineBeGoneCollection = mongoClient.db("vine-be-gone").collection("risk")
     
-
     switch(req.method){
         case "GET" :{
             const typeDoc = req.query.typeDoc

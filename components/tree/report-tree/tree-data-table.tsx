@@ -1,5 +1,5 @@
 import { SetPropsTreeDataTableType, treeData } from "@/types/report-tree";
-import { TextField, Autocomplete } from "@mui/material";
+import { TextField, Autocomplete, FormControlLabel, Switch } from "@mui/material";
 import CustomToolbar from "../../data-grid-custom-toolbar";
 import {
   DataGrid,
@@ -30,7 +30,7 @@ export default function TreeDataTable({
               : `ที่ได้ดำเนินการจากใบสั่งซ่อม ZPM4: ${order.no}`}{" "}
           </p>
           <div className="grid grid-cols-4 gap-4 m-3">
-            <div className="col-start-1 col-end-5 sm:col-end-4 m-0 p-0">
+            <div className="col-start-1 col-end-5 sm:col-end-3 m-0 p-0">
               <TextField
                 sx={{ maxWidth: "100%" }}
                 label="กรองตามชื่อแผนงาน"
@@ -53,6 +53,9 @@ export default function TreeDataTable({
                   <TextField {...params} label="กรองเดือน" />
                 )}
               />
+            </div>
+            <div className="col-span-2 sm:col-span-1 flex flex-row m-0 p-0">
+              <FormControlLabel control={<Switch defaultChecked onChange={(e)=>setFilter({...filter,hasZPM4: e.target.checked})}/>} label="รวมที่ลงข้อมูลแล้ว"/>
             </div>
           </div>
           <DataGrid
@@ -116,10 +119,18 @@ export default function TreeDataTable({
 }
 
 const month = [
-  { label: "Q1", month: "Q1" },
-  { label: "Q2", month: "Q2" },
-  { label: "Q3", month: "Q3" },
-  { label: "Q4", month: "Q4" },
+  { label: "มกราคม", month: "1" },
+  { label: "กุมภาพันธ์", month: "2" },
+  { label: "มีนาคม", month: "3" },
+  { label: "เมษายน", month: "4" },
+  { label: "พฤษภาคม", month: "5" },
+  { label: "มิถุนายน", month: "6" },
+  { label: "กรกฎาคม", month: "7" },
+  { label: "สิงหาคม", month: "8" },
+  { label: "กันยายน", month: "9" },
+  { label: "ตุลาคม", month: "10" },
+  { label: "พฤศจิกายน", month: "11" },
+  { label: "ธันวาคม", month: "12" },
 ];
 
 const columns: GridColDef[] = [
@@ -130,7 +141,7 @@ const columns: GridColDef[] = [
     disableColumnMenu: true,
     sortable: false,
   },
-  { field: "month", headerName: "ไตรมาส", disableColumnMenu: true },
+  { field: "month", headerName: "เดือน", disableColumnMenu: true },
   {
     field: "businessName",
     headerName: "กฟฟ.",

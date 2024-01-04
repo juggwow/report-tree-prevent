@@ -52,6 +52,7 @@ export default function ChooseTreeData({chooseTreeData,setChooseTreeData,sendTre
               ยืนยัน
             </Button>
             <Button
+              id="cancelAllPlan"
               variant="outlined"
               disabled={chooseTreeData.length == 0}
               onClick={() => {

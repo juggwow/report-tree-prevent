@@ -1,8 +1,8 @@
-import { treeData, ReportTreeProps, Order } from "@/types/report-tree";
+import { treeData, ReportTreeProps, Order,TreeDataFilter } from "@/types/report-tree";
 import OrderNumber from "@/components/tree/report-tree/order-number";
 import { getSession } from "next-auth/react";
 import { useEffect, useState } from "react";
-import { Button } from "@mui/material";
+import { Breadcrumbs, Button, Link, Stack, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
 import TreeDataTable from "@/components/tree/report-tree/tree-data-table";
 import ChooseTreeData from "@/components/tree/report-tree/choose-tree-data";
@@ -11,6 +11,7 @@ import { AlertSnackBarType } from "@/types/snack-bar";
 import LoadingBackDrop from "@/components/loading-backdrop";
 import clientPromise from "@/lib/mongodb";
 import { ObjectId, WithId } from "mongodb";
+import ControlledOpenSpeedDial from "@/components/speed-dial";
 
 export async function getServerSideProps(context: any) {
   const session = await getSession(context);
@@ -85,12 +86,14 @@ export async function getServerSideProps(context: any) {
 export default function ReportTree(props: ReportTreeProps) {
   const router = useRouter();
 
-  const [filter, setFilter] = useState<treeData>({
+  const [filter, setFilter] = useState<TreeDataFilter>({
     id: "",
     businessName: "",
     month: "",
     zpm4Name: "",
     zpm4Po: "",
+    hasZPM4: true
+    
   });
 
   const [progress, setProgress] = useState(false);
@@ -134,6 +137,12 @@ export default function ReportTree(props: ReportTreeProps) {
       });
     }
 
+    if (!filter.hasZPM4) {
+      filterData = filterData.filter((val) => {
+        return !val.zpm4Po;
+      });
+    }
+
     setShowTreeData(filterData);
   }, [filter, chooseTreeData]);
 
@@ -173,6 +182,7 @@ export default function ReportTree(props: ReportTreeProps) {
   return (
     <div className="flex flex-col p-4 min-h-screen ">
       <p className="m-3">รายผลการดำเนินงานตัดต้นไม้</p>
+      <CustomSeparator setProgress={setProgress} />
       <OrderNumber
         order={order}
         setOrder={setOrder}
@@ -219,6 +229,40 @@ export default function ReportTree(props: ReportTreeProps) {
       </div>
       <AlertSnackBar snackBar={snackBar} setSnackBar={setSnackBar} />
       <LoadingBackDrop progress={progress} setProgress={setProgress} />
+      <ControlledOpenSpeedDial userManual="https://drive.google.com/uc?export=view&id=1rADY5rhu-iwGyu3auHPEv5LErCE5V_Cj" />
     </div>
+  );
+}
+
+function CustomSeparator({
+  setProgress,
+}: {
+  setProgress: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
+  const breadcrumbs = [
+    <Link
+      sx={{ fontSize: "12px" }}
+      underline="hover"
+      key="1"
+      color="inherit"
+      href="/"
+      onClick={() => setProgress(true)}
+    >
+      หน้าหลัก
+    </Link>,
+    <Typography sx={{ fontSize: "12px" }} key="2" color="text.primary">
+      ต้นไม้
+    </Typography>,
+    <Typography sx={{ fontSize: "12px" }} key="3" color="text.primary">
+      รายงานผล
+    </Typography>,
+  ];
+
+  return (
+    <Stack sx={{ margin: "0 0 1rem 1rem" }} spacing={2}>
+      <Breadcrumbs separator="›" aria-label="breadcrumb">
+        {breadcrumbs}
+      </Breadcrumbs>
+    </Stack>
   );
 }

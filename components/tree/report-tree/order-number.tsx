@@ -37,13 +37,20 @@ export default function OrderNumber({
       <div className="mx-3 mb-3 col-span-1">
         <ToggleButtonGroup
           onClick={() => {
-            order.disable
-              ? setSnackBar({
-                  open: true,
-                  sevirity: "warning",
-                  massege: `คุณต้องยกเลิกหมายเลข ${alignment.toUpperCase()} ก่อนจึงจะเปลี่ยนแปลงได้`,
-                })
-              : undefined;
+            if(order.disable){
+              setSnackBar({
+                open: true,
+                sevirity: "warning",
+                massege: `คุณต้องยกเลิกหมายเลข ${alignment.toUpperCase()} ก่อนจึงจะเปลี่ยนแปลงได้`,
+              })
+              if(document.getElementById("cancelZPM4")){
+                document.getElementById("cancelZPM4")?.classList.add('shake')
+                setTimeout(() => {
+                  document.getElementById("cancelZPM4")?.classList.remove('shake');
+                }, 2000);
+              }
+            }
+
           }}
           disabled={order.disable}
           color="primary"
@@ -66,13 +73,19 @@ export default function OrderNumber({
       <div
         className="mx-3 mb-3 col-span-1"
         onMouseOver={() => {
-          order.disable
-            ? setSnackBar({
-                open: true,
-                sevirity: "warning",
-                massege: `คุณต้องกด "ยกเลิกหมายเลข ${alignment.toUpperCase()}" ก่อนจึงจะเปลี่ยนแปลงได้`,
-              })
-            : undefined;
+          if(order.disable){
+            setSnackBar({
+              open: true,
+              sevirity: "warning",
+              massege: `คุณต้องยกเลิกหมายเลข ${alignment.toUpperCase()} ก่อนจึงจะเปลี่ยนแปลงได้`,
+            })
+            if(document.getElementById("cancelZPM4")){
+              document.getElementById("cancelZPM4")?.classList.add('shake')
+              setTimeout(() => {
+                document.getElementById("cancelZPM4")?.classList.remove('shake');
+              }, 2000);
+            }
+          }
         }}
       >
         <TextField
@@ -107,17 +120,23 @@ export default function OrderNumber({
         {!validatorOrder() && showElementChoose && (
           <div
             onMouseUp={() => {
-              chooseTreeData.length > 0
-                ? setSnackBar({
-                    open: true,
-                    sevirity: "warning",
-                    massege: `คุณต้องกด "ยกเลิกแผนงานทั้งหมด" ก่อนจึงจะเปลี่ยนแปลงได้`,
-                  })
-                : undefined;
+              if(chooseTreeData.length){
+                setSnackBar({
+                  open: true,
+                  sevirity: "warning",
+                  massege: `คุณต้องกด "ยกเลิกแผนงานทั้งหมด" ก่อนจึงจะเปลี่ยนแปลงได้`,
+                })
+                document.getElementById("cancelAllPlan")?.focus()
+                document.getElementById("cancelAllPlan")?.classList.add("shake")
+                setTimeout(()=>{
+                  document.getElementById("cancelAllPlan")?.classList.remove("shake")
+                },2000)
+              }
             }}
           >
             <Button
               disabled={chooseTreeData.length > 0}
+              id="cancelZPM4"
               variant="outlined"
               onClick={() => {
                 if (window.confirm("คุณต้องการยกเลิกหมายเลข PO/ZPM4?")) {
