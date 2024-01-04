@@ -19,7 +19,7 @@ export async function getServerSideProps(context: any) {
   if (!session) {
     return {
       redirect: {
-        destination: "/signin",
+        destination: "/signin?link=/tree/report-tree",
       },
     };
   }
@@ -229,7 +229,7 @@ export default function ReportTree(props: ReportTreeProps) {
       </div>
       <AlertSnackBar snackBar={snackBar} setSnackBar={setSnackBar} />
       <LoadingBackDrop progress={progress} setProgress={setProgress} />
-      <ControlledOpenSpeedDial userManual="https://drive.google.com/uc?export=view&id=1rADY5rhu-iwGyu3auHPEv5LErCE5V_Cj" />
+      <ControlledOpenSpeedDial userManual="https://drive.google.com/uc?export=view&id=1k-3M8-rSzgkO8bIG0JF4WVRAGhzP9fuk" />
     </div>
   );
 }
