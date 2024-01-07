@@ -7,11 +7,11 @@ import Typography from '@mui/material/Typography';
 import { ObjectId } from 'mongodb';
 import { peaUser } from '@/types/next-auth';
 import { Divider } from '@mui/material';
-import { FormChangePlanTree } from '@/types/report-tree';
+import { FormAddPlanTree, FormCancelPlanTree, FormChangePlanTree } from '@/types/report-tree';
 
 
 
-export default function ChangePlanTreeCard({plan,onClickEdit,onClickCancel}:{plan:FormChangePlanTree,onClickEdit:()=>void,onClickCancel:()=>void}) {
+export default function ChangePlanTreeCard({plan,onClickEdit,onClickCancel}:{plan:FormChangePlanTree|FormAddPlanTree|FormCancelPlanTree,onClickEdit:()=>void,onClickCancel:()=>void}) {
   return (
     <Box >
       <Card variant="outlined">
@@ -83,23 +83,3 @@ const month = new Map([
     ["11","พฤศจิกายน"],
     ["12","ธันวาคม"],
 ])
-
-
-
-interface PlanLVChangeReq  {
-    _id: ObjectId | string
-    status: "progress" | "success" | "reject";
-    userReq: peaUser;
-    reason: string
-    oldPlan: {
-      peaNo: string;
-      distanceCircuit: number;
-      feeder: string;
-    }
-    changeReq: {
-      peaNo: string;
-      distanceCircuit: number;
-      feeder: string;
-    }
-    dateReq: string
-  }

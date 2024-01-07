@@ -3,19 +3,50 @@ import { ChangePlanLV } from "@/types/plan-lv";
 import { Autocomplete, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, TextField } from "@mui/material";
 import { useState } from "react";
 import { AlertSnackBarType } from "@/types/snack-bar";
-import { FormChangePlanTree } from "@/types/report-tree";
+import { FormAddPlanTree, FormCancelPlanTree, FormChangePlanTree, HireNormal, HireSpecial, SelfProceed } from "@/types/report-tree";
 
 export default function ChangePlanTreeFormDialog({
     openDialog,setOpenDialog,handleSubmit,changePlanRequire,setChangePlanRequire,snackBar,setSnackBar,defaultValOldPlan}:{
         openDialog:boolean,
         setOpenDialog:React.Dispatch<React.SetStateAction<boolean>>,
         handleSubmit:(e: any) => Promise<void>,
-        changePlanRequire:FormChangePlanTree,
-        setChangePlanRequire:React.Dispatch<React.SetStateAction<FormChangePlanTree>>,
+        changePlanRequire:FormChangePlanTree|FormAddPlanTree|FormCancelPlanTree,
+        setChangePlanRequire:React.Dispatch<React.SetStateAction<FormChangePlanTree|FormAddPlanTree|FormCancelPlanTree>>,
         snackBar:AlertSnackBarType,
         setSnackBar:React.Dispatch<React.SetStateAction<AlertSnackBarType>>
         defaultValOldPlan:Boolean
     }){
+      let monthValue = {
+        label: "",
+        month: ""
+      }
+
+      let hireValue:HireValue = {
+        label: "จ้างเหมาปกติ",
+        hireType: "normal"
+      }
+
+      if(changePlanRequire.typeReq == "add" || changePlanRequire.typeReq == "change"){
+        
+        for(const val of month){
+          if(val.month == changePlanRequire.newPlan.month){
+            monthValue = {
+              label: val.label,
+              month: changePlanRequire.newPlan.month
+            }
+            break
+          }
+        }
+
+        for(const val of hireOption){
+          if(val.hireType == changePlanRequire.newPlan.hireType){
+            hireValue = {
+              label: val.label,
+              hireType: changePlanRequire.newPlan.hireType
+            }
+          }
+        }
+      }
         
   
     return(
@@ -37,13 +68,13 @@ export default function ChangePlanTreeFormDialog({
           >
             <DialogContent>
               <DialogContentText id="alert-dialog-form">
-                {changePlanRequire.typeReq!="cancel"?(<><TextField
+                {changePlanRequire.typeReq=="add" || changePlanRequire.typeReq=="change"?(<><TextField
                 size="small"
                   sx={{ margin: "0.5rem 0 0 0",width:"90%" }}
                   required
                   id="outlined-required"
                   label={`ชื่อแผนงาน`}
-                  defaultValue={ defaultValOldPlan?changePlanRequire.oldPlan!.planName:changePlanRequire.newPlan!.planName}
+                  value={changePlanRequire.newPlan.planName}
                   onChange={(e) =>
                     setChangePlanRequire({
                       ...changePlanRequire,
@@ -53,111 +84,219 @@ export default function ChangePlanTreeFormDialog({
                       },
                     })
                   }
-                  error={changePlanRequire.newPlan!.planName==''?true:false}
+                  error={changePlanRequire.newPlan.planName==''?true:false}
                 />
-                <TextField
-                size="small"
-                  type="number"
-                  sx={{ margin: "0.5rem 0 0 0" }}
-                  id="outlined-required"
-                  label={`หนาแน่น`}
-                  defaultValue={defaultValOldPlan?changePlanRequire.oldPlan!.qauntity.plentifully:changePlanRequire.newPlan!.qauntity!.plentifully}
-                  onChange={(e) =>
-                    setChangePlanRequire({
-                      ...changePlanRequire,
-                      newPlan: {
-                        ...changePlanRequire.newPlan!,
-                        qauntity:{
-                            ...changePlanRequire.newPlan!.qauntity,
-                            plentifully: Number(e.target.value)
-                        },
-                      },    
-                    })
+                <Autocomplete
+                  size="small"
+                  disablePortal
+                  value={hireValue}
+                  id="combo-box-demo"
+                  options={hireOption}
+                  sx={{ margin: "0.5rem 0 0 0",width: '100%' }}
+                  renderInput={(params) => <TextField {...params} required label="การดำเนินการ" />}
+                  onChange={
+                    (e,v)=>{
+                      let hireType:"self"|"normal"|"special"
+                      (!v || !v.hireType)?hireType = "normal":hireType = v.hireType
+                      let hire:SelfProceed|HireNormal|HireSpecial
+                      switch(hireType){
+                        case "normal":
+                          hire = {
+                           hireType: "normal",
+                           quantity:{
+                            plentifully:0,
+                            moderate:0,
+                            lightly:0,
+                            clear:0
+                           } 
+                          }
+                          break
+                        case "self":
+                          hire = {
+                            hireType: "self",
+                            quantity:{
+                              distance: 0
+                            }
+                          }
+                          break
+                        case "special":{
+                          hire = {
+                            hireType: "special",
+                            quantity:{
+                              discription: ""
+                            }
+                          }
+                        }
+                      }
+                      
+                      setChangePlanRequire({
+                        ...changePlanRequire,
+                        newPlan:{
+                          ...changePlanRequire.newPlan,
+                          ...hire
+                      }
+                    })}
                   }
                 />
-                <TextField
-                size="small"
-                type="number"
-                sx={{ margin: "0.5rem 0 0 0" }}
-                id="outlined-required"
-                label={`ปานกลาง`}
-                defaultValue={defaultValOldPlan?changePlanRequire.oldPlan!.qauntity.moderate:changePlanRequire.newPlan!.qauntity!.moderate}
-                onChange={(e) =>
-                  setChangePlanRequire({
-                    ...changePlanRequire,
-                    newPlan: {
-                      ...changePlanRequire.newPlan!,
-                      qauntity:{
-                          ...changePlanRequire.newPlan!.qauntity,
-                          moderate: Number(e.target.value)
-                      },
-                    },    
-                  })
+                {changePlanRequire.newPlan.hireType == "special"&&
+                  <>
+                    <TextField
+                      size="small"
+                      sx={{ margin: "0.5rem 0 0 0" }}
+                      id="outlined-required"
+                      label={`ปริมาณงานโดยสังเขป`}
+                      value={changePlanRequire.newPlan.quantity.discription}
+                      onChange={(e) =>{
+                        if(changePlanRequire.newPlan.hireType == "special"){
+                          setChangePlanRequire({
+                            ...changePlanRequire,
+                            newPlan: {
+                              ...changePlanRequire.newPlan!,
+                              quantity:{
+                                  ...changePlanRequire.newPlan.quantity,
+                                  discription: e.target.value
+                              },
+                            },    
+                          })
+                        }
+                      }}
+                    />
+                  </>}
+                 {changePlanRequire.newPlan.hireType == "self"&&
+                  <>
+                    <TextField
+                      size="small"
+                      sx={{ margin: "0.5rem 0 0 0" }}
+                      id="outlined-required"
+                      label={`ระยะทาง`}
+                      value={changePlanRequire.newPlan.quantity.distance}
+                      onChange={(e) =>{
+                        if((/^\d+\.?\d{0,2}$/.test(e.target.value) || e.target.value == '')&&changePlanRequire.newPlan.hireType == "self"){
+                          setChangePlanRequire({
+                            ...changePlanRequire,
+                            newPlan: {
+                              ...changePlanRequire.newPlan!,
+                              quantity:{
+                                  ...changePlanRequire.newPlan.quantity,
+                                  distance: e.target.value
+                              },
+                            },    
+                          })
+                        }
+                      }}
+                    />
+                  </>}
+                {changePlanRequire.newPlan.hireType == "normal"&&
+                  <>
+                    <TextField
+                      size="small"
+                      sx={{ margin: "0.5rem 0 0 0" }}
+                      id="outlined-required"
+                      label={`หนาแน่น`}
+                      value={changePlanRequire.newPlan.quantity.plentifully}
+                      onChange={(e) =>{
+                        if((/^\d+\.?\d{0,2}$/.test(e.target.value) || e.target.value == '')&&changePlanRequire.newPlan?.hireType == "normal"){
+                          setChangePlanRequire({
+                            ...changePlanRequire,
+                            newPlan: {
+                              ...changePlanRequire.newPlan!,
+                              quantity:{
+                                  ...changePlanRequire.newPlan.quantity,
+                                  plentifully: e.target.value
+                              },
+                            },    
+                          })
+                        }
+                      }}
+                    />
+                    <TextField
+                    size="small"
+                    sx={{ margin: "0.5rem 0 0 0" }}
+                    id="outlined-required"
+                    label={`ปานกลาง`}
+                    value={changePlanRequire.newPlan.quantity.moderate}
+                    onChange={(e) =>{
+                      if((/^\d+\.?\d{0,2}$/.test(e.target.value) || e.target.value == '')&&changePlanRequire.newPlan?.hireType == "normal"){
+                        setChangePlanRequire({
+                          ...changePlanRequire,
+                          newPlan: {
+                            ...changePlanRequire.newPlan!,
+                            quantity:{
+                                ...changePlanRequire.newPlan.quantity,
+                                moderate: e.target.value
+                            },
+                          },    
+                        })
+                      }
+                    }}
+                    />
+                    <TextField
+                    size="small"
+                    sx={{ margin: "0.5rem 0 0 0" }}
+                    id="outlined-required"
+                    label={`เบาบาง`}
+                    value={changePlanRequire.newPlan.quantity.lightly}
+                    onChange={(e) =>{
+                      if((/^\d+\.?\d{0,2}$/.test(e.target.value) || e.target.value == '')&&changePlanRequire.newPlan?.hireType == "normal"){
+                        setChangePlanRequire({
+                          ...changePlanRequire,
+                          newPlan: {
+                            ...changePlanRequire.newPlan,
+                            quantity:{
+                                ...changePlanRequire.newPlan.quantity,
+                                lightly: e.target.value
+                            },
+                          },    
+                        })
+                      }
+                    }}
+                    />
+                    <TextField
+                    size="small"
+                    sx={{ margin: "0.5rem 0 0 0" }}
+                    id="outlined-required"
+                    label={`โล่ง`}
+                    value={changePlanRequire.newPlan.quantity.clear}
+                    onChange={(e) =>{
+                      if((/^\d+\.?\d{0,2}$/.test(e.target.value) || e.target.value == '')&&changePlanRequire.newPlan?.hireType == "normal"){
+                        setChangePlanRequire({
+                          ...changePlanRequire,
+                          newPlan: {
+                            ...changePlanRequire.newPlan,
+                            quantity:{
+                                ...changePlanRequire.newPlan.quantity,
+                                clear: e.target.value
+                            },
+                          },    
+                        })
+                      }
+                    }}
+                    />
+                  </>
                 }
-                />
-                <TextField
-                size="small"
-                type="number"
-                sx={{ margin: "0.5rem 0 0 0" }}
-                id="outlined-required"
-                label={`เบาบาง`}
-                defaultValue={defaultValOldPlan?changePlanRequire.oldPlan!.qauntity.lightly:changePlanRequire.newPlan!.qauntity!.lightly}
-                onChange={(e) =>
-                  setChangePlanRequire({
-                    ...changePlanRequire,
-                    newPlan: {
-                      ...changePlanRequire.newPlan!,
-                      qauntity:{
-                          ...changePlanRequire.newPlan!.qauntity,
-                          lightly: Number(e.target.value)
-                      },
-                    },    
-                  })
-                }
-                />
-                <TextField
-                size="small"
-                type="number"
-                sx={{ margin: "0.5rem 0 0 0" }}
-                id="outlined-required"
-                label={`โล่ง`}
-                defaultValue={defaultValOldPlan?changePlanRequire.oldPlan!.qauntity.clear:changePlanRequire.newPlan!.qauntity!.clear}
-                onChange={(e) =>
-                  setChangePlanRequire({
-                    ...changePlanRequire,
-                    newPlan: {
-                      ...changePlanRequire.newPlan!,
-                      qauntity:{
-                          ...changePlanRequire.newPlan!.qauntity,
-                          clear: Number(e.target.value)
-                      },
-                    },    
-                  })
-                }
-                />
                 <TextField
                   size="small"
                   sx={{ margin: "0.5rem 0 0 0" }}
-                  type="number"
-                  required
                   id="outlined-required"
                   label={`งบประมาณ (บาท)`}
-                  defaultValue={defaultValOldPlan?changePlanRequire.oldPlan?.budget:changePlanRequire.newPlan?.budget}
-                  onChange={(e) =>
-                    setChangePlanRequire({
-                      ...changePlanRequire,
-                      newPlan: {
-                        ...changePlanRequire.newPlan!,
-                        budget: Number(e.target.value),
-                      },
-                    })
-                  }
+                  value={changePlanRequire.newPlan.budget}
+                  onChange={(e) =>{
+                    if(/^\d+\.?\d{0,2}$/.test(e.target.value) || e.target.value == ''){
+                      setChangePlanRequire({
+                        ...changePlanRequire,
+                        newPlan: {
+                          ...changePlanRequire.newPlan,
+                          budget: e.target.value,
+                        },
+                      })
+                    }
+                  }}
                 />
                 <Autocomplete
                 
                   size="small"
                   disablePortal
-                  defaultValue={{label: defaultValOldPlan?changePlanRequire.oldPlan!.month:changePlanRequire.newPlan!.month,month: defaultValOldPlan?changePlanRequire.oldPlan!.month:changePlanRequire.newPlan!.month}}
+                  value={monthValue}
                   id="combo-box-demo"
                   options={month}
                   sx={{ margin: "0.5rem 0 0 0",width: '100%' }}
@@ -176,10 +315,10 @@ export default function ChangePlanTreeFormDialog({
                   }
                 />
                 <Autocomplete
-                
+
                   size="small"
                   disablePortal
-                  defaultValue={defaultValOldPlan?changePlanRequire.oldPlan!.systemVolt:changePlanRequire.newPlan!.systemVolt}
+                  value={changePlanRequire.newPlan.systemVolt}
                   id="combo-box-demo"
                   options={["115kV","33kV","400/230V"]}
                   sx={{ margin: "0.5rem 0 0 0",width: '100%' }}
@@ -197,28 +336,7 @@ export default function ChangePlanTreeFormDialog({
                     })}
                   }
                 />
-                <Autocomplete
-                
-                  size="small"
-                  disablePortal
-                  defaultValue={defaultValOldPlan?changePlanRequire.oldPlan!.hireType:changePlanRequire.newPlan!.hireType}
-                  id="combo-box-demo"
-                  options={["จ้างเหมาปกติ","จ้างเหมาลักษณะพิเศษ","กฟภ. ดำเนินการ"]}
-                  sx={{ margin: "0.5rem 0 0 0",width: '100%' }}
-                  renderInput={(params) => <TextField {...params} required error={changePlanRequire.newPlan!.hireType==''} label="การดำเนินการ" />}
-                  onChange={
-                    (e,v)=>{
-                      let hireType:string
-                      v?hireType = v:hireType = ""
-                      setChangePlanRequire({
-                        ...changePlanRequire,
-                        newPlan:{
-                          ...changePlanRequire.newPlan!,
-                          hireType
-                      }
-                    })}
-                  }
-                /></>):undefined}
+                </>):undefined}
                 
                 <TextField
                 size="small"
@@ -226,7 +344,7 @@ export default function ChangePlanTreeFormDialog({
                   required
                   id="outlined-required"
                   label="เหตุผล"
-                  defaultValue={defaultValOldPlan?"":changePlanRequire.reason}
+                  value={changePlanRequire.reason}
                   onChange={(e) =>
                     setChangePlanRequire({
                       ...changePlanRequire,
@@ -268,7 +386,7 @@ export default function ChangePlanTreeFormDialog({
     )
 }
 
-const checkInvalidator = (changePlanRequire: FormChangePlanTree) => {
+const checkInvalidator = (changePlanRequire: FormChangePlanTree | FormAddPlanTree | FormCancelPlanTree) => {
   if(changePlanRequire.typeReq != "cancel"){
     
     if (!changePlanRequire.newPlan){
@@ -276,10 +394,6 @@ const checkInvalidator = (changePlanRequire: FormChangePlanTree) => {
     }
 
     if(changePlanRequire.newPlan.budget == 0){
-      return true
-    }
-
-    if(changePlanRequire.newPlan.hireType == ''){
       return true
     }
 
@@ -318,4 +432,15 @@ const month = [
   {label:"ธันวาคม", month:"12"},
 
 ]
+
+const hireOption :HireValue[] = [
+  {label:"จ้างเหมาปกติ", hireType:"normal"},
+  {label:"จ้างเหมาลักษณะพิเศษ", hireType: "special"},
+  {label:"กฟภ.ดำเนินการ", hireType:"self"}
+]
+
+type HireValue = {
+  label: string;
+  hireType?: "normal"|"special"|"self"
+}
 

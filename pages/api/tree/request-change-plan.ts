@@ -6,7 +6,11 @@ import clientPromise from "@/lib/mongodb";
 import { Collection, ObjectId } from "mongodb";
 import { ChangePlanLV, PlanLV } from "@/types/plan-lv";
 import { peaUser } from "@/types/next-auth";
-import { FormChangePlanTree } from "@/types/report-tree";
+import {
+  FormAddPlanTree,
+  FormCancelPlanTree,
+  FormChangePlanTree,
+} from "@/types/report-tree";
 import formatDate from "@/lib/format-date";
 
 type Data = {
@@ -23,16 +27,19 @@ export default async function handler(
     return;
   }
 
-  let changeReq: FormChangePlanTree = JSON.parse(req.body);
+  let changeReq: FormChangePlanTree | FormAddPlanTree | FormCancelPlanTree =
+    JSON.parse(req.body);
 
   try {
     const mongoClient = await clientPromise;
 
     const planTreeCollection = mongoClient
       .db("tree")
-      .collection<FormChangePlanTree>("plan");
+      .collection<FormChangePlanTree | FormAddPlanTree | FormCancelPlanTree>(
+        "plan",
+      );
 
-    if (["change", "cancel"].includes(changeReq.typeReq!)) {
+    if (changeReq.typeReq == "cancel" || changeReq.typeReq == "change") {
       const plan = await mongoClient
         .db("tree")
         .collection("plan")
@@ -130,7 +137,6 @@ export default async function handler(
         return;
       }
       case "PUT": {
-        console.log("test");
         const filter = { _id: new ObjectId(changeReq._id) };
         const update = {
           $set: {

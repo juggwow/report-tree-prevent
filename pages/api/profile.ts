@@ -29,37 +29,48 @@ export default async function handler(
       pea = { ...pea, role: "operator" };
     }
     const mongoClient = await clientPromise;
-    const employeeInfoCollection = mongoClient.db("user").collection("pea-s3-employee-info")
+    const employeeInfoCollection = mongoClient
+      .db("user")
+      .collection("pea-s3-employee-info");
     const employeeDoc = await employeeInfoCollection.findOne({
-      "fullname": { $regex: new RegExp(`${pea.firstname} ${pea.lastname}`) }, // i ใน 'i' คือไม่สนใจตัวพิมพ์ใหญ่เล็ก
-      "businessName": pea.karnfaifa,
-      "userid": pea.userid
-    })
-    if(!employeeDoc){
-      res.status(404).send({message: "ไม่พบฐานข้อมูลพนักงาน หรือ ชื่อ สังกัด รหัสพนักงานไม่ตรงกับฐานข้อมูล"})
-      return
+      fullname: { $regex: new RegExp(`${pea.firstname} ${pea.lastname}`) }, // i ใน 'i' คือไม่สนใจตัวพิมพ์ใหญ่เล็ก
+      businessName: pea.karnfaifa,
+      userid: pea.userid,
+    });
+    if (!employeeDoc) {
+      res.status(404).send({
+        message:
+          "ไม่พบฐานข้อมูลพนักงาน หรือ ชื่อ สังกัด รหัสพนักงานไม่ตรงกับฐานข้อมูล",
+      });
+      return;
     }
 
-    const userCollection = mongoClient.db("user").collection("user")
-    const findDoc = await userCollection.findOne({sub: session.sub})
-    if(findDoc){
-      const filter = {sub: session.sub}
+    const userCollection = mongoClient.db("user").collection("user");
+    const findDoc = await userCollection.findOne({ sub: session.sub });
+    if (findDoc) {
+      const filter = { sub: session.sub };
       const update = {
-        $set: {...pea  }
+        $set: { ...pea },
+      };
+      const resultUpdate = await userCollection.findOneAndUpdate(
+        filter,
+        update,
+      );
+      if (!resultUpdate.ok) {
+        res.status(500).end();
+        return;
       }
-      const resultUpdate = await userCollection.findOneAndUpdate(filter,update)
-      if(!resultUpdate.ok){
-        res.status(500).end()
-        return
-      }
-      res.status(200).end()
-      return
-    }
-    else {
-      const doc = await userCollection.insertOne({...pea,sub:session.sub,provider:session.provider})
-      if(!doc.acknowledged){
-        res.status(500).end()
-        return
+      res.status(200).end();
+      return;
+    } else {
+      const doc = await userCollection.insertOne({
+        ...pea,
+        sub: session.sub,
+        provider: session.provider,
+      });
+      if (!doc.acknowledged) {
+        res.status(500).end();
+        return;
       }
       res.status(200).end();
       return;

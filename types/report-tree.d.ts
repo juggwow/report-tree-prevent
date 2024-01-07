@@ -60,38 +60,112 @@ type SetPropsChooseTreeDataType = {
     sendTreeData: ()=>void
 }
 
+// type FormChangePlanTree = {
+//   _id: ObjectId|string
+//   status?:"progress"|"success"|"reject";
+//   userReq?: peaUser
+//   dateReq?: string
+//   reason?:string
+//   typeReq?: "change"|"cancel"|"add"
+//   oldPlan?:{
+//     planName: string;
+//     qauntity?:{
+//       plentifully?: number|string;
+//       moderate?: number|string;
+//       lightly?: number|string;
+//       clear?: number|string;
+//     }
+//     budget: number|string;
+//     systemVolt: "33kV"|"400/230V"|"115kV";
+//     month: string;
+//     hireType: string;
+//   }
+//   newPlan?:{
+//     planName: string;
+//     qauntity?:{
+//       plentifully?: number|string;
+//       moderate?: number|string;
+//       lightly?: number|string;
+//       clear?: number|string;
+//     }
+//     budget: number|string;
+//     systemVolt: string;
+//     month: string;
+//     hireType: string;
+//   }
+// }
+
 type FormChangePlanTree = {
   _id: ObjectId|string
-  status?:"progress"|"success"|"reject";
+  status:"progress"|"success"|"reject";
   userReq?: peaUser
   dateReq?: string
-  reason?:string
-  typeReq?: "change"|"cancel"|"add"
-  oldPlan?:{
+  reason:string
+  typeReq: "change"
+  oldPlan:{
     planName: string;
-    qauntity:{
-      plentifully?: number;
-      moderate?: number;
-      lightly?: number;
-      clear?: number;
-    }
-    budget: number;
+    budget: number|string;
     systemVolt: "33kV"|"400/230V"|"115kV";
     month: string;
-    hireType?: "normal"|"special"|"self";
-  }
-  newPlan?:{
+  } & (SelfProceed | HireNormal | HireSpecial)
+  newPlan:{
     planName: string;
-    qauntity?:{
-      plentifully?: number;
-      moderate?: number;
-      lightly?: number;
-      clear?: number;
-    }
-    budget: number;
+    budget: number|string;
     systemVolt: string;
     month: string;
-    hireType?: string;
+  } & (SelfProceed | HireNormal | HireSpecial)
+}
+
+type FormAddPlanTree = {
+  _id: ObjectId|string
+  status:"progress"|"success"|"reject";
+  userReq?: peaUser
+  dateReq?: string
+  reason:string
+  typeReq: "add"
+  newPlan:{
+    planName: string;
+    budget: number|string;
+    systemVolt: string;
+    month: string;
+  } & (SelfProceed | HireNormal | HireSpecial)
+}
+
+type FormCancelPlanTree = {
+  _id: ObjectId|string
+  status:"progress"|"success"|"reject";
+  userReq?: peaUser;
+  dateReq?: string;
+  reason: string;
+  typeReq: "cancel";
+  oldPlan:{
+    planName: string;
+    budget: number|string;
+    systemVolt: "33kV"|"400/230V"|"115kV";
+    month: string;
+  } & (SelfProceed | HireNormal | HireSpecial)
+}
+
+type SelfProceed = {
+  hireType: "self",
+  quantity:{
+    distance:number|string
   }
 }
 
+type HireNormal = {
+  hireType: "normal",
+  quantity:{
+    plentifully: number|string;
+    moderate: number|string;
+    lightly: number|string;
+    clear: number|string;
+  }
+}
+
+type HireSpecial = {
+  hireType: "special",
+  quantity:{
+    discription:string
+  }
+}

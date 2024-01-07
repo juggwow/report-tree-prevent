@@ -4,7 +4,11 @@ import { ObjectId } from "mongodb";
 import { getSession } from "next-auth/react";
 import { useState } from "react";
 import { AlertSnackBarType } from "@/types/snack-bar";
-import { FormChangePlanTree } from "@/types/report-tree";
+import {
+  FormAddPlanTree,
+  FormCancelPlanTree,
+  FormChangePlanTree,
+} from "@/types/report-tree";
 import ChangePlanTreeFormDialog from "@/components/tree/change-plan/form-dialog";
 import ChangePlanTreeCard from "@/components/tree/change-plan/change-plan-tree-req-card";
 import { useRouter } from "next/router";
@@ -48,7 +52,7 @@ export async function getServerSideProps(context: any) {
         },
         {
           $match: {
-            "changePlanRequest.typeReq": { $in: ["change", "add"] },
+            "changePlanRequest.typeReq": { $in: ["change", "add", "cancel"] },
           },
         },
         {
@@ -64,61 +68,18 @@ export async function getServerSideProps(context: any) {
           },
         },
       ])
-      .toArray()) as FormChangePlanTree[];
+      .toArray()) as (
+      | FormChangePlanTree
+      | FormAddPlanTree
+      | FormCancelPlanTree
+    )[];
 
     //const plan = await planLVCollection.find(query,options).toArray();
-    let changePlanTreeReq: FormChangePlanTree[] = [];
-    docs.forEach((val) => {
-      changePlanTreeReq.push({
-        ...val,
-        _id: val._id instanceof ObjectId ? val._id.toHexString() : val._id,
-      });
-    });
-
-    docs = (await planTreeCollection
-      .aggregate([
-        {
-          $match: {
-            businessName: session.pea.karnfaifa,
-          },
-        },
-        {
-          $unwind: {
-            path: "$changePlanRequest",
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-        {
-          $match: {
-            "changePlanRequest.typeReq": "cancel",
-          },
-        },
-        {
-          $project: {
-            _id: 1,
-            status: "$changePlanRequest.status",
-            userReq: "$changePlanRequest.userReq",
-            reason: "$changePlanRequest.reason",
-            oldPlan: {
-              planName: "$planName",
-              qauntity: {
-                plentifully: "$qauntity.plentifully",
-                moderate: "$qauntity.moderate",
-                lightly: "$qauntity.lightly",
-                clear: "$qauntity.clear",
-              },
-              budget: "$budget",
-              systemVolt: "$systemVolt",
-              month: "$month",
-              hireType: "$hireType",
-            },
-            typeReq: "$changePlanRequest.typeReq",
-            dateReq: "$changePlanRequest.dateReq",
-          },
-        },
-      ])
-      .toArray()) as FormChangePlanTree[];
-
+    let changePlanTreeReq: (
+      | FormChangePlanTree
+      | FormAddPlanTree
+      | FormCancelPlanTree
+    )[] = [];
     docs.forEach((val) => {
       changePlanTreeReq.push({
         ...val,
@@ -140,7 +101,11 @@ export async function getServerSideProps(context: any) {
 export default function ChangePlanReqList({
   changePlanTreeReq,
 }: {
-  changePlanTreeReq: FormChangePlanTree[];
+  changePlanTreeReq: (
+    | FormChangePlanTree
+    | FormAddPlanTree
+    | FormCancelPlanTree
+  )[];
 }) {
   const router = useRouter();
   const [openDialog, setOpenDialog] = useState(false);
@@ -150,37 +115,40 @@ export default function ChangePlanReqList({
     massege: "",
   });
 
-  const [changePlanRequire, setChangePlanRequire] =
-    useState<FormChangePlanTree>({
-      _id: "",
-      oldPlan: {
-        planName: "",
-        qauntity: {
-          plentifully: 0,
-          moderate: 0,
-          lightly: 0,
-          clear: 0,
-        },
-        budget: 0,
-        systemVolt: "33kV",
-        month: "",
-        hireType: "normal",
+  const [changePlanRequire, setChangePlanRequire] = useState<
+    FormChangePlanTree | FormAddPlanTree | FormCancelPlanTree
+  >({
+    _id: "",
+    oldPlan: {
+      planName: "",
+      quantity: {
+        plentifully: 0,
+        moderate: 0,
+        lightly: 0,
+        clear: 0,
       },
-      newPlan: {
-        planName: "",
-        qauntity: {
-          plentifully: 0,
-          moderate: 0,
-          lightly: 0,
-          clear: 0,
-        },
-        budget: 0,
-        systemVolt: "33kV",
-        month: "",
-        hireType: "normal",
+      budget: 0,
+      systemVolt: "33kV",
+      month: "",
+      hireType: "normal",
+    },
+    newPlan: {
+      planName: "",
+      quantity: {
+        plentifully: 0,
+        moderate: 0,
+        lightly: 0,
+        clear: 0,
       },
-      typeReq: "change",
-    });
+      budget: 0,
+      systemVolt: "33kV",
+      month: "",
+      hireType: "normal",
+    },
+    typeReq: "change",
+    reason: "",
+    status: "progress",
+  });
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
@@ -192,20 +160,29 @@ export default function ChangePlanReqList({
       setSnackBar({ sevirity: "error", massege: "เกิดข้อผิดพลาด", open: true });
       return;
     }
-    console.log(changePlanRequire);
     setSnackBar({ sevirity: "success", massege: "สำเร็จ", open: true });
     setOpenDialog(false);
     router.reload();
   };
 
-  const handleEdit = async (changePlanRequire: FormChangePlanTree) => {
+  const handleEdit = async (
+    changePlanRequire:
+      | FormChangePlanTree
+      | FormAddPlanTree
+      | FormCancelPlanTree,
+  ) => {
     {
       setChangePlanRequire(changePlanRequire);
       setOpenDialog(true);
     }
   };
 
-  const handleCancel = async (changePlanRequire: FormChangePlanTree) => {
+  const handleCancel = async (
+    changePlanRequire:
+      | FormChangePlanTree
+      | FormAddPlanTree
+      | FormCancelPlanTree,
+  ) => {
     const res = await fetch("/api/tree/request-change-plan", {
       method: "PATCH",
       body: JSON.stringify(changePlanRequire),

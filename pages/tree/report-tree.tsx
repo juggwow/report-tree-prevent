@@ -1,4 +1,9 @@
-import { treeData, ReportTreeProps, Order,TreeDataFilter } from "@/types/report-tree";
+import {
+  treeData,
+  ReportTreeProps,
+  Order,
+  TreeDataFilter,
+} from "@/types/report-tree";
 import OrderNumber from "@/components/tree/report-tree/order-number";
 import { getSession } from "next-auth/react";
 import { useEffect, useState } from "react";
@@ -92,8 +97,7 @@ export default function ReportTree(props: ReportTreeProps) {
     month: "",
     zpm4Name: "",
     zpm4Po: "",
-    hasZPM4: true
-    
+    hasZPM4: true,
   });
 
   const [progress, setProgress] = useState(false);

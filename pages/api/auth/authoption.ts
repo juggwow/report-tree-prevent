@@ -22,16 +22,16 @@ const authOptions: AuthOptions = {
     async jwt({
       token,
       trigger,
-      account
+      account,
     }: {
       token: JWT;
       trigger?: "signIn" | "update" | "signUp" | undefined;
-      account: Account|null
+      account: Account | null;
     }): Promise<JWT> {
       if (trigger == "update") {
         delete token.pea;
       }
-      return await setJWT(token,account);
+      return await setJWT(token, account);
     },
     async session({
       session,
