@@ -2,16 +2,30 @@ import AlertSnackBar from "@/components/alert-snack-bar";
 import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
 import { getSession } from "next-auth/react";
-import { useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { AlertSnackBarType } from "@/types/snack-bar";
 import {
   FormAddPlanTree,
   FormCancelPlanTree,
   FormChangePlanTree,
+  MonthTotalBudget,
 } from "@/types/report-tree";
 import ChangePlanTreeFormDialog from "@/components/tree/change-plan/form-dialog";
 import ChangePlanTreeCard from "@/components/tree/change-plan/change-plan-tree-req-card";
 import { useRouter } from "next/router";
+import PrintChangePlanTree from "@/components/tree/change-plan/print-change-plan-tree";
+import {
+  Box,
+  Breadcrumbs,
+  Button,
+  Grid,
+  Link,
+  Stack,
+  Tab,
+  Tabs,
+  Typography,
+} from "@mui/material";
+import LoadingBackDrop from "@/components/loading-backdrop";
 
 export async function getServerSideProps(context: any) {
   const session = await getSession(context);
@@ -19,7 +33,7 @@ export async function getServerSideProps(context: any) {
   if (!session) {
     return {
       redirect: {
-        destination: "/signin",
+        destination: "/signin?link=/tree/change-plan-req-list",
       },
     };
   }
@@ -27,7 +41,7 @@ export async function getServerSideProps(context: any) {
   if (!session.pea) {
     return {
       redirect: {
-        destination: "/profile",
+        destination: "/profile?link=/tree/change-plan-req-list",
       },
     };
   }
@@ -87,28 +101,77 @@ export async function getServerSideProps(context: any) {
       });
     });
 
+    let aggregatedData = await planTreeCollection
+      .aggregate([
+        {
+          $match: {
+            businessName: session.pea.karnfaifa,
+            month: {
+              $in: [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "8",
+                "9",
+                "10",
+                "11",
+                "12",
+              ],
+            },
+          },
+        },
+        {
+          $group: {
+            _id: "$month",
+            totalBudget: { $sum: "$budget" },
+          },
+        },
+      ])
+      .toArray();
+
+    let monthTotalBudget: MonthTotalBudget[] = [];
+
+    aggregatedData.forEach((val) => {
+      monthTotalBudget.push({
+        month: Number(val["_id"]),
+        totalBudget: val["totalBudget"],
+      });
+    });
+
+    monthTotalBudget.sort((a, b) => a.month - b.month);
+
     return {
-      props: { changePlanTreeReq },
+      props: { changePlanTreeReq, monthTotalBudget },
     };
   } catch (e) {
     console.error(e);
     return {
-      props: { changePlanTreeReq: [] },
+      props: { changePlanTreeReq: [], monthTotalBudget: [] },
     };
   }
 }
 
 export default function ChangePlanReqList({
   changePlanTreeReq,
+  monthTotalBudget,
 }: {
   changePlanTreeReq: (
     | FormChangePlanTree
     | FormAddPlanTree
     | FormCancelPlanTree
   )[];
+  monthTotalBudget: MonthTotalBudget[];
 }) {
+  const stickyRef = useRef<HTMLDivElement>();
   const router = useRouter();
+  const [isSticky, setIsSticky] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
+  const [progress, setProgress] = useState(false);
+  const [tab, setTab] = useState(0);
   const [snackBar, setSnackBar] = useState<AlertSnackBarType>({
     open: false,
     sevirity: "success",
@@ -149,6 +212,11 @@ export default function ChangePlanReqList({
     reason: "",
     status: "progress",
   });
+
+  const [printPlan, setPrintPlan] =
+    useState<(FormChangePlanTree | FormAddPlanTree | FormCancelPlanTree)[]>(
+      changePlanTreeReq,
+    );
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
@@ -191,40 +259,300 @@ export default function ChangePlanReqList({
       setSnackBar({ sevirity: "error", massege: "เกิดข้อผิดพลาด", open: true });
       return;
     }
-    console.log(changePlanRequire);
     setOpenDialog(false);
 
     setSnackBar({ sevirity: "success", massege: "สำเร็จ", open: true });
     router.reload();
   };
 
+  const handlePrintSelected = (e: ChangeEvent<HTMLInputElement>) => {
+    const isChecked = e.target.checked;
+    const id = e.target.id;
+    let filterPrintPlan: (
+      | FormChangePlanTree
+      | FormAddPlanTree
+      | FormCancelPlanTree
+    )[] = printPlan;
+    if (isChecked) {
+      changePlanTreeReq.forEach((val) => {
+        if ((val._id as string) == id) {
+          filterPrintPlan.push(val);
+        }
+      });
+    } else {
+      filterPrintPlan = filterPrintPlan.filter((val) => {
+        return (val._id as string) != id;
+      });
+    }
+    setPrintPlan(filterPrintPlan);
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const handleScroll = () => {
+    // ตรวจสอบว่า scroll position มีค่ามากกว่าความสูงของ header หรือไม่
+    setIsSticky(
+      stickyRef && stickyRef.current
+        ? window.scrollY > stickyRef.current.offsetHeight + 50
+        : false,
+    );
+  };
+
+  let changeType: FormChangePlanTree[] = [];
+  let addType: FormAddPlanTree[] = [];
+  let cancelType: FormCancelPlanTree[] = [];
+  changePlanTreeReq.forEach((val) => {
+    if (val.typeReq == "add") {
+      addType.push(val);
+    }
+
+    if (val.typeReq == "change") {
+      changeType.push(val);
+    }
+
+    if (val.typeReq == "cancel") {
+      cancelType.push(val);
+    }
+  });
+
+  let arrIdSelected: string[] = [];
+  printPlan.forEach((val) => {
+    arrIdSelected.push(val._id as string);
+  });
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
   return (
-    <div className="grid grid-cols-6 gap-3 mx-auto m-3 p-3">
-      {changePlanTreeReq.map((val) => {
-        return (
-          <div
-            key={val._id as string}
-            className="col-span-6 sm:col-span-3 md:col-span-2"
-          >
-            <ChangePlanTreeCard
-              plan={val}
-              onClickEdit={() => handleEdit(val)}
-              onClickCancel={() => handleCancel(val)}
-            />
+    <div>
+      <div className="flex flex-row">
+        <Link
+          href="/tree/report-tree"
+          sx={{ fontSize: "12px", padding: "0 0.25rem" }}
+        >
+          รายงานผล
+        </Link>
+        <Link
+          href="/tree/change-plan"
+          sx={{ fontSize: "12px", padding: "0 0.25rem" }}
+        >
+          ขอเปลี่ยนแผน
+        </Link>
+        <Link
+          href="/tree/change-plan-req-list"
+          sx={{ fontSize: "12px", padding: "0 0.25rem" }}
+        >
+          รายการเปลี่ยนแผน
+        </Link>
+      </div>
+      <div className="h-full">
+        <div id="main-content" className="p-0 m-0">
+          <p className="m-3">
+            รายการขอเปลี่ยนแปลง / เพิ่ม / ยกเลิกแผนงานตัดต้นไม้
+          </p>
+          <CustomSeparator setProgress={setProgress} />
+          <Box className="mx-auto w-11/12 mb-3 bg-white grid grid-cols-1">
+            <Box
+              ref={stickyRef}
+              className={`${isSticky ? "sticky" : ""}`}
+              sx={{
+                borderBottom: 1,
+                borderColor: "divider",
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+                flexWrap: "wrap",
+              }}
+            >
+              <Tabs
+                value={tab}
+                onChange={(e, v) => setTab(v)}
+                aria-label="basic tabs example"
+                sx={{ display: "flex", flexDirection: "row", flexWrap: "wrap" }}
+              >
+                <Tab label="เปลี่ยนแปลง" {...a11yProps(0)} />
+                <Tab label="เพิ่ม" {...a11yProps(1)} />
+                <Tab label="ยกเลิก" {...a11yProps(2)} />
+              </Tabs>
+              <Button onClick={handlePrint}>พิมพ์</Button>
+            </Box>
+            <TabPanel value={tab} index={0}>
+              <Grid container spacing={1}>
+                {changeType.map((val) => {
+                  return (
+                    <Grid item key={val._id as string} xs={12} sm={6} md={4}>
+                      <ChangePlanTreeCard
+                        isChecked={
+                          arrIdSelected.indexOf(val._id as string) >= 0
+                        }
+                        plan={val}
+                        onClickEdit={() => handleEdit(val)}
+                        onClickCancel={() => handleCancel(val)}
+                        onChangeSelectBox={handlePrintSelected}
+                      />
+                    </Grid>
+                  );
+                })}
+              </Grid>
+            </TabPanel>
+            <TabPanel value={tab} index={1}>
+              <Grid container spacing={1}>
+                {addType.map((val) => {
+                  return (
+                    <Grid item key={val._id as string} xs={12} sm={6} md={4}>
+                      <ChangePlanTreeCard
+                        isChecked={
+                          arrIdSelected.indexOf(val._id as string) >= 0
+                        }
+                        plan={val}
+                        onClickEdit={() => handleEdit(val)}
+                        onClickCancel={() => handleCancel(val)}
+                        onChangeSelectBox={handlePrintSelected}
+                      />
+                    </Grid>
+                  );
+                })}
+              </Grid>
+            </TabPanel>
+            <TabPanel value={tab} index={2}>
+              <Grid container spacing={1}>
+                {cancelType.map((val) => {
+                  return (
+                    <Grid item key={val._id as string} xs={12} sm={6} md={4}>
+                      <ChangePlanTreeCard
+                        isChecked={
+                          arrIdSelected.indexOf(val._id as string) >= 0
+                        }
+                        plan={val}
+                        onClickEdit={() => handleEdit(val)}
+                        onClickCancel={() => handleCancel(val)}
+                        onChangeSelectBox={handlePrintSelected}
+                      />
+                    </Grid>
+                  );
+                })}
+              </Grid>
+            </TabPanel>
+          </Box>
+          <div className="mt-3 flex flew-row justify-center">
+            <Button
+              sx={{ margin: "1rem auto" }}
+              variant="outlined"
+              className="mt-3 w-40"
+              onClick={() => {
+                setProgress(true);
+                router.push("/");
+              }}
+            >
+              กลับสู่หน้าหลัก
+            </Button>
           </div>
-        );
-      })}
-      <ChangePlanTreeFormDialog
-        openDialog={openDialog}
-        setOpenDialog={setOpenDialog}
-        handleSubmit={handleSubmit}
-        changePlanRequire={changePlanRequire}
-        setChangePlanRequire={setChangePlanRequire}
-        setSnackBar={setSnackBar}
-        snackBar={snackBar}
-        defaultValOldPlan={false}
-      />
-      <AlertSnackBar setSnackBar={setSnackBar} snackBar={snackBar} />
+        </div>
+
+        <ChangePlanTreeFormDialog
+          openDialog={openDialog}
+          setOpenDialog={setOpenDialog}
+          handleSubmit={handleSubmit}
+          changePlanRequire={changePlanRequire}
+          setChangePlanRequire={setChangePlanRequire}
+          setSnackBar={setSnackBar}
+          snackBar={snackBar}
+          defaultValOldPlan={false}
+        />
+
+        <AlertSnackBar setSnackBar={setSnackBar} snackBar={snackBar} />
+        <LoadingBackDrop progress={progress} setProgress={setProgress} />
+        <PrintChangePlanTree
+          printPlan={printPlan}
+          monthTotalBudget={monthTotalBudget}
+        />
+        <style jsx global>{`
+          @media print {
+            body {
+              font-size: 12pt;
+            }
+
+            #main-content {
+              display: none;
+            }
+
+            #navbar-content {
+              display: none;
+            }
+
+            #printable-content {
+              display: block; /* แสดงเฉพาะ element ที่มี id="printable-content" */
+            }
+          }
+        `}</style>
+      </div>
     </div>
+  );
+}
+
+interface TabPanelProps {
+  children?: React.ReactNode;
+  index: number;
+  value: number;
+}
+
+function TabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <Box
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+    </Box>
+  );
+}
+
+function a11yProps(index: number) {
+  return {
+    id: `simple-tab-${index}`,
+    "aria-controls": `simple-tabpanel-${index}`,
+  };
+}
+
+function CustomSeparator({
+  setProgress,
+}: {
+  setProgress: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
+  const breadcrumbs = [
+    <Link
+      sx={{ fontSize: "12px" }}
+      underline="hover"
+      key="1"
+      color="inherit"
+      href="/"
+      onClick={() => setProgress(true)}
+    >
+      หน้าหลัก
+    </Link>,
+    <Typography sx={{ fontSize: "12px" }} key="2" color="text.primary">
+      ต้นไม้
+    </Typography>,
+    <Typography sx={{ fontSize: "12px" }} key="3" color="text.primary">
+      รายการขอเปลี่ยนแปลง / เพิ่ม / ยกเลิกแผนงาน
+    </Typography>,
+  ];
+
+  return (
+    <Stack sx={{ margin: "0 0 1rem 1rem" }} spacing={2}>
+      <Breadcrumbs separator="›" aria-label="breadcrumb">
+        {breadcrumbs}
+      </Breadcrumbs>
+    </Stack>
   );
 }

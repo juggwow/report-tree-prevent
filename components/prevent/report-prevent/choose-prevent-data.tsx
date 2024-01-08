@@ -1,11 +1,20 @@
 import { SetPropsChoosePreventDataType } from "@/types/report-prevent";
 import { SetPropsChooseTreeDataType } from "@/types/report-tree";
-import { Card, CardContent, Typography, CardActions, Button } from "@mui/material";
+import {
+  Card,
+  CardContent,
+  Typography,
+  CardActions,
+  Button,
+} from "@mui/material";
 
-export default function ChoosePreventData({choosePreventData,setChoosePreventData,sendPreventData}:SetPropsChoosePreventDataType){
-    return(
-        <>
-        
+export default function ChoosePreventData({
+  choosePreventData,
+  setChoosePreventData,
+  sendPreventData,
+}: SetPropsChoosePreventDataType) {
+  return (
+    <>
       {choosePreventData.length > 0 && (
         <div className="mx-auto mt-3 w-11/12 bg-white">
           <p className="m-3">แผนงานที่เลือก</p>
@@ -53,7 +62,7 @@ export default function ChoosePreventData({choosePreventData,setChoosePreventDat
               ยืนยัน
             </Button>
             <Button
-              id = "cancelAllPlan"
+              id="cancelAllPlan"
               variant="outlined"
               disabled={choosePreventData.length == 0}
               onClick={() => {
@@ -67,6 +76,6 @@ export default function ChoosePreventData({choosePreventData,setChoosePreventDat
           </div>
         </div>
       )}
-        </>
-    )
+    </>
+  );
 }

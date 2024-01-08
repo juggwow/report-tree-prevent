@@ -1,10 +1,19 @@
 import { SetPropsChooseTreeDataType } from "@/types/report-tree";
-import { Card, CardContent, Typography, CardActions, Button } from "@mui/material";
+import {
+  Card,
+  CardContent,
+  Typography,
+  CardActions,
+  Button,
+} from "@mui/material";
 
-export default function ChooseTreeData({chooseTreeData,setChooseTreeData,sendTreeData}:SetPropsChooseTreeDataType){
-    return(
-        <>
-        
+export default function ChooseTreeData({
+  chooseTreeData,
+  setChooseTreeData,
+  sendTreeData,
+}: SetPropsChooseTreeDataType) {
+  return (
+    <>
       {chooseTreeData.length > 0 && (
         <div className="mx-auto mt-3 w-11/12 bg-white">
           <p className="m-3">แผนงานที่เลือก</p>
@@ -66,6 +75,6 @@ export default function ChooseTreeData({chooseTreeData,setChooseTreeData,sendTre
           </div>
         </div>
       )}
-        </>
-    )
+    </>
+  );
 }

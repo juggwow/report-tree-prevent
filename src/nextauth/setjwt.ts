@@ -7,7 +7,10 @@ import { ObjectId } from "mongodb";
 import { Account } from "next-auth";
 import { JWT } from "next-auth/jwt";
 
-export default async function setJWT(token: JWT,account: Account|null): Promise<JWT> {
+export default async function setJWT(
+  token: JWT,
+  account: Account | null,
+): Promise<JWT> {
   //ถ้ามีข้อมูล pea แล้ว ก็ไม่ต้องทำไร ส่ง token กลับไปได้เลย
   if (token.pea) {
     return token;
@@ -17,24 +20,27 @@ export default async function setJWT(token: JWT,account: Account|null): Promise<
     return token;
   }
   //เพิ่ม provider
-  account? token.provider = account.provider :undefined
+  account ? (token.provider = account.provider) : undefined;
   //ค้นห้าข้อมูล PEA ใน Firestore
-  const mongoClient = await clientPromise
-  const userCollection = mongoClient.db("user").collection("user")
+  const mongoClient = await clientPromise;
+  const userCollection = mongoClient.db("user").collection("user");
   const query = {
-    sub : token.sub
-  }
+    sub: token.sub,
+  };
   const options = {
-    projection : {
+    projection: {
       _id: 0,
       firstname: 1,
       karnfaifa: 1,
       lastname: 1,
       mobileno: 1,
       role: 1,
-      userid: 1
-    }
-  }
-  const docSnap = await userCollection.findOne(query,options) as unknown as peaUser | null
-  return docSnap? { ...token, pea: docSnap}:token
+      userid: 1,
+    },
+  };
+  const docSnap = (await userCollection.findOne(
+    query,
+    options,
+  )) as unknown as peaUser | null;
+  return docSnap ? { ...token, pea: docSnap } : token;
 }

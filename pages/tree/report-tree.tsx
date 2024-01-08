@@ -184,56 +184,78 @@ export default function ReportTree(props: ReportTreeProps) {
   }
 
   return (
-    <div className="flex flex-col p-4 min-h-screen ">
-      <p className="m-3">รายผลการดำเนินงานตัดต้นไม้</p>
-      <CustomSeparator setProgress={setProgress} />
-      <OrderNumber
-        order={order}
-        setOrder={setOrder}
-        setSnackBar={setSnackBar}
-        alignment={alignment}
-        setAlignment={setAlignment}
-        showElementChoose={showElementChoose}
-        setShowElementChoose={setShowElementChoose}
-        chooseTreeData={chooseTreeData}
-      />
-      <TreeDataTable
-        alignment={alignment}
-        showElementChoose={showElementChoose}
-        order={order}
-        filter={filter}
-        setFilter={setFilter}
-        setChooseTreeData={setChooseTreeData}
-        showTreeData={showTreeData}
-        chooseTreeData={chooseTreeData}
-      />
-      <ChooseTreeData
-        sendTreeData={sendTreeData}
-        chooseTreeData={chooseTreeData}
-        setChooseTreeData={setChooseTreeData}
-      />
-      <div className="flex flex-row justify-center">
-        <Button
-          variant="outlined"
-          className="mt-3 w-40"
-          onClick={() => {
-            setProgress(true);
-            if (order.no != "") {
-              return window.confirm(
-                "คุณได้ใส่ข้อมูลไปบางส่วนหรือทั้งหมดแล้ว คุณแน่ใจว่าจะออกจากหน้านี้?",
-              )
-                ? router.push("/")
-                : setProgress(false);
-            }
-            router.push("/");
-          }}
+    <div>
+      <div className="flex flex-row">
+        <Link
+          href="/tree/report-tree"
+          sx={{ fontSize: "12px", padding: "0 0.25rem" }}
         >
-          กลับสู่หน้าหลัก
-        </Button>
+          รายงานผล
+        </Link>
+        <Link
+          href="/tree/change-plan"
+          sx={{ fontSize: "12px", padding: "0 0.25rem" }}
+        >
+          ขอเปลี่ยนแผน
+        </Link>
+        <Link
+          href="/tree/change-plan-req-list"
+          sx={{ fontSize: "12px", padding: "0 0.25rem" }}
+        >
+          รายการเปลี่ยนแผน
+        </Link>
       </div>
-      <AlertSnackBar snackBar={snackBar} setSnackBar={setSnackBar} />
-      <LoadingBackDrop progress={progress} setProgress={setProgress} />
-      <ControlledOpenSpeedDial userManual="https://drive.google.com/uc?export=view&id=1k-3M8-rSzgkO8bIG0JF4WVRAGhzP9fuk" />
+      <div className="flex flex-col p-4 min-h-screen ">
+        <p className="m-3">รายผลการดำเนินงานตัดต้นไม้</p>
+        <CustomSeparator setProgress={setProgress} />
+        <OrderNumber
+          order={order}
+          setOrder={setOrder}
+          setSnackBar={setSnackBar}
+          alignment={alignment}
+          setAlignment={setAlignment}
+          showElementChoose={showElementChoose}
+          setShowElementChoose={setShowElementChoose}
+          chooseTreeData={chooseTreeData}
+        />
+        <TreeDataTable
+          alignment={alignment}
+          showElementChoose={showElementChoose}
+          order={order}
+          filter={filter}
+          setFilter={setFilter}
+          setChooseTreeData={setChooseTreeData}
+          showTreeData={showTreeData}
+          chooseTreeData={chooseTreeData}
+        />
+        <ChooseTreeData
+          sendTreeData={sendTreeData}
+          chooseTreeData={chooseTreeData}
+          setChooseTreeData={setChooseTreeData}
+        />
+        <div className="mt-3 flex flex-row justify-center">
+          <Button
+            variant="outlined"
+            className="mt-3 w-40"
+            onClick={() => {
+              setProgress(true);
+              if (order.no != "") {
+                return window.confirm(
+                  "คุณได้ใส่ข้อมูลไปบางส่วนหรือทั้งหมดแล้ว คุณแน่ใจว่าจะออกจากหน้านี้?",
+                )
+                  ? router.push("/")
+                  : setProgress(false);
+              }
+              router.push("/");
+            }}
+          >
+            กลับสู่หน้าหลัก
+          </Button>
+        </div>
+        <AlertSnackBar snackBar={snackBar} setSnackBar={setSnackBar} />
+        <LoadingBackDrop progress={progress} setProgress={setProgress} />
+        <ControlledOpenSpeedDial userManual="https://drive.google.com/uc?export=view&id=1k-3M8-rSzgkO8bIG0JF4WVRAGhzP9fuk" />
+      </div>
     </div>
   );
 }

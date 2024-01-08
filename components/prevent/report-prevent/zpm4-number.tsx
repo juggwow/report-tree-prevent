@@ -14,27 +14,25 @@ export default function ZPM4Number({
   setShowElementChoose,
   choosePreventData,
 }: SetPropsOrderNumberType) {
-  
   return (
     <div className="mx-auto w-11/12 mb-3 bg-white grid grid-cols-1">
       <p className="m-3 col-span-1">การดำเนินการ</p>
-      <div
-        className="mx-3 mb-3 col-span-1"
-      >
+      <div className="mx-3 mb-3 col-span-1">
         <TextField
           onMouseOver={() => {
-            if(order.disable){
+            if (order.disable) {
               setSnackBar({
                 open: true,
                 sevirity: "warning",
                 massege: `คุณต้องกด "ยกเลิกหมายเลข ZPM4" ก่อนจึงจะเปลี่ยนแปลงได้`,
-              })
-              if(document.getElementById("cancelZPM4")){
-                document.getElementById("cancelZPM4")?.classList.add('shake')
+              });
+              if (document.getElementById("cancelZPM4")) {
+                document.getElementById("cancelZPM4")?.classList.add("shake");
                 setTimeout(() => {
-                  document.getElementById("cancelZPM4")?.classList.remove('shake');
+                  document
+                    .getElementById("cancelZPM4")
+                    ?.classList.remove("shake");
                 }, 2000);
-  
               }
             }
           }}
@@ -63,17 +61,21 @@ export default function ZPM4Number({
         {/^400\d{7}$/.test(order.no) && showElementChoose && (
           <div
             onMouseUp={() => {
-              if(choosePreventData.length){
+              if (choosePreventData.length) {
                 setSnackBar({
                   open: true,
                   sevirity: "warning",
                   massege: `คุณต้องกด "ยกเลิกแผนงานทั้งหมด" ก่อนจึงจะเปลี่ยนแปลงได้`,
-                })
-                document.getElementById("cancelAllPlan")?.focus()
-                document.getElementById("cancelAllPlan")?.classList.add("shake")
-                setTimeout(()=>{
-                  document.getElementById("cancelAllPlan")?.classList.remove("shake")
-                },2000)
+                });
+                document.getElementById("cancelAllPlan")?.focus();
+                document
+                  .getElementById("cancelAllPlan")
+                  ?.classList.add("shake");
+                setTimeout(() => {
+                  document
+                    .getElementById("cancelAllPlan")
+                    ?.classList.remove("shake");
+                }, 2000);
               }
             }}
           >

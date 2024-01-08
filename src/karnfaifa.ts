@@ -33,7 +33,7 @@ const optionsKarnfaifa = [
   "กฟส.นาทวี",
   "กฟส.สะบ้าย้อย",
   "กฟส.เทพา",
-  "กฟต.3"
+  "กฟต.3",
 ];
 
 export default optionsKarnfaifa;

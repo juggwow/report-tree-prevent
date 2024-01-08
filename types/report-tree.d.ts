@@ -28,8 +28,8 @@ interface ReportTreeProps {
 }
 
 type TreeDataFilter = treeData & {
-  hasZPM4: boolean
-}
+  hasZPM4: boolean;
+};
 
 type SetPropsOrderNumberType = {
   order: Order;
@@ -43,22 +43,21 @@ type SetPropsOrderNumberType = {
 };
 
 type SetPropsTreeDataTableType = {
-    alignment: string;
-    showElementChoose: boolean;
-    order: Order;
-    filter: TreeDataFilter;
-    setFilter: React.Dispatch<React.SetStateAction<TreeDataFilter>>
-    showTreeData: treeData[]
-    chooseTreeData: treeData[]
-    setChooseTreeData: React.Dispatch<React.SetStateAction<treeData[]>>
-
-}
+  alignment: string;
+  showElementChoose: boolean;
+  order: Order;
+  filter: TreeDataFilter;
+  setFilter: React.Dispatch<React.SetStateAction<TreeDataFilter>>;
+  showTreeData: treeData[];
+  chooseTreeData: treeData[];
+  setChooseTreeData: React.Dispatch<React.SetStateAction<treeData[]>>;
+};
 
 type SetPropsChooseTreeDataType = {
-    chooseTreeData: treeData[]
-    setChooseTreeData: React.Dispatch<React.SetStateAction<treeData[]>>
-    sendTreeData: ()=>void
-}
+  chooseTreeData: treeData[];
+  setChooseTreeData: React.Dispatch<React.SetStateAction<treeData[]>>;
+  sendTreeData: () => void;
+};
 
 // type FormChangePlanTree = {
 //   _id: ObjectId|string
@@ -96,76 +95,81 @@ type SetPropsChooseTreeDataType = {
 // }
 
 type FormChangePlanTree = {
-  _id: ObjectId|string
-  status:"progress"|"success"|"reject";
-  userReq?: peaUser
-  dateReq?: string
-  reason:string
-  typeReq: "change"
-  oldPlan:{
+  _id: ObjectId | string;
+  status: "progress" | "success" | "reject";
+  userReq?: peaUser;
+  dateReq?: string;
+  reason: string;
+  typeReq: "change";
+  oldPlan: {
     planName: string;
-    budget: number|string;
-    systemVolt: "33kV"|"400/230V"|"115kV";
+    budget: number | string;
+    systemVolt: "33kV" | "400/230V" | "115kV";
     month: string;
-  } & (SelfProceed | HireNormal | HireSpecial)
-  newPlan:{
+  } & (SelfProceed | HireNormal | HireSpecial);
+  newPlan: {
     planName: string;
-    budget: number|string;
+    budget: number | string;
     systemVolt: string;
     month: string;
-  } & (SelfProceed | HireNormal | HireSpecial)
-}
+  } & (SelfProceed | HireNormal | HireSpecial);
+};
 
 type FormAddPlanTree = {
-  _id: ObjectId|string
-  status:"progress"|"success"|"reject";
-  userReq?: peaUser
-  dateReq?: string
-  reason:string
-  typeReq: "add"
-  newPlan:{
+  _id: ObjectId | string;
+  status: "progress" | "success" | "reject";
+  userReq?: peaUser;
+  dateReq?: string;
+  reason: string;
+  typeReq: "add";
+  newPlan: {
     planName: string;
-    budget: number|string;
+    budget: number | string;
     systemVolt: string;
     month: string;
-  } & (SelfProceed | HireNormal | HireSpecial)
-}
+  } & (SelfProceed | HireNormal | HireSpecial);
+};
 
 type FormCancelPlanTree = {
-  _id: ObjectId|string
-  status:"progress"|"success"|"reject";
+  _id: ObjectId | string;
+  status: "progress" | "success" | "reject";
   userReq?: peaUser;
   dateReq?: string;
   reason: string;
   typeReq: "cancel";
-  oldPlan:{
+  oldPlan: {
     planName: string;
-    budget: number|string;
-    systemVolt: "33kV"|"400/230V"|"115kV";
+    budget: number | string;
+    systemVolt: "33kV" | "400/230V" | "115kV";
     month: string;
-  } & (SelfProceed | HireNormal | HireSpecial)
-}
+  } & (SelfProceed | HireNormal | HireSpecial);
+};
 
 type SelfProceed = {
-  hireType: "self",
-  quantity:{
-    distance:number|string
-  }
-}
+  hireType: "self";
+  quantity: {
+    distance: number | string;
+  };
+};
 
 type HireNormal = {
-  hireType: "normal",
-  quantity:{
-    plentifully: number|string;
-    moderate: number|string;
-    lightly: number|string;
-    clear: number|string;
-  }
-}
+  hireType: "normal";
+  quantity: {
+    plentifully: number | string;
+    moderate: number | string;
+    lightly: number | string;
+    clear: number | string;
+  };
+};
 
 type HireSpecial = {
-  hireType: "special",
-  quantity:{
-    discription:string
-  }
-}
+  hireType: "special";
+  quantity: {
+    discription: string;
+  };
+};
+
+type MonthTotalBudget = {
+  month: number;
+  totalBudget: number;
+};

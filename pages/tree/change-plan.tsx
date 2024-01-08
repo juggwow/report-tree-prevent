@@ -29,6 +29,7 @@ import {
   FormChangePlanTree,
 } from "@/types/report-tree";
 import { clear } from "console";
+import { useRouter } from "next/router";
 
 export async function getServerSideProps(context: any) {
   const session = await getSession(context);
@@ -36,7 +37,7 @@ export async function getServerSideProps(context: any) {
   if (!session) {
     return {
       redirect: {
-        destination: "/signin",
+        destination: "/signin?link=/tree/change-plan",
       },
     };
   }
@@ -44,7 +45,7 @@ export async function getServerSideProps(context: any) {
   if (!session.pea) {
     return {
       redirect: {
-        destination: "/profile",
+        destination: "/profile?link=/tree/change-plan",
       },
     };
   }
@@ -146,6 +147,7 @@ export default function ChangePlanTree({
 }: {
   planTree: FormChangePlanTree[];
 }) {
+  const router = useRouter();
   const [changePlanRequire, setChangePlanRequire] = useState<
     FormChangePlanTree | FormAddPlanTree | FormCancelPlanTree
   >({
@@ -357,213 +359,257 @@ export default function ChangePlanTree({
   };
 
   return (
-    <div className="h-full">
-      <p className="m-3">เปลี่ยนแปลงแผนงานตัดต้นไม้</p>
-      <CustomSeparator setProgress={setProgress} />
-      <div className="mx-auto w-11/12 mb-3 bg-white grid grid-cols-1">
-        <Button
-          sx={{ width: "100px", margin: "1rem auto 0" }}
-          onClick={() => {
-            setDefaultValOld(false);
-            setChangePlanRequire({
-              _id: "",
-              reason: "",
-              typeReq: "add",
-              newPlan: {
-                systemVolt: "33kV",
-                planName: "",
-                budget: 0,
-                month: "",
-                hireType: "normal",
-                quantity: {
-                  plentifully: 0,
-                  moderate: 0,
-                  lightly: 0,
-                  clear: 0,
+    <div>
+      <div className="flex flex-row">
+        <Link
+          href="/tree/report-tree"
+          sx={{ fontSize: "12px", padding: "0 0.25rem" }}
+        >
+          รายงานผล
+        </Link>
+        <Link
+          href="/tree/change-plan"
+          sx={{ fontSize: "12px", padding: "0 0.25rem" }}
+        >
+          ขอเปลี่ยนแผน
+        </Link>
+        <Link
+          href="/tree/change-plan-req-list"
+          sx={{ fontSize: "12px", padding: "0 0.25rem" }}
+        >
+          รายการเปลี่ยนแผน
+        </Link>
+      </div>
+      <div className="h-full">
+        <p className="m-3">เปลี่ยนแปลงแผนงานตัดต้นไม้</p>
+        <CustomSeparator setProgress={setProgress} />
+        <div className="mx-auto w-11/12 mb-3 bg-white grid grid-cols-1">
+          <Button
+            sx={{ width: "100px", margin: "1rem auto 0" }}
+            onClick={() => {
+              setDefaultValOld(false);
+              setChangePlanRequire({
+                _id: "",
+                reason: "",
+                typeReq: "add",
+                newPlan: {
+                  systemVolt: "33kV",
+                  planName: "",
+                  budget: 0,
+                  month: "",
+                  hireType: "normal",
+                  quantity: {
+                    plentifully: 0,
+                    moderate: 0,
+                    lightly: 0,
+                    clear: 0,
+                  },
                 },
-              },
-              status: "progress",
-            });
-            setOpenDialog(true);
-          }}
-        >
-          เพิ่มแผนงาน
-        </Button>
+                status: "progress",
+              });
+              setOpenDialog(true);
+            }}
+          >
+            เพิ่มแผนงาน
+          </Button>
 
-        <Pagination
-          sx={{ margin: "0.5rem auto" }}
-          count={state.totalPage}
-          page={state.page}
-          onChange={handleChange}
-        />
-        <Grid
-          container
-          sx={{
-            margin: "1rem auto 1rem",
-            rowGap: "1rem",
-            justifySelf: "center",
-          }}
-        >
-          <Grid item xs={12} sm={8} sx={{ padding: "0.5rem" }}>
-            <TextField
-              label="กรองตามชื่อแผนงาน"
+          <Pagination
+            sx={{ margin: "0.5rem auto" }}
+            count={state.totalPage}
+            page={state.page}
+            onChange={handleChange}
+          />
+          <Grid
+            container
+            sx={{
+              margin: "1rem auto 1rem",
+              rowGap: "1rem",
+              justifySelf: "center",
+            }}
+          >
+            <Grid item xs={12} sm={8} sx={{ padding: "0.5rem" }}>
+              <TextField
+                label="กรองตามชื่อแผนงาน"
+                variant="outlined"
+                onChange={(e) => {
+                  dispatch({
+                    page: 1,
+                    plan,
+                    planFilter: {
+                      ...state.planFilter,
+                      planName: e.target.value,
+                    },
+                  });
+                }}
+              ></TextField>
+            </Grid>
+            <Grid item xs={12} sm={4} sx={{ padding: "0.5rem" }}>
+              <Autocomplete
+                disablePortal
+                id="combo-box-demo"
+                options={month}
+                onChange={(_e, v) => {
+                  dispatch({
+                    page: 1,
+                    plan,
+                    planFilter: {
+                      ...state.planFilter,
+                      month: v ? v.month : "",
+                    },
+                  });
+                }}
+                renderInput={(params) => (
+                  <TextField {...params} label="กรองเดือน" />
+                )}
+              />
+            </Grid>
+          </Grid>
+          {state.plan.length == 0 ? (
+            <Accordion>
+              <AccordionSummary
+                aria-controls="no-data-content"
+                id="no-data-header"
+              >
+                <Typography sx={{ margin: "auto 0" }}>ไม่พบแผนงาน</Typography>
+              </AccordionSummary>
+            </Accordion>
+          ) : (
+            state.plan.map((val, i) => {
+              return (
+                <div key={i} className="mt-3 mx-3">
+                  <Accordion expanded={expanded === val._id}>
+                    <AccordionSummary
+                      onClick={() =>
+                        expanded == val._id
+                          ? setExpanded("")
+                          : setExpanded(val._id as string)
+                      }
+                      aria-controls={`${val.oldPlan!.planName}-content`}
+                      id={`${val.oldPlan!.planName}-header`}
+                    >
+                      <Grid container>
+                        <Grid item xs={12}>
+                          <Typography sx={{ margin: "auto 0" }}>
+                            {val.oldPlan!.planName}
+                          </Typography>
+                        </Grid>
+                        <Grid sx={{ margin: "0.5rem 0" }} item xs={12}>
+                          แผนงานเดือน: {val.oldPlan?.month}
+                        </Grid>
+                        <Grid
+                          item
+                          xs={12}
+                          sx={{ direction: "flex", justifyContent: "end" }}
+                        >
+                          <Button
+                            sx={{ marginLeft: "auto" }}
+                            onClick={() => {
+                              setOpenDialog(true);
+                              setChangePlanRequire({
+                                _id: val._id as string,
+                                oldPlan: val.oldPlan,
+                                newPlan: val.oldPlan,
+                                reason: "",
+                                typeReq: "change",
+                                status: "progress",
+                              });
+                              setDefaultValOld(true);
+                            }}
+                          >
+                            {" "}
+                            เปลี่ยนแผนงาน{" "}
+                          </Button>
+                          <Button
+                            onClick={() => {
+                              setOpenDialog(true);
+                              setChangePlanRequire({
+                                _id: val._id as string,
+                                reason: "",
+                                typeReq: "cancel",
+                                status: "progress",
+                                oldPlan: val.oldPlan,
+                              });
+                            }}
+                          >
+                            {" "}
+                            ยกเลิกแผนงาน{" "}
+                          </Button>
+                        </Grid>
+                      </Grid>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      <Typography>
+                        <span>ประเภทงาน : {val.oldPlan.hireType}</span>
+                        <br />
+                        <span>ปริมาณงาน</span> <br />
+                        {val.oldPlan.hireType == "normal" && (
+                          <>
+                            <span>
+                              หนาแน่น: {val.oldPlan.quantity.plentifully}
+                            </span>{" "}
+                            <br />
+                            <span>
+                              เบาบาง: {val.oldPlan.quantity.moderate}
+                            </span>{" "}
+                            <br />
+                            <span>
+                              ปานกลาง: {val.oldPlan.quantity.lightly}
+                            </span>{" "}
+                            <br />
+                            <span>โล่ง: {val.oldPlan.quantity.clear}</span>{" "}
+                            <br />
+                            <span>แผนงานเดือน : {val.oldPlan!.month}</span>{" "}
+                            <br />
+                            <span>งบประมาณ: {val.oldPlan!.budget}</span> <br />
+                          </>
+                        )}
+                        {val.oldPlan.hireType == "self" && (
+                          <span>ระยะทาง: {val.oldPlan.quantity.distance}</span>
+                        )}
+                        {val.oldPlan.hireType == "special" && (
+                          <span>
+                            ปริมาณงานโดยสังเขป:{" "}
+                            {val.oldPlan.quantity.discription}
+                          </span>
+                        )}
+                      </Typography>
+                    </AccordionDetails>
+                  </Accordion>
+                </div>
+              );
+            })
+          )}
+          <Pagination
+            sx={{ margin: "1rem auto" }}
+            count={state.totalPage}
+            page={state.page}
+            onChange={handleChange}
+          />
+          <ChangePlanTreeFormDialog
+            openDialog={openDialog}
+            setOpenDialog={setOpenDialog}
+            handleSubmit={handleSubmit}
+            changePlanRequire={changePlanRequire}
+            setChangePlanRequire={setChangePlanRequire}
+            setSnackBar={setSnackBar}
+            snackBar={snackBar}
+            defaultValOldPlan={defaultValOld}
+          />
+          <div className="mt-3 flex flew-row justify-center">
+            <Button
+              sx={{ margin: "1rem auto" }}
               variant="outlined"
-              onChange={(e) => {
-                dispatch({
-                  page: 1,
-                  plan,
-                  planFilter: { ...state.planFilter, planName: e.target.value },
-                });
+              className="mt-3 w-40"
+              onClick={() => {
+                setProgress(true);
+                router.push("/");
               }}
-            ></TextField>
-          </Grid>
-          <Grid item xs={12} sm={4} sx={{ padding: "0.5rem" }}>
-            <Autocomplete
-              disablePortal
-              id="combo-box-demo"
-              options={month}
-              onChange={(_e, v) => {
-                dispatch({
-                  page: 1,
-                  plan,
-                  planFilter: { ...state.planFilter, month: v ? v.month : "" },
-                });
-              }}
-              renderInput={(params) => (
-                <TextField {...params} label="กรองเดือน" />
-              )}
-            />
-          </Grid>
-        </Grid>
-        {state.plan.length == 0 ? (
-          <Accordion>
-            <AccordionSummary
-              aria-controls="no-data-content"
-              id="no-data-header"
             >
-              <Typography sx={{ margin: "auto 0" }}>ไม่พบแผนงาน</Typography>
-            </AccordionSummary>
-          </Accordion>
-        ) : (
-          state.plan.map((val, i) => {
-            return (
-              <div key={i} className="mt-3 mx-3">
-                <Accordion expanded={expanded === val._id}>
-                  <AccordionSummary
-                    onClick={() =>
-                      expanded == val._id
-                        ? setExpanded("")
-                        : setExpanded(val._id as string)
-                    }
-                    aria-controls={`${val.oldPlan!.planName}-content`}
-                    id={`${val.oldPlan!.planName}-header`}
-                  >
-                    <Grid container>
-                      <Grid item xs={12}>
-                        <Typography sx={{ margin: "auto 0" }}>
-                          {val.oldPlan!.planName}
-                        </Typography>
-                      </Grid>
-                      <Grid sx={{ margin: "0.5rem 0" }} item xs={12}>
-                        แผนงานเดือน: {val.oldPlan?.month}
-                      </Grid>
-                      <Grid
-                        item
-                        xs={12}
-                        sx={{ direction: "flex", justifyContent: "end" }}
-                      >
-                        <Button
-                          sx={{ marginLeft: "auto" }}
-                          onClick={() => {
-                            setOpenDialog(true);
-                            setChangePlanRequire({
-                              _id: val._id as string,
-                              oldPlan: val.oldPlan,
-                              newPlan: val.oldPlan,
-                              reason: "",
-                              typeReq: "change",
-                              status: "progress",
-                            });
-                            setDefaultValOld(true);
-                          }}
-                        >
-                          {" "}
-                          เปลี่ยนแผนงาน{" "}
-                        </Button>
-                        <Button
-                          onClick={() => {
-                            setOpenDialog(true);
-                            setChangePlanRequire({
-                              _id: val._id as string,
-                              reason: "",
-                              typeReq: "cancel",
-                              status: "progress",
-                              oldPlan: val.oldPlan,
-                            });
-                          }}
-                        >
-                          {" "}
-                          ยกเลิกแผนงาน{" "}
-                        </Button>
-                      </Grid>
-                    </Grid>
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <Typography>
-                      <span>ประเภทงาน : {val.oldPlan.hireType}</span>
-                      <br />
-                      <span>ปริมาณงาน</span> <br />
-                      {val.oldPlan.hireType == "normal" && (
-                        <>
-                          <span>
-                            หนาแน่น: {val.oldPlan.quantity.plentifully}
-                          </span>{" "}
-                          <br />
-                          <span>
-                            เบาบาง: {val.oldPlan.quantity.moderate}
-                          </span>{" "}
-                          <br />
-                          <span>
-                            ปานกลาง: {val.oldPlan.quantity.lightly}
-                          </span>{" "}
-                          <br />
-                          <span>โล่ง: {val.oldPlan.quantity.clear}</span> <br />
-                          <span>แผนงานเดือน : {val.oldPlan!.month}</span> <br />
-                          <span>งบประมาณ: {val.oldPlan!.budget}</span> <br />
-                        </>
-                      )}
-                      {val.oldPlan.hireType == "self" && (
-                        <span>ระยะทาง: {val.oldPlan.quantity.distance}</span>
-                      )}
-                      {val.oldPlan.hireType == "special" && (
-                        <span>
-                          ปริมาณงานโดยสังเขป: {val.oldPlan.quantity.discription}
-                        </span>
-                      )}
-                    </Typography>
-                  </AccordionDetails>
-                </Accordion>
-              </div>
-            );
-          })
-        )}
-        <Pagination
-          sx={{ margin: "1rem auto" }}
-          count={state.totalPage}
-          page={state.page}
-          onChange={handleChange}
-        />
-        <ChangePlanTreeFormDialog
-          openDialog={openDialog}
-          setOpenDialog={setOpenDialog}
-          handleSubmit={handleSubmit}
-          changePlanRequire={changePlanRequire}
-          setChangePlanRequire={setChangePlanRequire}
-          setSnackBar={setSnackBar}
-          snackBar={snackBar}
-          defaultValOldPlan={defaultValOld}
-        />
-        <AlertSnackBar snackBar={snackBar} setSnackBar={setSnackBar} />
+              กลับสู่หน้าหลัก
+            </Button>
+          </div>
+          <AlertSnackBar snackBar={snackBar} setSnackBar={setSnackBar} />
+        </div>
       </div>
     </div>
   );
@@ -604,7 +650,7 @@ function CustomSeparator({
       ต้นไม้
     </Typography>,
     <Typography sx={{ fontSize: "12px" }} key="3" color="text.primary">
-      รายงานผล
+      เปลี่ยนแปลง / เพิ่ม / ยกเลิก แผนงาน
     </Typography>,
   ];
 

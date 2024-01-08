@@ -1,18 +1,17 @@
 import { useSession } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import BorderColorRoundedIcon from '@mui/icons-material/BorderColorRounded';
-import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
-import { useSearchParams } from 'next/navigation'
-
+import BorderColorRoundedIcon from "@mui/icons-material/BorderColorRounded";
+import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
+import { useSearchParams } from "next/navigation";
 
 export default function NavBar() {
   const session = useSession();
-  const search = useSearchParams()
+  const search = useSearchParams();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const profileMenuElementRef = useRef<HTMLDivElement | null>(null);
   const imgElementRef = useRef<HTMLImageElement | null>(null);
-  
+
   useEffect(() => {
     const handleOutsideClick = (e: MouseEvent) => {
       if (
@@ -30,15 +29,15 @@ export default function NavBar() {
     };
   }, []);
 
-
-  if(search.get('liff')=="TRUE"){
-    return (
-      <></>
-    )
+  if (search.get("liff") == "TRUE") {
+    return <></>;
   }
 
   return (
-    <div className="flex flex-row w-full justify-between items-center bg-slate-300 z-10">
+    <div
+      id="navbar-content"
+      className="flex flex-row w-full justify-between items-center bg-slate-300 z-10"
+    >
       <p className="m-4 sm:hidden">ผบร.กบษ.(ต.3)</p>
       <p className="m-4 hidden sm:block">
         แผนกบำรุงรักษาระบบจำหน่าย ผบร.กบษ.(ต.3)
@@ -59,14 +58,19 @@ export default function NavBar() {
               onClick={() => setShowProfileMenu(false)}
               className="block px-4 py-2 text-sm text-gray-700 hover:font-bold"
             >
-              <BorderColorRoundedIcon color="inherit" sx={{marginRight: "1rem"}}/>แก้ไขข้อมูลส่วนตัว
+              <BorderColorRoundedIcon
+                color="inherit"
+                sx={{ marginRight: "1rem" }}
+              />
+              แก้ไขข้อมูลส่วนตัว
             </Link>
             <Link
               href="/signout"
               onClick={() => setShowProfileMenu(false)}
               className="block px-4 py-2 text-sm text-gray-700 hover:font-bold"
             >
-              <LogoutRoundedIcon color="inherit" sx={{marginRight: "1rem"}}/>ออกจากระบบ
+              <LogoutRoundedIcon color="inherit" sx={{ marginRight: "1rem" }} />
+              ออกจากระบบ
             </Link>
           </div>
         </div>

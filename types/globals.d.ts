@@ -1,6 +1,6 @@
-declare module 'utm-latlng';
+declare module "utm-latlng";
 
-declare module '@turf/turf' {
-    const turf: any;
-    export = turf;
-  }
+declare module "@turf/turf" {
+  const turf: any;
+  export = turf;
+}

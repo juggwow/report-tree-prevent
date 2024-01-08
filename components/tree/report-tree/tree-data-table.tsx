@@ -1,5 +1,10 @@
 import { SetPropsTreeDataTableType, treeData } from "@/types/report-tree";
-import { TextField, Autocomplete, FormControlLabel, Switch } from "@mui/material";
+import {
+  TextField,
+  Autocomplete,
+  FormControlLabel,
+  Switch,
+} from "@mui/material";
 import CustomToolbar from "../../data-grid-custom-toolbar";
 import {
   DataGrid,
@@ -55,7 +60,17 @@ export default function TreeDataTable({
               />
             </div>
             <div className="col-span-2 sm:col-span-1 flex flex-row m-0 p-0">
-              <FormControlLabel control={<Switch defaultChecked onChange={(e)=>setFilter({...filter,hasZPM4: e.target.checked})}/>} label="รวมที่ลงข้อมูลแล้ว"/>
+              <FormControlLabel
+                control={
+                  <Switch
+                    defaultChecked
+                    onChange={(e) =>
+                      setFilter({ ...filter, hasZPM4: e.target.checked })
+                    }
+                  />
+                }
+                label="รวมที่ลงข้อมูลแล้ว"
+              />
             </div>
           </div>
           <DataGrid
@@ -156,7 +171,3 @@ const columns: GridColDef[] = [
     width: 300,
   },
 ];
-
-
-
-

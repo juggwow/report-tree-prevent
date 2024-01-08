@@ -24,8 +24,8 @@ body {
       rgb(var(--background-end-rgb))
     )
     rgb(var(--background-start-rgb));
-    margin: 0;
-    padding: 0;
+  margin: 0;
+  padding: 0;
 }
 
 .MuiDataGrid-root .zpm4Name.MuiDataGrid-cell {
@@ -38,42 +38,52 @@ body {
   word-wrap: break-word !important;
 }
 
-
-.MuiDataGrid-filterForm{
+.MuiDataGrid-filterForm {
   display: flex;
   flex-direction: column;
   height: 180px;
   position: relative;
 }
 
-.MuiDataGrid-filterForm .MuiFormControl-root:first-child{
+.MuiDataGrid-filterForm .MuiFormControl-root:first-child {
   position: absolute;
   right: 0%;
   top: 0%;
 }
-
 
 /* .MuiInputBase-root{
   width: 100%;
   
 } */
 
-.MuiFormControl-root{
+.MuiFormControl-root {
   width: 100%;
 }
 
-.MuiDataGrid-cell:first-child:hover{
+.MuiDataGrid-cell:first-child:hover {
   cursor: pointer;
   font-weight: bold;
 }
 
 @keyframes shake {
-  0% { transform: translateX(0); }
-  20% { transform: translateX(-5px); }
-  40% { transform: translateX(5px); }
-  60% { transform: translateX(-5px); }
-  80% { transform: translateX(5px); }
-  100% { transform: translateX(0); }
+  0% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-5px);
+  }
+  40% {
+    transform: translateX(5px);
+  }
+  60% {
+    transform: translateX(-5px);
+  }
+  80% {
+    transform: translateX(5px);
+  }
+  100% {
+    transform: translateX(0);
+  }
 }
 
 .shake {
@@ -83,3 +93,10 @@ body {
 /* #speed-dial>button>span{
   background-color: rgba(0, 0, 0, 0.87) !important;
 } */
+
+.sticky {
+  position: fixed;
+  top: 0;
+  background-color: white;
+  z-index: 10;
+}

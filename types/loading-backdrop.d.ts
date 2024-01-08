@@ -1,4 +1,4 @@
 type SetPropsLoadingBackDrop = {
-    progress: boolean
-    setProgress: React.Dispatch<React.SetStateAction<boolean>>
-}
+  progress: boolean;
+  setProgress: React.Dispatch<React.SetStateAction<boolean>>;
+};

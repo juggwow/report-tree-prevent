@@ -37,20 +37,21 @@ export default function OrderNumber({
       <div className="mx-3 mb-3 col-span-1">
         <ToggleButtonGroup
           onClick={() => {
-            if(order.disable){
+            if (order.disable) {
               setSnackBar({
                 open: true,
                 sevirity: "warning",
                 massege: `คุณต้องยกเลิกหมายเลข ${alignment.toUpperCase()} ก่อนจึงจะเปลี่ยนแปลงได้`,
-              })
-              if(document.getElementById("cancelZPM4")){
-                document.getElementById("cancelZPM4")?.classList.add('shake')
+              });
+              if (document.getElementById("cancelZPM4")) {
+                document.getElementById("cancelZPM4")?.classList.add("shake");
                 setTimeout(() => {
-                  document.getElementById("cancelZPM4")?.classList.remove('shake');
+                  document
+                    .getElementById("cancelZPM4")
+                    ?.classList.remove("shake");
                 }, 2000);
               }
             }
-
           }}
           disabled={order.disable}
           color="primary"
@@ -60,8 +61,8 @@ export default function OrderNumber({
             n
               ? setAlignment(n)
               : alignment == "po"
-              ? setAlignment("zpm4")
-              : setAlignment("po")
+                ? setAlignment("zpm4")
+                : setAlignment("po")
           }
           aria-label="Platform"
           sx={{ margin: "0 0 0.5rem 0.5rem" }}
@@ -73,16 +74,18 @@ export default function OrderNumber({
       <div
         className="mx-3 mb-3 col-span-1"
         onMouseOver={() => {
-          if(order.disable){
+          if (order.disable) {
             setSnackBar({
               open: true,
               sevirity: "warning",
               massege: `คุณต้องยกเลิกหมายเลข ${alignment.toUpperCase()} ก่อนจึงจะเปลี่ยนแปลงได้`,
-            })
-            if(document.getElementById("cancelZPM4")){
-              document.getElementById("cancelZPM4")?.classList.add('shake')
+            });
+            if (document.getElementById("cancelZPM4")) {
+              document.getElementById("cancelZPM4")?.classList.add("shake");
               setTimeout(() => {
-                document.getElementById("cancelZPM4")?.classList.remove('shake');
+                document
+                  .getElementById("cancelZPM4")
+                  ?.classList.remove("shake");
               }, 2000);
             }
           }
@@ -120,17 +123,21 @@ export default function OrderNumber({
         {!validatorOrder() && showElementChoose && (
           <div
             onMouseUp={() => {
-              if(chooseTreeData.length){
+              if (chooseTreeData.length) {
                 setSnackBar({
                   open: true,
                   sevirity: "warning",
                   massege: `คุณต้องกด "ยกเลิกแผนงานทั้งหมด" ก่อนจึงจะเปลี่ยนแปลงได้`,
-                })
-                document.getElementById("cancelAllPlan")?.focus()
-                document.getElementById("cancelAllPlan")?.classList.add("shake")
-                setTimeout(()=>{
-                  document.getElementById("cancelAllPlan")?.classList.remove("shake")
-                },2000)
+                });
+                document.getElementById("cancelAllPlan")?.focus();
+                document
+                  .getElementById("cancelAllPlan")
+                  ?.classList.add("shake");
+                setTimeout(() => {
+                  document
+                    .getElementById("cancelAllPlan")
+                    ?.classList.remove("shake");
+                }, 2000);
               }
             }}
           >

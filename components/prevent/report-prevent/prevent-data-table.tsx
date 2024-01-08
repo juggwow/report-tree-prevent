@@ -1,5 +1,10 @@
 import { SetPropsTreeDataTableType, treeData } from "@/types/report-tree";
-import { TextField, Autocomplete, Switch, FormControlLabel } from "@mui/material";
+import {
+  TextField,
+  Autocomplete,
+  Switch,
+  FormControlLabel,
+} from "@mui/material";
 import CustomToolbar from "../../data-grid-custom-toolbar";
 import {
   DataGrid,
@@ -8,7 +13,10 @@ import {
   GridToolbarExport,
 } from "@mui/x-data-grid";
 import formatDate from "@/lib/format-date";
-import { PreventData, SetPropsPreventDataTableType } from "@/types/report-prevent";
+import {
+  PreventData,
+  SetPropsPreventDataTableType,
+} from "@/types/report-prevent";
 import { useState } from "react";
 
 export default function PreventDataTable({
@@ -20,12 +28,11 @@ export default function PreventDataTable({
   choosePreventData,
   setChoosePreventData,
 }: SetPropsPreventDataTableType) {
-  
-  let autoComplete:string[] = []
-  showPreventData.forEach(val=>autoComplete.push(val.duration))
-  autoComplete = autoComplete.filter((val,i,arr)=>{
-    return arr.indexOf(val) === i
-  })
+  let autoComplete: string[] = [];
+  showPreventData.forEach((val) => autoComplete.push(val.duration));
+  autoComplete = autoComplete.filter((val, i, arr) => {
+    return arr.indexOf(val) === i;
+  });
   return (
     <div className="p-0 m-0">
       {showElementChoose ? (
@@ -60,7 +67,17 @@ export default function PreventDataTable({
               />
             </div>
             <div className="col-span-2 sm:col-span-1 flex flex-row m-0 p-0">
-              <FormControlLabel control={<Switch defaultChecked onChange={(e)=>setFilter({...filter,hasZPM4: e.target.checked})}/>} label="รวมที่ลงข้อมูลแล้ว"/>
+              <FormControlLabel
+                control={
+                  <Switch
+                    defaultChecked
+                    onChange={(e) =>
+                      setFilter({ ...filter, hasZPM4: e.target.checked })
+                    }
+                  />
+                }
+                label="รวมที่ลงข้อมูลแล้ว"
+              />
             </div>
           </div>
           <DataGrid
@@ -131,7 +148,12 @@ const columns: GridColDef[] = [
     disableColumnMenu: true,
     sortable: false,
   },
-  { field: "duration", headerName: "ช่วงที่ดำเนินการ", disableColumnMenu: true, width: 150 },
+  {
+    field: "duration",
+    headerName: "ช่วงที่ดำเนินการ",
+    disableColumnMenu: true,
+    width: 150,
+  },
   {
     field: "businessName",
     headerName: "กฟฟ.",
@@ -146,7 +168,3 @@ const columns: GridColDef[] = [
     width: 300,
   },
 ];
-
-
-
-
