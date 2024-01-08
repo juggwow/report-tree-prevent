@@ -70,7 +70,7 @@ export default function ChangePlanTreeCard({
                   {plan.oldPlan ? month.get(plan.oldPlan.month) : undefined}
                 </span>
                 <br />
-                <span>ประเภทงาน: {plan.oldPlan?.hireType}</span>
+                <span>ประเภทงาน: {hireMap.get(plan.oldPlan?.hireType)}</span>
                 <br />
                 <span>ระบบ: {plan.oldPlan?.systemVolt}</span>
                 <br />
@@ -90,7 +90,7 @@ export default function ChangePlanTreeCard({
                   {plan.newPlan ? month.get(plan.newPlan.month) : undefined}
                 </span>
                 <br />
-                <span>ประเภทงาน: {plan.newPlan?.hireType}</span>
+                <span>ประเภทงาน: {hireMap.get(plan.newPlan?.hireType)}</span>
                 <br />
                 <span>ระบบ: {plan.newPlan?.systemVolt}</span>
                 <br />
@@ -127,4 +127,10 @@ const month = new Map([
   ["10", "ตุลาคม"],
   ["11", "พฤศจิกายน"],
   ["12", "ธันวาคม"],
+]);
+
+const hireMap = new Map([
+  ["self", "กฟภ. ดำเนินการเอง"],
+  ["normal", "จ้างเหมาปกติ"],
+  ["special", "จ้างเหมาลักษณะพิเศษ"],
 ]);

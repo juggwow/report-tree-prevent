@@ -494,7 +494,7 @@ export default function ChangePlanTree({
                           </Typography>
                         </Grid>
                         <Grid sx={{ margin: "0.5rem 0" }} item xs={12}>
-                          แผนงานเดือน: {val.oldPlan?.month}
+                          แผนงานเดือน: {monthMap.get(val.oldPlan?.month)}
                         </Grid>
                         <Grid
                           item
@@ -539,7 +539,7 @@ export default function ChangePlanTree({
                     </AccordionSummary>
                     <AccordionDetails>
                       <Typography>
-                        <span>ประเภทงาน : {val.oldPlan.hireType}</span>
+                        <span>ประเภทงาน : {hireMap.get(val.oldPlan.hireType)}</span>
                         <br />
                         <span>ปริมาณงาน</span> <br />
                         {val.oldPlan.hireType == "normal" && (
@@ -558,7 +558,7 @@ export default function ChangePlanTree({
                             <br />
                             <span>โล่ง: {val.oldPlan.quantity.clear}</span>{" "}
                             <br />
-                            <span>แผนงานเดือน : {val.oldPlan!.month}</span>{" "}
+                            <span>แผนงานเดือน : {monthMap.get(val.oldPlan!.month)}</span>{" "}
                             <br />
                             <span>งบประมาณ: {val.oldPlan!.budget}</span> <br />
                           </>
@@ -669,7 +669,30 @@ const hireOption: HireValue[] = [
   { label: "กฟภ.ดำเนินการ", hireType: "self" },
 ];
 
+const hireMap = new Map([
+  ["self", "กฟภ. ดำเนินการเอง"],
+  ["normal", "จ้างเหมาปกติ"],
+  ["special", "จ้างเหมาลักษณะพิเศษ"],
+]);
+
+const monthMap = new Map([
+  ["1", "มกราคม"],
+  ["2", "กุมภาพันธ์"],
+  ["3", "มีนาคม"],
+  ["4", "เมษายน"],
+  ["5", "พฤษภาคม"],
+  ["6", "มิถุนายน"],
+  ["7", "กรกฎาคม"],
+  ["8", "สิงหาคม"],
+  ["9", "กันยายน"],
+  ["10", "ตุลาคม"],
+  ["11", "พฤศจิกายน"],
+  ["12", "ธันวาคม"],
+]);
+
 type HireValue = {
   label: string;
   hireType?: "normal" | "special" | "self";
 };
+
+

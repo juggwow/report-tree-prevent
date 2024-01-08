@@ -29,6 +29,13 @@ export default function ChooseTreeData({
                     >
                       {val.zpm4Name}
                     </Typography>
+                    <Typography
+                      sx={{ fontSize: 14 }}
+                      color="text.secondary"
+                      gutterBottom
+                    >
+                      แผนงานเดือน: {monthMap.get(val.month)}
+                    </Typography>
                   </CardContent>
                   <CardActions>
                     <Button
@@ -78,3 +85,18 @@ export default function ChooseTreeData({
     </>
   );
 }
+
+const monthMap = new Map([
+  ["1", "มกราคม"],
+  ["2", "กุมภาพันธ์"],
+  ["3", "มีนาคม"],
+  ["4", "เมษายน"],
+  ["5", "พฤษภาคม"],
+  ["6", "มิถุนายน"],
+  ["7", "กรกฎาคม"],
+  ["8", "สิงหาคม"],
+  ["9", "กันยายน"],
+  ["10", "ตุลาคม"],
+  ["11", "พฤศจิกายน"],
+  ["12", "ธันวาคม"],
+]);
