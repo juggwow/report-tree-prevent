@@ -51,3 +51,69 @@ type SetPropsChoosePreventDataType = {
   setChoosePreventData: React.Dispatch<React.SetStateAction<PreventData[]>>;
   sendPreventData: () => void;
 };
+
+type PreventDataForChange = {
+  _id: ObjectId | string;
+  planName: string;
+  typePrevent: string;
+  breifQuantity: string;
+  budget: number;
+  duration: string;
+};
+
+type FormChangePlanPrevent = {
+  _id: ObjectId | string;
+  reason: string;
+  typeReq: "change";
+  oldPlan: {
+    planName: string;
+    budget: number | string;
+    duration: string;
+    typePrevent: string;
+    breifQuantity: string;
+  };
+  newPlan: {
+    planName: string;
+    budget: number | string;
+    duration: string;
+    typePrevent: string;
+    breifQuantity: string;
+  };
+};
+
+type FormAddPlanPrevent = {
+  _id: ObjectId | string;
+  reason: string;
+  typeReq: "add";
+  newPlan: {
+    planName: string;
+    budget: number | string;
+    duration: string;
+    typePrevent: string;
+    breifQuantity: string;
+  };
+};
+
+type FormCancelPlanPrevent = {
+  _id: ObjectId | string;
+  reason: string;
+  typeReq: "cancel";
+  oldPlan: {
+    planName: string;
+    budget: number | string;
+    duration: string;
+    typePrevent: string;
+    breifQuantity: string;
+  };
+};
+
+type ChangePlanRequirePrevent =
+  | FormAddPlanPrevent
+  | FormCancelPlanPrevent
+  | FormChangePlanPrevent;
+
+type ChangePlanWithStatus = ChangePlanRequirePrevent & {
+  status: "progress" | "reject" | "success";
+  userReq: peaUser;
+  dateReq: string;
+};

@@ -334,7 +334,7 @@ export default function ChangePlanTree({
 
     const res = await fetch("/api/tree/request-change-plan", {
       method: "POST",
-      body: JSON.stringify(changePlanRequire),
+      body: JSON.stringify(newChangePlan),
     });
 
     if (res.status != 200) {
@@ -539,7 +539,9 @@ export default function ChangePlanTree({
                     </AccordionSummary>
                     <AccordionDetails>
                       <Typography>
-                        <span>ประเภทงาน : {hireMap.get(val.oldPlan.hireType)}</span>
+                        <span>
+                          ประเภทงาน : {hireMap.get(val.oldPlan.hireType)}
+                        </span>
                         <br />
                         <span>ปริมาณงาน</span> <br />
                         {val.oldPlan.hireType == "normal" && (
@@ -558,7 +560,9 @@ export default function ChangePlanTree({
                             <br />
                             <span>โล่ง: {val.oldPlan.quantity.clear}</span>{" "}
                             <br />
-                            <span>แผนงานเดือน : {monthMap.get(val.oldPlan!.month)}</span>{" "}
+                            <span>
+                              แผนงานเดือน : {monthMap.get(val.oldPlan!.month)}
+                            </span>{" "}
                             <br />
                             <span>งบประมาณ: {val.oldPlan!.budget}</span> <br />
                           </>
@@ -694,5 +698,3 @@ type HireValue = {
   label: string;
   hireType?: "normal" | "special" | "self";
 };
-
-

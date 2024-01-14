@@ -35,9 +35,9 @@ export default async function handler(
 
     const planTreeCollection = mongoClient
       .db("tree")
-      .collection<FormChangePlanTree | FormAddPlanTree | FormCancelPlanTree>(
-        "plan",
-      );
+      .collection<
+        FormChangePlanTree | FormAddPlanTree | FormCancelPlanTree
+      >("plan");
 
     if (changeReq.typeReq == "cancel" || changeReq.typeReq == "change") {
       const plan = await mongoClient
