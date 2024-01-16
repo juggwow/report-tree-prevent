@@ -5,40 +5,24 @@ import {
   Card,
   CardActions,
   CardContent,
-  Checkbox,
   Divider,
-  FormControlLabel,
   Typography,
 } from "@mui/material";
 import { ChangeEvent } from "react";
 
 export default function ChangePlanPreventCard({
-  isChecked,
   plan,
   onClickCancel,
   onClickEdit,
-  onChangeSelectBox,
 }: {
-  isChecked: boolean;
   plan: ChangePlanWithStatus;
   onClickCancel: () => void;
   onClickEdit: () => void;
-  onChangeSelectBox: (e: ChangeEvent<HTMLInputElement>) => void;
 }) {
   return (
     <Box>
       <Card variant="outlined">
         <CardContent>
-          <FormControlLabel
-            control={
-              <Checkbox
-                id={plan._id as string}
-                onChange={onChangeSelectBox}
-                defaultChecked={isChecked}
-              />
-            }
-            label="เลือกเพื่อพิมพ์เอกสารแนบ"
-          />
           <Typography color="text.secondary">
             {plan.typeReq == "add" && "คำขอเพิ่มแผนงาน"}
             {plan.typeReq == "cancel" &&

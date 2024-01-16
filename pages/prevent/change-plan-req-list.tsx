@@ -31,7 +31,7 @@ import {
 import { ObjectId } from "mongodb";
 import { getSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { ChangeEvent, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 
 export async function getServerSideProps(contex: any) {
   const session = await getSession(contex);
@@ -157,9 +157,6 @@ export default function PreventChangePlanReqList({
       _id: "",
     });
 
-  const [printPlan, setPrintPlan] =
-    useState<ChangePlanWithStatus[]>(changePlanPreventReq);
-
   const handlePrint = () => {
     window.print();
   };
@@ -184,6 +181,22 @@ export default function PreventChangePlanReqList({
     router.reload();
   };
 
+  const handleScroll = () => {
+    // ตรวจสอบว่า scroll position มีค่ามากกว่าความสูงของ header หรือไม่
+    setIsSticky(
+      stickyRef && stickyRef.current
+        ? window.scrollY > stickyRef.current.offsetHeight + 50
+        : false,
+    );
+  };
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     console.log(changePlanRequire);
@@ -200,25 +213,6 @@ export default function PreventChangePlanReqList({
     router.reload();
   };
 
-  const handlePrintSelected = (e: ChangeEvent<HTMLInputElement>) => {
-    const isChecked = e.target.checked;
-    const id = e.target.id;
-    let filterPrintPlan: ChangePlanWithStatus[] = printPlan;
-    if (isChecked) {
-      changePlanPreventReq.forEach((val) => {
-        if ((val._id as string) == id) {
-          filterPrintPlan.push(val);
-        }
-      });
-    } else {
-      filterPrintPlan = filterPrintPlan.filter((val) => {
-        return (val._id as string) != id;
-      });
-    }
-    setPrintPlan(filterPrintPlan);
-  };
-
-  let arrIdSelected: string[] = [];
   let changeType: FormChangePlanPreventWithStatus[] = [];
   let addType: FormAddPlanPreventWithStatus[] = [];
   let cancelType: FormCancelPlanPreventWithStatus[] = [];
@@ -234,10 +228,6 @@ export default function PreventChangePlanReqList({
     if (val.typeReq == "cancel") {
       cancelType.push(val);
     }
-  });
-
-  printPlan.forEach((val) => {
-    arrIdSelected.push(val._id as string);
   });
   return (
     <div>
@@ -279,6 +269,7 @@ export default function PreventChangePlanReqList({
               flexDirection: "row",
               justifyContent: "space-between",
               flexWrap: "wrap",
+              
             }}
           >
             <Tabs
@@ -299,11 +290,9 @@ export default function PreventChangePlanReqList({
                 return (
                   <Grid item key={val._id as string} xs={12} sm={6} md={4}>
                     <ChangePlanPreventCard
-                      isChecked={arrIdSelected.indexOf(val._id as string) >= 0}
                       plan={val}
                       onClickEdit={() => handleEdit(val)}
                       onClickCancel={() => handleCancel(val)}
-                      onChangeSelectBox={handlePrintSelected}
                     />
                   </Grid>
                 );
@@ -316,11 +305,9 @@ export default function PreventChangePlanReqList({
                 return (
                   <Grid item key={val._id as string} xs={12} sm={6} md={4}>
                     <ChangePlanPreventCard
-                      isChecked={arrIdSelected.indexOf(val._id as string) >= 0}
                       plan={val}
                       onClickEdit={() => handleEdit(val)}
                       onClickCancel={() => handleCancel(val)}
-                      onChangeSelectBox={handlePrintSelected}
                     />
                   </Grid>
                 );
@@ -333,11 +320,9 @@ export default function PreventChangePlanReqList({
                 return (
                   <Grid item key={val._id as string} xs={12} sm={6} md={4}>
                     <ChangePlanPreventCard
-                      isChecked={arrIdSelected.indexOf(val._id as string) >= 0}
                       plan={val}
                       onClickEdit={() => handleEdit(val)}
                       onClickCancel={() => handleCancel(val)}
-                      onChangeSelectBox={handlePrintSelected}
                     />
                   </Grid>
                 );
@@ -370,7 +355,7 @@ export default function PreventChangePlanReqList({
       />
       <AlertSnackBar setSnackBar={setSnackBar} snackBar={snackBar} />
       <LoadingBackDrop progress={progress} setProgress={setProgress} />
-      <PrintChangePlanPrevent printPlan={printPlan} budgets={budgets} />
+      <PrintChangePlanPrevent printPlan={changePlanPreventReq} budgets={budgets} />
       <style jsx global>{`
         @media print {
           body {

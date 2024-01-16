@@ -2,7 +2,7 @@ import AlertSnackBar from "@/components/alert-snack-bar";
 import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
 import { getSession } from "next-auth/react";
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AlertSnackBarType } from "@/types/snack-bar";
 import {
   FormAddPlanTree,
@@ -214,11 +214,6 @@ export default function ChangePlanReqList({
     status: "progress",
   });
 
-  const [printPlan, setPrintPlan] =
-    useState<(FormChangePlanTree | FormAddPlanTree | FormCancelPlanTree)[]>(
-      changePlanTreeReq,
-    );
-
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     const res = await fetch("/api/tree/request-change-plan", {
@@ -266,28 +261,6 @@ export default function ChangePlanReqList({
     router.reload();
   };
 
-  const handlePrintSelected = (e: ChangeEvent<HTMLInputElement>) => {
-    const isChecked = e.target.checked;
-    const id = e.target.id;
-    let filterPrintPlan: (
-      | FormChangePlanTree
-      | FormAddPlanTree
-      | FormCancelPlanTree
-    )[] = printPlan;
-    if (isChecked) {
-      changePlanTreeReq.forEach((val) => {
-        if ((val._id as string) == id) {
-          filterPrintPlan.push(val);
-        }
-      });
-    } else {
-      filterPrintPlan = filterPrintPlan.filter((val) => {
-        return (val._id as string) != id;
-      });
-    }
-    setPrintPlan(filterPrintPlan);
-  };
-
   const handlePrint = () => {
     window.print();
   };
@@ -318,10 +291,6 @@ export default function ChangePlanReqList({
     }
   });
 
-  let arrIdSelected: string[] = [];
-  printPlan.forEach((val) => {
-    arrIdSelected.push(val._id as string);
-  });
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
     return () => {
@@ -357,7 +326,7 @@ export default function ChangePlanReqList({
             รายการขอเปลี่ยนแปลง / เพิ่ม / ยกเลิกแผนงานตัดต้นไม้
           </p>
           <CustomSeparator setProgress={setProgress} />
-          <Box className="mx-auto w-11/12 mb-3 bg-white grid grid-cols-1">
+          <Box className="mx-auto w-11/12 mb-3 bg-white grid grid-cols-1 relative">
             <Box
               ref={stickyRef}
               className={`${isSticky ? "sticky" : ""}`}
@@ -388,13 +357,9 @@ export default function ChangePlanReqList({
                   return (
                     <Grid item key={val._id as string} xs={12} sm={6} md={4}>
                       <ChangePlanTreeCard
-                        isChecked={
-                          arrIdSelected.indexOf(val._id as string) >= 0
-                        }
                         plan={val}
                         onClickEdit={() => handleEdit(val)}
                         onClickCancel={() => handleCancel(val)}
-                        onChangeSelectBox={handlePrintSelected}
                       />
                     </Grid>
                   );
@@ -407,13 +372,9 @@ export default function ChangePlanReqList({
                   return (
                     <Grid item key={val._id as string} xs={12} sm={6} md={4}>
                       <ChangePlanTreeCard
-                        isChecked={
-                          arrIdSelected.indexOf(val._id as string) >= 0
-                        }
                         plan={val}
                         onClickEdit={() => handleEdit(val)}
                         onClickCancel={() => handleCancel(val)}
-                        onChangeSelectBox={handlePrintSelected}
                       />
                     </Grid>
                   );
@@ -426,13 +387,9 @@ export default function ChangePlanReqList({
                   return (
                     <Grid item key={val._id as string} xs={12} sm={6} md={4}>
                       <ChangePlanTreeCard
-                        isChecked={
-                          arrIdSelected.indexOf(val._id as string) >= 0
-                        }
                         plan={val}
                         onClickEdit={() => handleEdit(val)}
                         onClickCancel={() => handleCancel(val)}
-                        onChangeSelectBox={handlePrintSelected}
                       />
                     </Grid>
                   );
@@ -469,7 +426,7 @@ export default function ChangePlanReqList({
         <AlertSnackBar setSnackBar={setSnackBar} snackBar={snackBar} />
         <LoadingBackDrop progress={progress} setProgress={setProgress} />
         <PrintChangePlanTree
-          printPlan={printPlan}
+          printPlan={changePlanTreeReq}
           monthTotalBudget={monthTotalBudget}
         />
         <style jsx global>{`

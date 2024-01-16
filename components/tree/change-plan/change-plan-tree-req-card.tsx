@@ -16,29 +16,15 @@ export default function ChangePlanTreeCard({
   plan,
   onClickEdit,
   onClickCancel,
-  onChangeSelectBox,
-  isChecked,
 }: {
   plan: FormChangePlanTree | FormAddPlanTree | FormCancelPlanTree;
   onClickEdit: () => void;
   onClickCancel: () => void;
-  onChangeSelectBox: (e: ChangeEvent<HTMLInputElement>) => void;
-  isChecked: boolean;
 }) {
   return (
     <Box>
       <Card variant="outlined">
         <CardContent>
-          <FormControlLabel
-            control={
-              <Checkbox
-                id={plan._id as string}
-                onChange={onChangeSelectBox}
-                defaultChecked={isChecked}
-              />
-            }
-            label="เลือกเพื่อพิมพ์เอกสารแนบ"
-          />
           <Typography color="text.secondary">
             {plan.typeReq == "add" ? "คำขอเพิ่มแผนงาน" : undefined}
             {plan.typeReq == "cancel"
