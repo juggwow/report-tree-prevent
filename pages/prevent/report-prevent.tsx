@@ -183,46 +183,69 @@ export default function ReportPrevent({
     }
   }
   return (
-    <div className="flex  flex-col p-4 min-h-screen">
-      <p className="m-3">รายผลการดำเนินงานกิจกรรมป้องกันระบบไฟฟ้า</p>
-      <CustomSeparator setProgress={setProgress} />
-      <ZPM4Number
-        order={order}
-        setOrder={setOrder}
-        setSnackBar={setSnackBar}
-        showElementChoose={showElementChoose}
-        setShowElementChoose={setShowElementChoose}
-        choosePreventData={choosePreventData}
-      />
-      <PreventDataTable
-        showElementChoose={showElementChoose}
-        order={order}
-        filter={filter}
-        setFilter={setFilter}
-        showPreventData={showPreventData}
-        choosePreventData={choosePreventData}
-        setChoosePreventData={setChoosePreventData}
-      />
-      <ChoosePreventData
-        choosePreventData={choosePreventData}
-        setChoosePreventData={setChoosePreventData}
-        sendPreventData={sendPreventData}
-      />
-      <div className="flex flex-row justify-center">
-        <Button
-          variant="outlined"
-          className="mt-3 w-40"
-          onClick={() => {
-            setProgress(true);
-            router.push("/");
-          }}
+    <div>
+      <div className="flex flex-row" id="main-content">
+        <Link
+          href="/prevent/report-prevent"
+          sx={{ fontSize: "12px", padding: "0 0.25rem" }}
         >
-          กลับสู่หน้าหลัก
-        </Button>
+          รายงานผล
+        </Link>
+        <Link
+          href="/prevent/change-plan"
+          sx={{ fontSize: "12px", padding: "0 0.25rem" }}
+        >
+          ขอเปลี่ยนแผน
+        </Link>
+        <Link
+          href="/prevent/change-plan-req-list"
+          sx={{ fontSize: "12px", padding: "0 0.25rem" }}
+        >
+          รายการเปลี่ยนแผน
+        </Link>
       </div>
-      <AlertSnackBar setSnackBar={setSnackBar} snackBar={snackBar} />
-      <LoadingBackDrop progress={progress} setProgress={setProgress} />
-      <ControlledOpenSpeedDial userManual="https://drive.google.com/uc?export=view&id=1rADY5rhu-iwGyu3auHPEv5LErCE5V_Cj" />
+
+      <div className="flex  flex-col p-4 min-h-screen">
+        <p className="m-3">รายผลการดำเนินงานกิจกรรมป้องกันระบบไฟฟ้า</p>
+        <CustomSeparator setProgress={setProgress} />
+        <ZPM4Number
+          order={order}
+          setOrder={setOrder}
+          setSnackBar={setSnackBar}
+          showElementChoose={showElementChoose}
+          setShowElementChoose={setShowElementChoose}
+          choosePreventData={choosePreventData}
+        />
+        <PreventDataTable
+          showElementChoose={showElementChoose}
+          order={order}
+          filter={filter}
+          setFilter={setFilter}
+          showPreventData={showPreventData}
+          choosePreventData={choosePreventData}
+          setChoosePreventData={setChoosePreventData}
+        />
+        <ChoosePreventData
+          choosePreventData={choosePreventData}
+          setChoosePreventData={setChoosePreventData}
+          sendPreventData={sendPreventData}
+        />
+        <div className="flex flex-row justify-center">
+          <Button
+            variant="outlined"
+            className="mt-3 w-40"
+            onClick={() => {
+              setProgress(true);
+              router.push("/");
+            }}
+          >
+            กลับสู่หน้าหลัก
+          </Button>
+        </div>
+        <AlertSnackBar setSnackBar={setSnackBar} snackBar={snackBar} />
+        <LoadingBackDrop progress={progress} setProgress={setProgress} />
+        <ControlledOpenSpeedDial userManual="https://drive.google.com/uc?export=view&id=1rADY5rhu-iwGyu3auHPEv5LErCE5V_Cj" />
+      </div>
     </div>
   );
 }

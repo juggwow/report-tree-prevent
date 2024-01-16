@@ -230,9 +230,11 @@ export default function ChangePlanPrevent({
       return;
     }
 
-    if(newChangePlan.typeReq == "cancel" || newChangePlan.typeReq == "change"){
-      setDeletedPlan([...deletedPlan,newChangePlan._id as string])
-
+    if (
+      newChangePlan.typeReq == "cancel" ||
+      newChangePlan.typeReq == "change"
+    ) {
+      setDeletedPlan([...deletedPlan, newChangePlan._id as string]);
     }
 
     setSnackBar({ sevirity: "success", massege: "สำเร็จ", open: true });

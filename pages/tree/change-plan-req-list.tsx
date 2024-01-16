@@ -67,6 +67,7 @@ export async function getServerSideProps(context: any) {
         {
           $match: {
             "changePlanRequest.typeReq": { $in: ["change", "add", "cancel"] },
+            "changePlanRequest.status": "progress",
           },
         },
         {
@@ -330,7 +331,7 @@ export default function ChangePlanReqList({
 
   return (
     <div>
-      <div className="flex flex-row">
+      <div className="flex flex-row" id="main-content">
         <Link
           href="/tree/report-tree"
           sx={{ fontSize: "12px", padding: "0 0.25rem" }}

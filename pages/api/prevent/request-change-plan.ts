@@ -24,13 +24,12 @@ export default async function handler(
   }
 
   let changeReq: ChangePlanRequirePrevent = JSON.parse(req.body);
-
   try {
     const mongoClient = await clientPromise;
     const planPreventCollection = mongoClient.db("prevent").collection("plan");
 
     switch (req.method) {
-      case "POST":
+      case "POST": {
         const update = {
           $addToSet: {
             changePlanRequest: {
@@ -100,13 +99,69 @@ export default async function handler(
             return;
           }
         }
-        res.status(200).end()
+        res.status(200).end();
         return;
-      default:
-        {
+      }
+      case "PUT": {
+        const dataUpdate: ChangePlanWithStatus = {
+          ...changeReq,
+          userReq: session.pea,
+          status: "progress",
+          dateReq: formatDate(new Date()),
+        };
+        const filter = { _id: new ObjectId(changeReq._id) };
+        const update = {
+          $set: {
+            "changePlanRequest.$[elem]": dataUpdate,
+          },
+        };
+        const options = {
+          arrayFilters: [
+            {
+              "elem.status": "progress",
+            },
+          ],
+        };
+        const resultUpdate = await planPreventCollection.updateOne(
+          filter,
+          update,
+          options,
+        );
+        if (!resultUpdate.acknowledged) {
           res.status(404).end();
           return;
         }
+        res.status(200).end();
+        return;
+      }
+      case "PATCH": {
+        const filter = { _id: new ObjectId(changeReq._id) };
+        const update = {
+          $pull: {
+            changePlanRequest: {
+              status: "progress",
+            },
+          },
+        };
+
+        const resultDelete = await planPreventCollection.updateOne(
+          filter,
+          update,
+        );
+
+        if (!resultDelete.acknowledged) {
+          res.status(404).end();
+          return;
+        }
+
+        res.status(200).end();
+        return;
+      }
+
+      default: {
+        res.status(404).end();
+        return;
+      }
     }
   } catch (e) {
     console.log(e);

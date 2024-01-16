@@ -112,8 +112,19 @@ type ChangePlanRequirePrevent =
   | FormCancelPlanPrevent
   | FormChangePlanPrevent;
 
-type ChangePlanWithStatus = ChangePlanRequirePrevent & {
+type ChangePlanStatus = {
   status: "progress" | "reject" | "success";
   userReq: peaUser;
   dateReq: string;
 };
+
+type ChangePlanWithStatus = ChangePlanRequirePrevent & ChangePlanStatus;
+
+type TotalBudgetEachTypePrevent = {
+  _id: string;
+  totalBudget: number;
+};
+
+type FormChangePlanPreventWithStatus = FormChangePlanPrevent & ChangePlanStatus;
+type FormAddPlanPreventWithStatus = FormAddPlanPrevent & ChangePlanStatus;
+type FormCancelPlanPreventWithStatus = FormCancelPlanPrevent & ChangePlanStatus;

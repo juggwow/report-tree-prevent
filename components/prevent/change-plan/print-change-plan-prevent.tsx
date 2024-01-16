@@ -1,214 +1,126 @@
 import {
-  FormChangePlanTree,
-  FormAddPlanTree,
-  FormCancelPlanTree,
-  MonthTotalBudget,
-} from "@/types/report-tree";
+  ChangePlanWithStatus,
+  FormAddPlanPreventWithStatus,
+  FormCancelPlanPreventWithStatus,
+  FormChangePlanPreventWithStatus,
+  TotalBudgetEachTypePrevent,
+} from "@/types/report-prevent";
 import { Grid, Typography } from "@mui/material";
+import { useMemo } from "react";
 
-export default function PrintChangePlanTree({
+export default function PrintChangePlanPrevent({
   printPlan,
-  monthTotalBudget,
+  budgets,
 }: {
-  printPlan: (FormChangePlanTree | FormAddPlanTree | FormCancelPlanTree)[];
-  monthTotalBudget: MonthTotalBudget[];
+  printPlan: ChangePlanWithStatus[];
+  budgets: TotalBudgetEachTypePrevent[];
 }) {
-  let budget = {
-    new: 0,
-    old: 0,
-    change: 0,
-  };
-  let quarterBudget = {
-    Q1: {
-      new: 0,
-      old: 0,
-      change: 0,
-    },
-    Q2: {
-      new: 0,
-      old: 0,
-      change: 0,
-    },
-    Q3: {
-      new: 0,
-      old: 0,
-      change: 0,
-    },
-    Q4: {
-      new: 0,
-      old: 0,
-      change: 0,
-    },
-  };
-  let changeType: FormChangePlanTree[] = [];
-  let addType: FormAddPlanTree[] = [];
-  let cancelType: FormCancelPlanTree[] = [];
-  printPlan.forEach((val) => {
-    if (val.typeReq == "add") {
-      addType.push(val);
-      if (
-        val.newPlan.month == "1" ||
-        val.newPlan.month == "2" ||
-        val.newPlan.month == "3"
-      ) {
-        quarterBudget.Q1.change =
-          quarterBudget.Q1.change + Number(val.newPlan.budget);
+  const addType: FormAddPlanPreventWithStatus[] = useMemo(() => {
+    let arr: FormAddPlanPreventWithStatus[] = [];
+    printPlan.forEach((val) => {
+      if (val.typeReq == "add") {
+        arr.push(val);
       }
-      if (
-        val.newPlan.month == "4" ||
-        val.newPlan.month == "5" ||
-        val.newPlan.month == "6"
-      ) {
-        quarterBudget.Q2.change =
-          quarterBudget.Q2.change + Number(val.newPlan.budget);
-      }
-      if (
-        val.newPlan.month == "7" ||
-        val.newPlan.month == "8" ||
-        val.newPlan.month == "9"
-      ) {
-        quarterBudget.Q3.change =
-          quarterBudget.Q3.change + Number(val.newPlan.budget);
-      }
-      if (
-        val.newPlan.month == "10" ||
-        val.newPlan.month == "11" ||
-        val.newPlan.month == "12"
-      ) {
-        quarterBudget.Q3.change =
-          quarterBudget.Q3.change + Number(val.newPlan.budget);
-      }
-      budget.change = budget.change + Number(val.newPlan.budget);
-    }
+    });
+    return arr;
+  }, [printPlan]);
 
-    if (val.typeReq == "change") {
-      changeType.push(val);
-      if (
-        val.newPlan.month == "1" ||
-        val.newPlan.month == "2" ||
-        val.newPlan.month == "3"
-      ) {
-        quarterBudget.Q1.change =
-          quarterBudget.Q1.change + Number(val.newPlan.budget);
+  const changeType: FormChangePlanPreventWithStatus[] = useMemo(() => {
+    let arr: FormChangePlanPreventWithStatus[] = [];
+    printPlan.forEach((val) => {
+      if (val.typeReq == "change") {
+        arr.push(val);
       }
-      if (
-        val.newPlan.month == "4" ||
-        val.newPlan.month == "5" ||
-        val.newPlan.month == "6"
-      ) {
-        quarterBudget.Q2.change =
-          quarterBudget.Q2.change + Number(val.newPlan.budget);
+    });
+    return arr;
+  }, [printPlan]);
+
+  let cancelType: FormCancelPlanPreventWithStatus[] = useMemo(() => {
+    let arr: FormCancelPlanPreventWithStatus[] = [];
+    printPlan.forEach((val) => {
+      if (val.typeReq == "cancel") {
+        arr.push(val);
       }
-      if (
-        val.newPlan.month == "7" ||
-        val.newPlan.month == "8" ||
-        val.newPlan.month == "9"
-      ) {
-        quarterBudget.Q3.change =
-          quarterBudget.Q3.change + Number(val.newPlan.budget);
+    });
+    return arr;
+  }, [printPlan]);
+
+  const typeBudget = useMemo(() => {
+    let animal = {
+      new: 0,
+      old: 0,
+      change: 0,
+    };
+    let paint = {
+      new: 0,
+      old: 0,
+      change: 0,
+    };
+    let water = {
+      new: 0,
+      old: 0,
+      change: 0,
+    };
+    let etc = {
+      new: 0,
+      old: 0,
+      change: 0,
+    };
+
+    budgets.forEach((val) => {
+      if (val._id.includes("สัตว์")) {
+        animal.old = val.totalBudget;
       }
-      if (
-        val.newPlan.month == "10" ||
-        val.newPlan.month == "11" ||
-        val.newPlan.month == "12"
-      ) {
-        quarterBudget.Q4.change =
-          quarterBudget.Q4.change + Number(val.newPlan.budget);
+      if (val._id.includes("หมาย")) {
+        paint.old = val.totalBudget;
+      }
+      if (val._id.includes("น้ำ")) {
+        water.old = val.totalBudget;
+      }
+      if (val._id.includes("อื่น")) {
+        etc.old = val.totalBudget;
+      }
+    });
+
+    printPlan.forEach((val) => {
+      if (val.typeReq == "add" || val.typeReq == "change") {
+        if (val.newPlan.typePrevent.includes("สัตว์")) {
+          animal.change = animal.change + Number(val.newPlan.budget);
+        }
+        if (val.newPlan.typePrevent.includes("หมาย")) {
+          paint.change = animal.change + Number(val.newPlan.budget);
+        }
+        if (val.newPlan.typePrevent.includes("น้ำ")) {
+          water.change = animal.change + Number(val.newPlan.budget);
+        }
+        if (val.newPlan.typePrevent.includes("อื่น")) {
+          etc.change = animal.change + Number(val.newPlan.budget);
+        }
       }
 
-      if (
-        val.oldPlan.month == "1" ||
-        val.oldPlan.month == "2" ||
-        val.oldPlan.month == "3"
-      ) {
-        quarterBudget.Q1.change =
-          quarterBudget.Q1.change - Number(val.oldPlan.budget);
+      if (val.typeReq == "cancel" || val.typeReq == "change") {
+        if (val.oldPlan.typePrevent.includes("สัตว์")) {
+          animal.change = animal.change - Number(val.oldPlan.budget);
+        }
+        if (val.oldPlan.typePrevent.includes("หมาย")) {
+          paint.change = animal.change - Number(val.oldPlan.budget);
+        }
+        if (val.oldPlan.typePrevent.includes("น้ำ")) {
+          water.change = animal.change - Number(val.oldPlan.budget);
+        }
+        if (val.oldPlan.typePrevent.includes("อื่น")) {
+          etc.change = animal.change - Number(val.oldPlan.budget);
+        }
       }
-      if (
-        val.oldPlan.month == "4" ||
-        val.oldPlan.month == "5" ||
-        val.oldPlan.month == "6"
-      ) {
-        quarterBudget.Q2.change =
-          quarterBudget.Q2.change - Number(val.oldPlan.budget);
-      }
-      if (
-        val.oldPlan.month == "7" ||
-        val.oldPlan.month == "8" ||
-        val.oldPlan.month == "9"
-      ) {
-        quarterBudget.Q3.change =
-          quarterBudget.Q3.change - Number(val.oldPlan.budget);
-      }
-      if (
-        val.oldPlan.month == "10" ||
-        val.oldPlan.month == "11" ||
-        val.oldPlan.month == "12"
-      ) {
-        quarterBudget.Q4.change =
-          quarterBudget.Q4.change - Number(val.oldPlan.budget);
-      }
-      budget.change = budget.change + Number(val.newPlan.budget);
-      budget.change = budget.change - Number(val.oldPlan.budget);
-    }
+    });
 
-    if (val.typeReq == "cancel") {
-      cancelType.push(val);
-      if (
-        val.oldPlan.month == "1" ||
-        val.oldPlan.month == "2" ||
-        val.oldPlan.month == "3"
-      ) {
-        quarterBudget.Q1.change =
-          quarterBudget.Q1.change - Number(val.oldPlan.budget);
-      }
-      if (
-        val.oldPlan.month == "4" ||
-        val.oldPlan.month == "5" ||
-        val.oldPlan.month == "6"
-      ) {
-        quarterBudget.Q2.change =
-          quarterBudget.Q2.change - Number(val.oldPlan.budget);
-      }
-      if (
-        val.oldPlan.month == "7" ||
-        val.oldPlan.month == "8" ||
-        val.oldPlan.month == "9"
-      ) {
-        quarterBudget.Q3.change =
-          quarterBudget.Q3.change - Number(val.oldPlan.budget);
-      }
-      if (
-        val.oldPlan.month == "10" ||
-        val.oldPlan.month == "11" ||
-        val.oldPlan.month == "12"
-      ) {
-        quarterBudget.Q4.change =
-          quarterBudget.Q4.change - Number(val.oldPlan.budget);
-      }
-      budget.change = budget.change - Number(val.oldPlan.budget);
-    }
-  });
-  monthTotalBudget.forEach((val) => {
-    budget.old = budget.old + val.totalBudget;
-    if (val.month == 1 || val.month == 2 || val.month == 3) {
-      quarterBudget.Q1.old = quarterBudget.Q1.old + val.totalBudget;
-    }
-    if (val.month == 4 || val.month == 5 || val.month == 6) {
-      quarterBudget.Q2.old = quarterBudget.Q2.old + val.totalBudget;
-    }
-    if (val.month == 7 || val.month == 8 || val.month == 9) {
-      quarterBudget.Q3.old = quarterBudget.Q3.old + val.totalBudget;
-    }
-    if (val.month == 10 || val.month == 11 || val.month == 12) {
-      quarterBudget.Q4.old = quarterBudget.Q4.old + val.totalBudget;
-    }
-  });
-  budget.new = budget.old + budget.change;
-  quarterBudget.Q1.new = quarterBudget.Q1.old + quarterBudget.Q1.change;
-  quarterBudget.Q2.new = quarterBudget.Q2.old + quarterBudget.Q2.change;
-  quarterBudget.Q3.new = quarterBudget.Q3.old + quarterBudget.Q3.change;
-  quarterBudget.Q4.new = quarterBudget.Q4.old + quarterBudget.Q4.change;
+    animal.new = animal.old + animal.change;
+    paint.new = paint.old + paint.change;
+    water.new = water.old + water.change;
+    etc.new = etc.old + etc.change;
+
+    return { animal, paint, water, etc };
+  }, [printPlan, budgets]);
 
   return (
     <div className="hidden" id="printable-content" style={{ width: "24cm" }}>
@@ -245,13 +157,13 @@ export default function PrintChangePlanTree({
         </Grid>
         <Grid item xs={12}>
           <Typography sx={{ fontSize: "14pt", marginTop: "8pt" }}>
-            ไตรมาส 1
+            ติดตั้งอุปกรณ์ป้องกันสัตว์
           </Typography>
         </Grid>
         <Grid item xs={4}>
           <Typography sx={{ fontSize: "14pt" }}>
             งบประมาณเดิม:{" "}
-            {quarterBudget.Q1.old.toLocaleString("th-TH", {
+            {typeBudget.animal.old.toLocaleString("th-TH", {
               style: "currency",
               currency: "THB",
             })}
@@ -260,7 +172,7 @@ export default function PrintChangePlanTree({
         <Grid item xs={4}>
           <Typography sx={{ fontSize: "14pt" }}>
             งบประมาณใหม่:{" "}
-            {quarterBudget.Q1.new.toLocaleString("th-TH", {
+            {typeBudget.animal.new.toLocaleString("th-TH", {
               style: "currency",
               currency: "THB",
             })}
@@ -269,7 +181,7 @@ export default function PrintChangePlanTree({
         <Grid item xs={4}>
           <Typography sx={{ fontSize: "14pt" }}>
             เปลี่ยนแปลง:{" "}
-            {quarterBudget.Q1.change.toLocaleString("th-TH", {
+            {typeBudget.animal.change.toLocaleString("th-TH", {
               style: "currency",
               currency: "THB",
             })}
@@ -277,13 +189,13 @@ export default function PrintChangePlanTree({
         </Grid>
         <Grid item xs={12}>
           <Typography sx={{ fontSize: "14pt", marginTop: "8pt" }}>
-            ไตรมาส 2
+            ทำป้ายเตือน,พ่นหมายเลขเสาไฟฟ้า, ทาสีเสาไฟฟ้า
           </Typography>
         </Grid>
         <Grid item xs={4}>
           <Typography sx={{ fontSize: "14pt" }}>
             งบประมาณเดิม:{" "}
-            {quarterBudget.Q2.old.toLocaleString("th-TH", {
+            {typeBudget.paint.old.toLocaleString("th-TH", {
               style: "currency",
               currency: "THB",
             })}
@@ -292,7 +204,7 @@ export default function PrintChangePlanTree({
         <Grid item xs={4}>
           <Typography sx={{ fontSize: "14pt" }}>
             งบประมาณใหม่:{" "}
-            {quarterBudget.Q2.new.toLocaleString("th-TH", {
+            {typeBudget.paint.new.toLocaleString("th-TH", {
               style: "currency",
               currency: "THB",
             })}
@@ -301,7 +213,7 @@ export default function PrintChangePlanTree({
         <Grid item xs={4}>
           <Typography sx={{ fontSize: "14pt" }}>
             เปลี่ยนแปลง:{" "}
-            {quarterBudget.Q2.change.toLocaleString("th-TH", {
+            {typeBudget.paint.change.toLocaleString("th-TH", {
               style: "currency",
               currency: "THB",
             })}
@@ -309,13 +221,13 @@ export default function PrintChangePlanTree({
         </Grid>
         <Grid item xs={12}>
           <Typography sx={{ fontSize: "14pt", marginTop: "8pt" }}>
-            ไตรมาส 3
+            ฉีดน้ำล้างลูกถ้วย
           </Typography>
         </Grid>
         <Grid item xs={4}>
           <Typography sx={{ fontSize: "14pt" }}>
             งบประมาณเดิม:{" "}
-            {quarterBudget.Q3.old.toLocaleString("th-TH", {
+            {typeBudget.water.old.toLocaleString("th-TH", {
               style: "currency",
               currency: "THB",
             })}
@@ -324,7 +236,7 @@ export default function PrintChangePlanTree({
         <Grid item xs={4}>
           <Typography sx={{ fontSize: "14pt" }}>
             งบประมาณใหม่:{" "}
-            {quarterBudget.Q3.new.toLocaleString("th-TH", {
+            {typeBudget.water.new.toLocaleString("th-TH", {
               style: "currency",
               currency: "THB",
             })}
@@ -333,7 +245,7 @@ export default function PrintChangePlanTree({
         <Grid item xs={4}>
           <Typography sx={{ fontSize: "14pt" }}>
             เปลี่ยนแปลง:{" "}
-            {quarterBudget.Q3.change.toLocaleString("th-TH", {
+            {typeBudget.water.change.toLocaleString("th-TH", {
               style: "currency",
               currency: "THB",
             })}
@@ -341,13 +253,14 @@ export default function PrintChangePlanTree({
         </Grid>
         <Grid item xs={12}>
           <Typography sx={{ fontSize: "14pt", marginTop: "8pt" }}>
-            ไตรมาส 4
+            งานอื่นๆ (ทำผนังกั้นเสริมฐานเสาไฟฟ้า, แก้ไขค่ากราวด์ที่เกินมาตรฐาน
+            ฯลฯ)
           </Typography>
         </Grid>
         <Grid item xs={4}>
           <Typography sx={{ fontSize: "14pt" }}>
             งบประมาณเดิม:{" "}
-            {quarterBudget.Q4.old.toLocaleString("th-TH", {
+            {typeBudget.etc.old.toLocaleString("th-TH", {
               style: "currency",
               currency: "THB",
             })}
@@ -356,7 +269,7 @@ export default function PrintChangePlanTree({
         <Grid item xs={4}>
           <Typography sx={{ fontSize: "14pt" }}>
             งบประมาณใหม่:{" "}
-            {quarterBudget.Q4.new.toLocaleString("th-TH", {
+            {typeBudget.etc.new.toLocaleString("th-TH", {
               style: "currency",
               currency: "THB",
             })}
@@ -365,39 +278,7 @@ export default function PrintChangePlanTree({
         <Grid item xs={4}>
           <Typography sx={{ fontSize: "14pt" }}>
             เปลี่ยนแปลง:{" "}
-            {quarterBudget.Q4.change.toLocaleString("th-TH", {
-              style: "currency",
-              currency: "THB",
-            })}
-          </Typography>
-        </Grid>
-        <Grid item xs={12}>
-          <Typography sx={{ fontSize: "14pt", marginTop: "8pt" }}>
-            รวม
-          </Typography>
-        </Grid>
-        <Grid item xs={4}>
-          <Typography sx={{ fontSize: "14pt" }}>
-            งบประมาณเดิม:{" "}
-            {budget.old.toLocaleString("th-TH", {
-              style: "currency",
-              currency: "THB",
-            })}
-          </Typography>
-        </Grid>
-        <Grid item xs={4}>
-          <Typography sx={{ fontSize: "14pt" }}>
-            งบประมาณใหม่:{" "}
-            {budget.new.toLocaleString("th-TH", {
-              style: "currency",
-              currency: "THB",
-            })}
-          </Typography>
-        </Grid>
-        <Grid item xs={4}>
-          <Typography sx={{ fontSize: "14pt" }}>
-            เปลี่ยนแปลง:{" "}
-            {budget.change.toLocaleString("th-TH", {
+            {typeBudget.etc.change.toLocaleString("th-TH", {
               style: "currency",
               currency: "THB",
             })}
@@ -427,14 +308,20 @@ export default function PrintChangePlanTree({
                     <Typography sx={{ fontSize: "14pt", padding: "6pt" }}>
                       <span>ชื่อแผนงาน: {val.oldPlan.planName}</span>
                       <br />
+                      <span>ช่วงเวลาดำเนินการ: {val.oldPlan.duration}</span>
+                      <br />
                       <span>
-                        แผนงานเดือน: {monthMap.get(val.oldPlan.month)}
+                        งบประมาณ:{" "}
+                        {val.oldPlan.budget.toLocaleString("th-TH", {
+                          style: "currency",
+                          currency: "THB",
+                        })}
                       </span>
                       <br />
-                      <span>งบประมาณ: {val.oldPlan.budget} บาท</span>
+                      <span>ประเภทงาน: {val.oldPlan.typePrevent}</span>
                       <br />
                       <span>
-                        ประเภทงาน: {hireMap.get(val.oldPlan.hireType)}
+                        ปริมาณงานโดยสังเขป: {val.oldPlan.breifQuantity}
                       </span>
                       <br />
                     </Typography>
@@ -443,14 +330,21 @@ export default function PrintChangePlanTree({
                     <Typography sx={{ fontSize: "14pt", padding: "6pt" }}>
                       <span>ชื่อแผนงาน: {val.newPlan.planName}</span>
                       <br />
+                      <span>ช่วงเวลาดำเนินการ: {val.newPlan.duration}</span>
+                      <br />
                       <span>
-                        แผนงานเดือน: {monthMap.get(val.newPlan.month)}
+                        งบประมาณ:{" "}
+                        {val.newPlan.budget.toLocaleString("th-TH", {
+                          style: "currency",
+                          currency: "THB",
+                        })}{" "}
+                        บาท
                       </span>
                       <br />
-                      <span>งบประมาณ: {val.newPlan.budget} บาท</span>
+                      <span>ประเภทงาน: {val.newPlan.typePrevent}</span>
                       <br />
                       <span>
-                        ประเภทงาน: {hireMap.get(val.newPlan.hireType)}
+                        ปริมาณงานโดยสังเขป: {val.newPlan.breifQuantity}
                       </span>
                       <br />
                       <span>เหตุผลในการขอเปลี่ยนแปลงแผนงาน: {val.reason}</span>
@@ -480,11 +374,20 @@ export default function PrintChangePlanTree({
                   >
                     <span>ชื่อแผนงาน: {val.newPlan.planName}</span>
                     <br />
-                    <span>แผนงานเดือน: {monthMap.get(val.newPlan.month)}</span>
+                    <span>ช่วงเวลาดำเนินการ: {val.newPlan.duration}</span>
                     <br />
-                    <span>งบประมาณ: {val.newPlan.budget} บาท</span>
+                    <span>
+                      งบประมาณ:{" "}
+                      {val.newPlan.budget.toLocaleString("th-TH", {
+                        style: "currency",
+                        currency: "THB",
+                      })}{" "}
+                      บาท
+                    </span>
                     <br />
-                    <span>ประเภทงาน: {hireMap.get(val.newPlan.hireType)}</span>
+                    <span>ประเภทงาน: {val.newPlan.typePrevent}</span>
+                    <br />
+                    <span>ปริมาณงานโดยสังเขป: {val.newPlan.breifQuantity}</span>
                     <br />
                     <span>เหตุผลในการขอเพิ่มแผนงาน: {val.reason}</span>
                   </Typography>
@@ -493,7 +396,6 @@ export default function PrintChangePlanTree({
             })}
           </Grid>
         )}
-
         {cancelType.length > 0 && (
           <Grid item xs={6}>
             <Typography sx={{ fontSize: "14pt", marginTop: "16pt" }}>
@@ -512,11 +414,19 @@ export default function PrintChangePlanTree({
                   >
                     <span>ชื่อแผนงาน: {val.oldPlan.planName}</span>
                     <br />
-                    <span>แผนงานเดือน: {monthMap.get(val.oldPlan.month)}</span>
+                    <span>ช่วงเวลาดำเนินการ: {val.oldPlan.duration}</span>
                     <br />
-                    <span>งบประมาณ: {val.oldPlan.budget} บาท</span>
+                    <span>
+                      งบประมาณ:{" "}
+                      {val.oldPlan.budget.toLocaleString("th-TH", {
+                        style: "currency",
+                        currency: "THB",
+                      })}
+                    </span>
                     <br />
-                    <span>ประเภทงาน: {hireMap.get(val.oldPlan.hireType)}</span>
+                    <span>ประเภทงาน: {val.oldPlan.typePrevent}</span>
+                    <br />
+                    <span>ปริมาณงานโดยสังเขป: {val.oldPlan.breifQuantity}</span>
                     <br />
                     <span>เหตุผลในการขอยกเลิกแผนงาน: {val.reason}</span>
                   </Typography>
@@ -529,24 +439,3 @@ export default function PrintChangePlanTree({
     </div>
   );
 }
-
-const monthMap = new Map([
-  ["1", "มกราคม"],
-  ["2", "กุมภาพันธ์"],
-  ["3", "มีนาคม"],
-  ["4", "เมษายน"],
-  ["5", "พฤษภาคม"],
-  ["6", "มิถุนายน"],
-  ["7", "กรกฎาคม"],
-  ["8", "สิงหาคม"],
-  ["9", "กันยายน"],
-  ["10", "ตุลาคม"],
-  ["11", "พฤศจิกายน"],
-  ["12", "ธันวาคม"],
-]);
-
-const hireMap = new Map([
-  ["self", "กฟภ. ดำเนินการเอง"],
-  ["normal", "จ้างเหมาปกติ"],
-  ["special", "จ้างเหมาลักษณะพิเศษ"],
-]);

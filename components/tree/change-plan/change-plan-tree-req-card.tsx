@@ -98,6 +98,8 @@ export default function ChangePlanTreeCard({
               <Divider />
             </>
           ) : undefined}
+          <Divider />
+          <Typography>เหตุผล: {plan.reason}</Typography>
         </CardContent>
         <CardActions>
           <Button size="small" onClick={onClickEdit}>
