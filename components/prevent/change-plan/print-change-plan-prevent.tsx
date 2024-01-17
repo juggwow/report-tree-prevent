@@ -127,7 +127,7 @@ export default function PrintChangePlanPrevent({
       <Grid container sx={{ marginTop: "16pt" }}>
         <Grid item xs={12}>
           <Typography sx={{ fontSize: "16pt" }}>
-            เอกสารแนบ สรุปขอเปลี่ยนแปลง / เพิ่ม / ยกเลิกแผนงาน ตัดต้นไม้
+            เอกสารแนบ สรุปขอเปลี่ยนแปลง / เพิ่ม / ยกเลิกแผนงานงบป้องกันระบบไฟฟ้า
           </Typography>
         </Grid>
         <Grid item xs={12}>
