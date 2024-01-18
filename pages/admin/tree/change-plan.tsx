@@ -211,22 +211,16 @@ export default function ChangePlanReqList({
     <div>
       <div className="flex flex-row" id="main-content">
         <Link
-          href="/tree/report-tree"
+          href="/admin/tree/change-plan"
           sx={{ fontSize: "12px", padding: "0 0.25rem" }}
         >
-          รายงานผล
+          ต้นไม้
         </Link>
         <Link
-          href="/tree/change-plan"
+          href="/admin/prevent/change-plan"
           sx={{ fontSize: "12px", padding: "0 0.25rem" }}
         >
-          ขอเปลี่ยนแผน
-        </Link>
-        <Link
-          href="/tree/change-plan-req-list"
-          sx={{ fontSize: "12px", padding: "0 0.25rem" }}
-        >
-          รายการเปลี่ยนแผน
+          ป้องกัน
         </Link>
       </div>
       <div className="h-full">
