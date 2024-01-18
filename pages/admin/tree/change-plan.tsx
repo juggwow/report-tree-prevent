@@ -57,8 +57,6 @@ export async function getServerSideProps(context: any) {
   try {
     const mongoClient = await clientPromise;
 
-    const planTreeCollection = mongoClient.db("tree").collection("plan");
-
     let docs = (await mongoClient
       .db("tree")
       .collection("typeRequest")
@@ -100,20 +98,50 @@ export default function ChangePlanReqList({
     sevirity: "success",
     massege: "",
   });
+  const [deleteId,setDeleteId] = useState<string[]>([])
 
-  const handleApprove = async (e: any) => {
-    e.preventDefault();
-    // const res = await fetch("/api/tree/request-change-plan", {
-    //   method: "PUT",
-    //   body: JSON.stringify(changePlanRequire),
-    // });
-    // if (res.status != 200) {
-    //   setSnackBar({ sevirity: "error", massege: "เกิดข้อผิดพลาด", open: true });
-    //   return;
-    // }
-    setSnackBar({ sevirity: "success", massege: "สำเร็จ", open: true });
-    setOpenDialog(false);
-    router.reload();
+  const handleAprove = async (
+    changePlanRequire:
+      | FormChangePlanTree
+      | FormAddPlanTree
+      | FormCancelPlanTree,
+  ) => {
+    {
+      let message = 'ต้องการ '
+      switch(changePlanRequire.typeReq){
+        case "add":
+          message = message+"\"อนุมัติ\" การการเพิ่มแผนงาน "+changePlanRequire.newPlan.planName+" ?"
+          break;
+        case "cancel":
+          message = message+"\"อนุมัติ\" การการยกเลิกแผนงาน "+changePlanRequire.oldPlan.planName+" ?"
+          break;
+        case "change":
+          message = message+"\"อนุมัติ\" การเปลี่ยนแผนงานเดิม "+changePlanRequire.newPlan.planName+" ?"
+      }
+      if(!window.confirm(message)){
+        return
+      }
+      const res = await fetch("/api/tree/admin",{
+        method: "PATCH",
+        body: JSON.stringify({
+          ...changePlanRequire,
+          status: "success"
+        })
+      })
+      if(res.status != 200){
+        setSnackBar({
+          massege:"เกิดข้อผิดพลาด ลองถามพี่แป๊ะดู",
+          sevirity: "error",
+          open: true
+        })
+      }
+      setSnackBar({
+        massege:"สำเร็จ",
+        sevirity: "success",
+        open: true
+      })
+      setDeleteId([...deleteId,changePlanRequire._id as string])
+    }
   };
 
   const handleReject = async (
@@ -123,6 +151,40 @@ export default function ChangePlanReqList({
       | FormCancelPlanTree,
   ) => {
     {
+      let message = 'ต้องการ '
+      switch(changePlanRequire.typeReq){
+        case "add":
+          message = message+"\"ปฏิเสธ\" การเพิ่มแผนงาน "+changePlanRequire.newPlan.planName+" ?"
+          break;
+        case "cancel":
+          message = message+"\"ปฏิเสธ\" การยกเลิกแผนงาน "+changePlanRequire.oldPlan.planName+" ?"
+          break;
+        case "change":
+          message = message+"\"ปฏิเสธ\" การเปลี่ยนแผนงานเดิม "+changePlanRequire.newPlan.planName+" ?"
+      }
+      if(!window.confirm(message)){
+        return
+      }
+      const res = await fetch("/api/tree/admin",{
+        method: "PUT",
+        body: JSON.stringify({
+          ...changePlanRequire,
+          status: "reject"
+        })
+      })
+      if(res.status != 200){
+        setSnackBar({
+          massege:"เกิดข้อผิดพลาด ลองถามพี่แป๊ะดู",
+          sevirity: "error",
+          open: true
+        })
+      }
+      setSnackBar({
+        massege:"สำเร็จ",
+        sevirity: "success",
+        open: true
+      })
+      setDeleteId([...deleteId,changePlanRequire._id as string])
     }
   };
 
@@ -137,7 +199,7 @@ export default function ChangePlanReqList({
 
   const handlePrint = async () => {
     setProgress(true);
-    const res = await fetch("/api/tree/summary-budget");
+    const res = await fetch("/api/tree/admin");
     if (res.status == 200) {
       setSnackBar({
         massege: "สำเร็จ",
@@ -185,20 +247,22 @@ export default function ChangePlanReqList({
     let addType: (FormAddPlanTree & { businessName: string })[] = [];
     let cancelType: (FormCancelPlanTree & { businessName: string })[] = [];
     changePlanTreeReq.forEach((val) => {
-      if (val.typeReq == "add" && val.businessName == businessName) {
-        addType.push(val);
-      }
-
-      if (val.typeReq == "change" && val.businessName == businessName) {
-        changeType.push(val);
-      }
-
-      if (val.typeReq == "cancel" && val.businessName == businessName) {
-        cancelType.push(val);
+      if(!deleteId.includes(val._id as string)){
+        if (val.typeReq == "add" && val.businessName == businessName) {
+          addType.push(val);
+        }
+  
+        if (val.typeReq == "change" && val.businessName == businessName) {
+          changeType.push(val);
+        }
+  
+        if (val.typeReq == "cancel" && val.businessName == businessName) {
+          cancelType.push(val);
+        }
       }
     });
     return { changeType, addType, cancelType };
-  }, [changePlanTreeReq, businessName]);
+  }, [changePlanTreeReq, deleteId, businessName]);
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
@@ -283,8 +347,8 @@ export default function ChangePlanReqList({
                     <Grid item key={val._id as string} xs={12} sm={6} md={4}>
                       <ChangePlanTreeCard
                         plan={val}
-                        onClickEdit={() => {}}
-                        onClickCancel={() => {}}
+                        onClickEdit={() => handleAprove(val)}
+                        onClickCancel={() => handleReject(val)}
                         isAdmin
                       />
                     </Grid>
@@ -299,8 +363,8 @@ export default function ChangePlanReqList({
                     <Grid item key={val._id as string} xs={12} sm={6} md={4}>
                       <ChangePlanTreeCard
                         plan={val}
-                        onClickEdit={() => {}}
-                        onClickCancel={() => {}}
+                        onClickEdit={() => handleAprove(val)}
+                        onClickCancel={() => handleReject(val)}
                         isAdmin
                       />
                     </Grid>
@@ -315,8 +379,8 @@ export default function ChangePlanReqList({
                     <Grid item key={val._id as string} xs={12} sm={6} md={4}>
                       <ChangePlanTreeCard
                         plan={val}
-                        onClickEdit={() => {}}
-                        onClickCancel={() => {}}
+                        onClickEdit={() => handleAprove(val)}
+                        onClickCancel={() => handleReject(val)}
                         isAdmin
                       />
                     </Grid>

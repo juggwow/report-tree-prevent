@@ -473,7 +473,7 @@ const checkInvalidator = (
       return true;
     }
 
-    if (changePlanRequire.newPlan.budget == 0) {
+    if (Number(changePlanRequire.newPlan.budget) < 0) {
       return true;
     }
 
