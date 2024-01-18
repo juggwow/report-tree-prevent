@@ -33,7 +33,7 @@ export async function getServerSideProps(context: any) {
   if (!session) {
     return {
       redirect: {
-        destination: "/signin?link=/tree/change-plan-req-list",
+        destination: "/signin?link=/admin/tree/change-plan",
       },
     };
   }
@@ -41,7 +41,7 @@ export async function getServerSideProps(context: any) {
   if (!session.pea) {
     return {
       redirect: {
-        destination: "/profile?link=/tree/change-plan-req-list",
+        destination: "/profile?link=/admin/tree/change-plan",
       },
     };
   }
