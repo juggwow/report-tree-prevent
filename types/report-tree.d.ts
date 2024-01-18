@@ -173,3 +173,9 @@ type MonthTotalBudget = {
   month: number;
   totalBudget: number;
 };
+
+type AdminChangePlanTree = (
+  | FormChangePlanTree
+  | FormAddPlanTree
+  | FormCancelPlanTree
+) & { businessName: string };

@@ -16,10 +16,12 @@ export default function ChangePlanTreeCard({
   plan,
   onClickEdit,
   onClickCancel,
+  isAdmin,
 }: {
   plan: FormChangePlanTree | FormAddPlanTree | FormCancelPlanTree;
   onClickEdit: () => void;
   onClickCancel: () => void;
+  isAdmin?: boolean;
 }) {
   return (
     <Box>
@@ -89,12 +91,12 @@ export default function ChangePlanTreeCard({
         </CardContent>
         <CardActions>
           <Button size="small" onClick={onClickEdit}>
-            แก้ไขรายละเอียด
+            {isAdmin ? "อนุมัติ" : "แก้ไขรายละเอียด"}
           </Button>
         </CardActions>
         <CardActions>
           <Button size="small" onClick={onClickCancel}>
-            ยกเลิกการเปลี่ยนแผน
+            {isAdmin ? "ไม่อนุมัติ" : "ยกเลิกการเปลี่ยนแผน"}
           </Button>
         </CardActions>
       </Card>

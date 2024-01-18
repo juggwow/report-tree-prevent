@@ -269,7 +269,6 @@ export default function PreventChangePlanReqList({
               flexDirection: "row",
               justifyContent: "space-between",
               flexWrap: "wrap",
-              
             }}
           >
             <Tabs
@@ -355,7 +354,10 @@ export default function PreventChangePlanReqList({
       />
       <AlertSnackBar setSnackBar={setSnackBar} snackBar={snackBar} />
       <LoadingBackDrop progress={progress} setProgress={setProgress} />
-      <PrintChangePlanPrevent printPlan={changePlanPreventReq} budgets={budgets} />
+      <PrintChangePlanPrevent
+        printPlan={changePlanPreventReq}
+        budgets={budgets}
+      />
       <style jsx global>{`
         @media print {
           body {

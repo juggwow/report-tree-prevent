@@ -14,7 +14,9 @@ export default function ChangePlanPreventCard({
   plan,
   onClickCancel,
   onClickEdit,
+  isAdmin,
 }: {
+  isAdmin?: boolean;
   plan: ChangePlanWithStatus;
   onClickCancel: () => void;
   onClickEdit: () => void;
@@ -78,12 +80,12 @@ export default function ChangePlanPreventCard({
         </CardContent>
         <CardActions>
           <Button size="small" onClick={onClickEdit}>
-            แก้ไขรายละเอียด
+            {isAdmin ? "อนุมัติ" : "แก้ไขรายละเอียด"}
           </Button>
         </CardActions>
         <CardActions>
           <Button size="small" onClick={onClickCancel}>
-            ยกเลิกการเปลี่ยนแผน
+            {isAdmin ? "ไม่อนุมัติ" : "ยกเลิกการเปลี่ยนแผน"}
           </Button>
         </CardActions>
       </Card>

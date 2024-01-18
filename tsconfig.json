@@ -14,14 +14,14 @@
     "jsx": "preserve",
     "incremental": true,
     "paths": {
-      "@/*": ["./*"]
-    }
+      "@/*": ["./*"],
+    },
   },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    "pages/api/plan-lv/request-change-plan"
+    "pages/api/plan-lv/request-change-plan",
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
 }
