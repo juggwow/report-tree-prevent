@@ -271,9 +271,7 @@ export default function ChangePlanTree({
           newChangePlan.newPlan.quantity.plentifully = parseFloat(
             newChangePlan.newPlan?.quantity?.plentifully,
           );
-        } else {
-          newChangePlan.newPlan.quantity.plentifully = 0;
-        }
+        } 
 
         if (
           typeof newChangePlan.newPlan.quantity.moderate == "string" &&
@@ -282,9 +280,7 @@ export default function ChangePlanTree({
           newChangePlan.newPlan.quantity.moderate = parseFloat(
             newChangePlan.newPlan.quantity.moderate,
           );
-        } else {
-          newChangePlan.newPlan.quantity.moderate = 0;
-        }
+        } 
 
         if (
           typeof newChangePlan.newPlan.quantity.lightly == "string" &&
@@ -293,9 +289,7 @@ export default function ChangePlanTree({
           newChangePlan.newPlan.quantity.lightly = parseFloat(
             newChangePlan.newPlan.quantity.lightly,
           );
-        } else {
-          newChangePlan.newPlan.quantity.lightly = 0;
-        }
+        } 
 
         if (
           typeof newChangePlan.newPlan.quantity.clear == "string" &&
@@ -304,9 +298,7 @@ export default function ChangePlanTree({
           newChangePlan.newPlan.quantity.clear = parseFloat(
             newChangePlan.newPlan.quantity.clear,
           );
-        } else {
-          newChangePlan.newPlan.quantity.clear = 0;
-        }
+        } 
       }
 
       if (newChangePlan.newPlan.hireType == "self") {
@@ -317,9 +309,7 @@ export default function ChangePlanTree({
           newChangePlan.newPlan.quantity.distance = parseFloat(
             newChangePlan.newPlan.quantity.distance,
           );
-        } else {
-          newChangePlan.newPlan.quantity.distance = 0;
-        }
+        } 
       }
 
       if (
@@ -327,9 +317,7 @@ export default function ChangePlanTree({
         /^\d+\.?\d{0,2}$/.test(newChangePlan.newPlan.budget)
       ) {
         newChangePlan.newPlan.budget = parseFloat(newChangePlan.newPlan.budget);
-      } else {
-        newChangePlan.newPlan.budget = 0;
-      }
+      } 
     }
 
     const res = await fetch("/api/tree/request-change-plan", {
