@@ -98,7 +98,7 @@ export default function ChangePlanReqList({
     sevirity: "success",
     massege: "",
   });
-  const [deleteId,setDeleteId] = useState<string[]>([])
+  const [deleteId, setDeleteId] = useState<string[]>([]);
 
   const handleAprove = async (
     changePlanRequire:
@@ -107,40 +107,52 @@ export default function ChangePlanReqList({
       | FormCancelPlanTree,
   ) => {
     {
-      let message = 'ต้องการ '
-      switch(changePlanRequire.typeReq){
+      let message = "ต้องการ ";
+      switch (changePlanRequire.typeReq) {
         case "add":
-          message = message+"\"อนุมัติ\" การการเพิ่มแผนงาน "+changePlanRequire.newPlan.planName+" ?"
+          message =
+            message +
+            '"อนุมัติ" การการเพิ่มแผนงาน ' +
+            changePlanRequire.newPlan.planName +
+            " ?";
           break;
         case "cancel":
-          message = message+"\"อนุมัติ\" การการยกเลิกแผนงาน "+changePlanRequire.oldPlan.planName+" ?"
+          message =
+            message +
+            '"อนุมัติ" การการยกเลิกแผนงาน ' +
+            changePlanRequire.oldPlan.planName +
+            " ?";
           break;
         case "change":
-          message = message+"\"อนุมัติ\" การเปลี่ยนแผนงานเดิม "+changePlanRequire.newPlan.planName+" ?"
+          message =
+            message +
+            '"อนุมัติ" การเปลี่ยนแผนงานเดิม ' +
+            changePlanRequire.newPlan.planName +
+            " ?";
       }
-      if(!window.confirm(message)){
-        return
+      if (!window.confirm(message)) {
+        return;
       }
-      const res = await fetch("/api/tree/admin",{
+      const res = await fetch("/api/tree/admin", {
         method: "PATCH",
         body: JSON.stringify({
           ...changePlanRequire,
-          status: "success"
-        })
-      })
-      if(res.status != 200){
+          status: "success",
+        }),
+      });
+      if (res.status != 200) {
         setSnackBar({
-          massege:"เกิดข้อผิดพลาด ลองถามพี่แป๊ะดู",
+          massege: "เกิดข้อผิดพลาด ลองถามพี่แป๊ะดู",
           sevirity: "error",
-          open: true
-        })
+          open: true,
+        });
       }
       setSnackBar({
-        massege:"สำเร็จ",
+        massege: "สำเร็จ",
         sevirity: "success",
-        open: true
-      })
-      setDeleteId([...deleteId,changePlanRequire._id as string])
+        open: true,
+      });
+      setDeleteId([...deleteId, changePlanRequire._id as string]);
     }
   };
 
@@ -151,40 +163,52 @@ export default function ChangePlanReqList({
       | FormCancelPlanTree,
   ) => {
     {
-      let message = 'ต้องการ '
-      switch(changePlanRequire.typeReq){
+      let message = "ต้องการ ";
+      switch (changePlanRequire.typeReq) {
         case "add":
-          message = message+"\"ปฏิเสธ\" การเพิ่มแผนงาน "+changePlanRequire.newPlan.planName+" ?"
+          message =
+            message +
+            '"ปฏิเสธ" การเพิ่มแผนงาน ' +
+            changePlanRequire.newPlan.planName +
+            " ?";
           break;
         case "cancel":
-          message = message+"\"ปฏิเสธ\" การยกเลิกแผนงาน "+changePlanRequire.oldPlan.planName+" ?"
+          message =
+            message +
+            '"ปฏิเสธ" การยกเลิกแผนงาน ' +
+            changePlanRequire.oldPlan.planName +
+            " ?";
           break;
         case "change":
-          message = message+"\"ปฏิเสธ\" การเปลี่ยนแผนงานเดิม "+changePlanRequire.newPlan.planName+" ?"
+          message =
+            message +
+            '"ปฏิเสธ" การเปลี่ยนแผนงานเดิม ' +
+            changePlanRequire.newPlan.planName +
+            " ?";
       }
-      if(!window.confirm(message)){
-        return
+      if (!window.confirm(message)) {
+        return;
       }
-      const res = await fetch("/api/tree/admin",{
+      const res = await fetch("/api/tree/admin", {
         method: "PUT",
         body: JSON.stringify({
           ...changePlanRequire,
-          status: "reject"
-        })
-      })
-      if(res.status != 200){
+          status: "reject",
+        }),
+      });
+      if (res.status != 200) {
         setSnackBar({
-          massege:"เกิดข้อผิดพลาด ลองถามพี่แป๊ะดู",
+          massege: "เกิดข้อผิดพลาด ลองถามพี่แป๊ะดู",
           sevirity: "error",
-          open: true
-        })
+          open: true,
+        });
       }
       setSnackBar({
-        massege:"สำเร็จ",
+        massege: "สำเร็จ",
         sevirity: "success",
-        open: true
-      })
-      setDeleteId([...deleteId,changePlanRequire._id as string])
+        open: true,
+      });
+      setDeleteId([...deleteId, changePlanRequire._id as string]);
     }
   };
 
@@ -247,15 +271,15 @@ export default function ChangePlanReqList({
     let addType: (FormAddPlanTree & { businessName: string })[] = [];
     let cancelType: (FormCancelPlanTree & { businessName: string })[] = [];
     changePlanTreeReq.forEach((val) => {
-      if(!deleteId.includes(val._id as string)){
+      if (!deleteId.includes(val._id as string)) {
         if (val.typeReq == "add" && val.businessName == businessName) {
           addType.push(val);
         }
-  
+
         if (val.typeReq == "change" && val.businessName == businessName) {
           changeType.push(val);
         }
-  
+
         if (val.typeReq == "cancel" && val.businessName == businessName) {
           cancelType.push(val);
         }

@@ -120,6 +120,10 @@ type ChangePlanStatus = {
 
 type ChangePlanWithStatus = ChangePlanRequirePrevent & ChangePlanStatus;
 
+type AdminChangePlanWithStatus = ChangePlanWithStatus & {
+  businessName: string;
+};
+
 type TotalBudgetEachTypePrevent = {
   _id: string;
   totalBudget: number;

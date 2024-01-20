@@ -271,7 +271,7 @@ export default function ChangePlanTree({
           newChangePlan.newPlan.quantity.plentifully = parseFloat(
             newChangePlan.newPlan?.quantity?.plentifully,
           );
-        } 
+        }
 
         if (
           typeof newChangePlan.newPlan.quantity.moderate == "string" &&
@@ -280,7 +280,7 @@ export default function ChangePlanTree({
           newChangePlan.newPlan.quantity.moderate = parseFloat(
             newChangePlan.newPlan.quantity.moderate,
           );
-        } 
+        }
 
         if (
           typeof newChangePlan.newPlan.quantity.lightly == "string" &&
@@ -289,7 +289,7 @@ export default function ChangePlanTree({
           newChangePlan.newPlan.quantity.lightly = parseFloat(
             newChangePlan.newPlan.quantity.lightly,
           );
-        } 
+        }
 
         if (
           typeof newChangePlan.newPlan.quantity.clear == "string" &&
@@ -298,7 +298,7 @@ export default function ChangePlanTree({
           newChangePlan.newPlan.quantity.clear = parseFloat(
             newChangePlan.newPlan.quantity.clear,
           );
-        } 
+        }
       }
 
       if (newChangePlan.newPlan.hireType == "self") {
@@ -309,7 +309,7 @@ export default function ChangePlanTree({
           newChangePlan.newPlan.quantity.distance = parseFloat(
             newChangePlan.newPlan.quantity.distance,
           );
-        } 
+        }
       }
 
       if (
@@ -317,7 +317,7 @@ export default function ChangePlanTree({
         /^\d+\.?\d{0,2}$/.test(newChangePlan.newPlan.budget)
       ) {
         newChangePlan.newPlan.budget = parseFloat(newChangePlan.newPlan.budget);
-      } 
+      }
     }
 
     const res = await fetch("/api/tree/request-change-plan", {

@@ -5,6 +5,7 @@ import { getSession } from "next-auth/react";
 import authOptions from "../auth/authoption";
 import { getServerSession } from "next-auth";
 import { AdminChangePlanTree } from "@/types/report-tree";
+import { AdminChangePlanWithStatus } from "@/types/report-prevent";
 
 export default async function handler(
   req: NextApiRequest,
@@ -17,23 +18,23 @@ export default async function handler(
   }
 
   const mongoClient = await clientPromise;
-  const planTreeCollection = mongoClient.db("tree").collection("plan");
+  const planTreeCollection = mongoClient.db("prevent").collection("plan");
 
   switch (req.method) {
     case "GET": {
       try {
-        const allQuarterBudgets = mongoClient
-          .db("tree")
-          .collection("businessNameQuaterBudget")
+        const allTypeBudgets = mongoClient
+          .db("prevent")
+          .collection("budgetTypePrevent")
           .find({ _id: { $ne: "กฟฟ.ทดสอบ" } });
-        const summary = await allQuarterBudgets.toArray();
+        const summary = await allTypeBudgets.toArray();
         const allRequest = mongoClient
-          .db("tree")
-          .collection("typeRequest")
+          .db("prevent")
+          .collection("changePlanRequest")
           .find({ businessName: { $ne: "กฟฟ.ทดสอบ" } });
         const typeReq = await allRequest.toArray();
         const resultGsheet = await fetch(
-          "https://script.google.com/macros/s/AKfycby6XVzv3SuZqo-mtMM63wPtSnOJXbPPYcWtZ0lJnASbdIHDt5ukgx8l89s-EPtcz8WKNA/exec",
+          "https://script.google.com/macros/s/AKfycbxYLQ5vHbDmUBEjDsgvj7tYd8kPm6NI5V3f7POtc-0OUUPzi4_EbiGveb8PkMkdvixU/exec",
           {
             method: "POST",
             body: JSON.stringify({ summary, typeReq }),
@@ -53,7 +54,7 @@ export default async function handler(
     }
     case "PATCH": {
       try {
-        const data: AdminChangePlanTree = JSON.parse(req.body);
+        const data: AdminChangePlanWithStatus = JSON.parse(req.body);
         const filter = { _id: new ObjectId(data._id as string) };
         const options = {
           arrayFilters: [
@@ -70,12 +71,11 @@ export default async function handler(
               },
               $unset: {
                 planName: 1,
-                quantity: 1,
+                typePrevent: 1,
                 budget: 1,
-                systemVolt: 1,
-                month: 1,
-                distance: 1,
-                hireType: 1,
+                breifQuantity: 1,
+                duration: 1,
+                taskmaster: 1,
               },
             };
             const resultApprove = await planTreeCollection.updateOne(
@@ -90,26 +90,14 @@ export default async function handler(
           }
           case "add":
           case "change": {
-            let distance = 0;
-            if (data.newPlan.hireType == "normal") {
-              distance =
-                Number(data.newPlan.quantity.clear) +
-                Number(data.newPlan.quantity.lightly) +
-                Number(data.newPlan.quantity.moderate) +
-                Number(data.newPlan.quantity.plentifully);
-            } else if (data.newPlan.hireType == "self") {
-              distance = Number(data.newPlan.quantity.distance);
-            }
             const update = {
               $set: {
                 "changePlanRequest.$[elem].status": "success",
                 planName: data.newPlan.planName,
-                quantity: data.newPlan.quantity,
+                typePrevent: data.newPlan.typePrevent,
                 budget: data.newPlan.budget,
-                systemVolt: data.newPlan.systemVolt,
-                month: data.newPlan.month,
-                hireType: data.newPlan.hireType,
-                distance,
+                breifQuantity: data.newPlan.breifQuantity,
+                duration: data.newPlan.duration,
               },
             };
             const resultApprove = await planTreeCollection.updateOne(
@@ -132,7 +120,7 @@ export default async function handler(
     }
     case "PUT": {
       try {
-        const data: AdminChangePlanTree = JSON.parse(req.body);
+        const data: AdminChangePlanWithStatus = JSON.parse(req.body);
         const filter = { _id: new ObjectId(data._id as string) };
         const update = {
           $set: {
