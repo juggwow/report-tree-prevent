@@ -231,7 +231,7 @@ export default function ChangePlanReqList({
         open: true,
       });
       window.open(
-        "https://docs.google.com/spreadsheets/d/1r6xiCX-mSE0FzVb1iLwVdqoWMggjzSddrGdYky4AC1A/export?format=xlsx",
+        "https://docs.google.com/spreadsheets/d/1r6xiCX-mSE0FzVb1iLwVdqoWMggjzSddrGdYky4AC1A/",
       );
     } else {
       setSnackBar({

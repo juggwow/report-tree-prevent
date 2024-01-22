@@ -117,7 +117,7 @@ export default function PreventChangePlanReqList({
       open: true,
     });
     window.open(
-      "https://docs.google.com/spreadsheets/d/1uYdrj-e46AC1LfySds1dU4lokDJL7y0b92rEUgRmcm8/export?format=xlsx",
+      "https://docs.google.com/spreadsheets/d/1uYdrj-e46AC1LfySds1dU4lokDJL7y0b92rEUgRmcm8/",
     );
   };
 
