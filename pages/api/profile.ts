@@ -33,7 +33,6 @@ export default async function handler(
       .db("user")
       .collection("pea-s3-employee-info");
     const employeeDoc = await employeeInfoCollection.findOne({
-      fullname: { $regex: new RegExp(`${pea.firstname} ${pea.lastname}`) }, // i ใน 'i' คือไม่สนใจตัวพิมพ์ใหญ่เล็ก
       businessName: pea.karnfaifa,
       userid: pea.userid,
     });

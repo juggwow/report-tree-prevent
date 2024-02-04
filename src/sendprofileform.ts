@@ -17,7 +17,6 @@ const sendProfileForm = async (peaUser?: peaUser): Promise<string | null> => {
   });
 
   if (res.status != 200 && res.status != 401) {
-    window.alert("บางอย่างผิดพลาด ติดต่อ 099-0210912");
     return null;
   }
 
