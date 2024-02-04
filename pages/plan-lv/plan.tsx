@@ -49,10 +49,9 @@ export async function getServerSideProps(context: any) {
       },
     };
   }
+  const mongoClient = await clientPromise;
 
   try {
-    const mongoClient = await clientPromise;
-
     const planLVCollection: Collection<PlanLV> = mongoClient
       .db("patrol-LV")
       .collection("plan");
@@ -87,12 +86,13 @@ export async function getServerSideProps(context: any) {
         _id: val._id instanceof ObjectId ? val._id.toHexString() : val._id,
       });
     });
-
+    mongoClient.close();
     return {
       props: { planLV },
     };
   } catch (e) {
     console.error(e);
+    mongoClient.close();
     return {
       props: { planLV: [] },
     };

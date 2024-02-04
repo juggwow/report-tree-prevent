@@ -34,6 +34,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       },
     };
   }
+  const mongoClient = await clientPromise;
 
   try {
     const id = context.params?.id;
@@ -45,7 +46,6 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       };
     }
 
-    const mongoClient = await clientPromise;
     const vineBeGoneCollection = mongoClient
       .db("vine-be-gone")
       .collection("risk");
@@ -70,6 +70,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       options,
     )) as null | ImgMediaCardProp;
     if (!doc) {
+      mongoClient.close();
       return {
         redirect: {
           destination: "/404",
@@ -78,13 +79,14 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     }
 
     doc.id = (doc.id as ObjectId).toHexString();
-
+    mongoClient.close();
     return {
       props: {
         doc,
       },
     };
   } catch (err) {
+    mongoClient.close();
     return {
       redirect: {
         destination: "/404",

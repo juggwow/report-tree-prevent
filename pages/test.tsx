@@ -22,9 +22,8 @@ export async function getServerSideProps(context: any) {
     };
   }
 
+  const mongoClient = await clientPromise;
   try {
-    const mongoClient = await clientPromise;
-
     const planLVCollection: Collection<PlanLV> = mongoClient
       .db("patrol-LV")
       .collection("plan");
@@ -35,11 +34,12 @@ export async function getServerSideProps(context: any) {
       ? (plan._id = plan._id.toHexString())
       : undefined,
       console.log(plan);
-
+    mongoClient.close();
     return {
       props: { plan },
     };
   } catch (e) {
+    mongoClient.close();
     console.error(e);
     return {
       props: { planLV: [] },

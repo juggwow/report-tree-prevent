@@ -9,9 +9,11 @@ import { Grid, Typography } from "@mui/material";
 export default function PrintChangePlanTree({
   printPlan,
   monthTotalBudget,
+  versionPlan,
 }: {
   printPlan: (FormChangePlanTree | FormAddPlanTree | FormCancelPlanTree)[];
   monthTotalBudget: MonthTotalBudget[];
+  versionPlan: string;
 }) {
   let budget = {
     new: 0,
@@ -213,10 +215,20 @@ export default function PrintChangePlanTree({
   return (
     <div className="hidden" id="printable-content" style={{ width: "24cm" }}>
       <Grid container sx={{ marginTop: "16pt" }}>
-        <Grid item xs={12}>
+        <Grid
+          item
+          xs={12}
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
           <Typography sx={{ fontSize: "16pt" }}>
             เอกสารแนบ สรุปขอเปลี่ยนแปลง / เพิ่ม / ยกเลิกแผนงาน ตัดต้นไม้
           </Typography>
+          <Typography sx={{ fontSize: "8pt" }}>ver: {versionPlan}</Typography>
         </Grid>
         <Grid item xs={12}>
           <Typography sx={{ fontSize: "14pt", marginTop: "8pt" }}>

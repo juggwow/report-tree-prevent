@@ -48,8 +48,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     };
   }
 
+  const mongoClient = await clientPromise;
   try {
-    const mongoClient = await clientPromise;
     const preventCollection = mongoClient.db("prevent").collection("plan");
 
     const query = {
@@ -86,6 +86,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         preventDatas[i]._id = val._id.toHexString();
       }
     });
+    mongoClient.close();
     return {
       props: {
         preventDatas,
@@ -93,6 +94,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     };
   } catch (e) {
     const preventDatas: PreventDataForChange[] = [];
+    mongoClient.close();
     return {
       props: { preventDatas },
     };

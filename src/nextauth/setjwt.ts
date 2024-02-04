@@ -42,5 +42,6 @@ export default async function setJWT(
     query,
     options,
   )) as unknown as peaUser | null;
+  mongoClient.close();
   return docSnap ? { ...token, pea: docSnap } : token;
 }

@@ -63,7 +63,7 @@ export async function getServerSideProps(contex: any) {
       .collection("changePlanRequest");
 
     const docs = (await planPreventCollection
-      .find({businessName: {$ne:"กฟฟ.ทดสอบ"}})
+      .find({ businessName: { $ne: "กฟฟ.ทดสอบ" } })
       .toArray()) as unknown as AdminChangePlanWithStatus[];
     let changePlanPreventReq: AdminChangePlanWithStatus[] = [];
     docs.forEach((val) => {

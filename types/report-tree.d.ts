@@ -179,3 +179,13 @@ type AdminChangePlanTree = (
   | FormAddPlanTree
   | FormCancelPlanTree
 ) & { businessName: string };
+
+type IdsHasSentPlanTreeRequest = {
+  _id: ObjectId | string;
+  sendDate: string;
+  changePlanRequest: (
+    | FormChangePlanTree
+    | FormAddPlanTree
+    | FormCancelPlanTree
+  )[];
+};

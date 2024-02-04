@@ -56,11 +56,13 @@ export default async function handler(
             const docExist =
               await planPreventCollection.findOne(cancelAndChangeQuery);
             if (!docExist) {
+              mongoClient.close();
               res.status(404).end();
               return;
             }
 
             if (docExist["businessName"] != session.pea.karnfaifa) {
+              mongoClient.close();
               res.status(403).end();
               return;
             }
@@ -70,6 +72,7 @@ export default async function handler(
               update,
             );
             if (!resultUpdate.acknowledged) {
+              mongoClient.close();
               res.status(404).end();
               return;
             }
@@ -81,6 +84,7 @@ export default async function handler(
               businessName: session.pea.karnfaifa,
             });
             if (!resultInsert.acknowledged) {
+              mongoClient.close();
               res.status(404).end();
               return;
             }
@@ -89,16 +93,19 @@ export default async function handler(
               update,
             );
             if (!resultUpdate.acknowledged) {
+              mongoClient.close();
               res.status(404).end();
             }
             break;
           }
 
           default: {
+            mongoClient.close();
             res.status(404).end();
             return;
           }
         }
+        mongoClient.close();
         res.status(200).end();
         return;
       }
@@ -128,9 +135,11 @@ export default async function handler(
           options,
         );
         if (!resultUpdate.acknowledged) {
+          mongoClient.close();
           res.status(404).end();
           return;
         }
+        mongoClient.close();
         res.status(200).end();
         return;
       }
@@ -150,15 +159,17 @@ export default async function handler(
         );
 
         if (!resultDelete.acknowledged) {
+          mongoClient.close();
           res.status(404).end();
           return;
         }
-
+        mongoClient.close();
         res.status(200).end();
         return;
       }
 
       default: {
+        mongoClient.close();
         res.status(404).end();
         return;
       }

@@ -27,11 +27,23 @@ export default async function handler(
           .collection("businessNameQuaterBudget")
           .find({ _id: { $ne: "กฟฟ.ทดสอบ" } });
         const summary = await allQuarterBudgets.toArray();
+        const projection = {
+          _id: { $toString: "$_id" },
+          businessName: "$businessName",
+          status: "$status",
+          reason: "$reason",
+          newPlan: "$newPlan",
+          oldPlan: "$oldPlan",
+          userReq: "$userReq",
+          dateReq: "$dateReq",
+          typeReq: "$typeReq",
+        };
         const allRequest = mongoClient
           .db("tree")
           .collection("typeRequest")
-          .find({ businessName: { $ne: "กฟฟ.ทดสอบ" } });
-        const typeReq = await allRequest.toArray();
+          .find({ businessName: { $ne: "กฟฟ.ทดสอบ" } }, { projection });
+        let typeReq = await allRequest.toArray();
+        console.log(typeReq);
         const resultGsheet = await fetch(
           "https://script.google.com/macros/s/AKfycby6XVzv3SuZqo-mtMM63wPtSnOJXbPPYcWtZ0lJnASbdIHDt5ukgx8l89s-EPtcz8WKNA/exec",
           {
@@ -40,13 +52,16 @@ export default async function handler(
           },
         );
         if (resultGsheet.status == 200) {
+          mongoClient.close();
           res.status(200).end();
           return;
         } else {
+          mongoClient.close();
           res.status(500).end();
           return;
         }
       } catch (e) {
+        mongoClient.close();
         res.status(500).end();
         return;
       }
@@ -84,6 +99,7 @@ export default async function handler(
               options,
             );
             if (!resultApprove.acknowledged) {
+              mongoClient.close();
               res.status(404).end();
             }
             break;
@@ -118,14 +134,17 @@ export default async function handler(
               options,
             );
             if (!resultApprove.acknowledged) {
+              mongoClient.close();
               res.status(404).end();
             }
             break;
           }
         }
+        mongoClient.close();
         res.status(200).end();
         return;
       } catch (e) {
+        mongoClient.close();
         res.status(500).end();
         return;
       }
@@ -152,17 +171,21 @@ export default async function handler(
           options,
         );
         if (!resultReject.acknowledged) {
+          mongoClient.close();
           res.status(404).end();
           return;
         }
+        mongoClient.close();
         res.status(200).end();
         return;
       } catch (e) {
+        mongoClient.close();
         res.status(500).end();
         return;
       }
     }
     default: {
+      mongoClient.close();
       res.status(404).end();
       return;
     }

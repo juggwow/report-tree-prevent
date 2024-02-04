@@ -67,13 +67,14 @@ export default async function handler(
     uploadedImage: data.uploadedImage,
   });
   if (!doc.acknowledged) {
+    mongoClient.close();
     res.status(405).end();
     return;
   }
 
   await sendMessageToReporter(session.sub);
   await sendMessageToMaintenance(data, doc.insertedId);
-
+  mongoClient.close();
   res.status(200).end();
   return;
 }

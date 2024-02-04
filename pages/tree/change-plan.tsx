@@ -50,9 +50,8 @@ export async function getServerSideProps(context: any) {
     };
   }
 
+  const mongoClient = await clientPromise;
   try {
-    const mongoClient = await clientPromise;
-
     const planLVCollection: Collection<FormChangePlanTree> = mongoClient
       .db("tree")
       .collection("plan");
@@ -94,11 +93,12 @@ export async function getServerSideProps(context: any) {
         _id: val._id instanceof ObjectId ? val._id.toHexString() : val._id,
       });
     });
-
+    mongoClient.close();
     return {
       props: { planTree },
     };
   } catch (e) {
+    mongoClient.close();
     console.error(e);
     return {
       props: { planTree: [] },

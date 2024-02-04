@@ -27,11 +27,10 @@ export default async function handler(
     console.log(plan);
 
     if (!plan) {
+      mongoClient.close();
       res.status(404).end();
       return;
     }
-
-    // res.status(200).json(plan)
   } catch (e) {
     console.error(e);
     res.status(500).end();

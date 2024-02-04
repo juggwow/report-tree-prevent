@@ -37,6 +37,7 @@ export async function getServerSideProps(context: any) {
     };
   }
 
+  const mongoClient = await clientPromise;
   try {
     const query = {
       businessName: session.pea.karnfaifa,
@@ -59,7 +60,6 @@ export async function getServerSideProps(context: any) {
       },
     };
 
-    const mongoClient = await clientPromise;
     const treeData = (await mongoClient
       .db("tree")
       .collection<treeData>("plan")
@@ -70,16 +70,19 @@ export async function getServerSideProps(context: any) {
       treeData.forEach((val, i, arr) => {
         arr[i].id = (val.id as ObjectId).toHexString();
       });
+      mongoClient.close();
       return {
         props: { treeData },
       };
     }
+    mongoClient.close();
     return {
       redirect: {
         destination: "/404",
       },
     };
   } catch {
+    mongoClient.close();
     return {
       redirect: {
         destination: "/404",

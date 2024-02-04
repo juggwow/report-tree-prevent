@@ -52,8 +52,8 @@ export async function getServerSideProps(contex: any) {
     };
   }
 
+  const mongoClient = await clientPromise;
   try {
-    const mongoClient = await clientPromise;
     const planPreventCollection = mongoClient.db("prevent").collection("plan");
     let cursor = planPreventCollection.aggregate([
       {
@@ -113,12 +113,13 @@ export async function getServerSideProps(contex: any) {
     ]);
 
     const budgets = await cursor.toArray();
-
+    mongoClient.close();
     return {
       props: { changePlanPreventReq, budgets },
     };
   } catch (e) {
     console.log(e);
+    mongoClient.close();
     return {
       props: { changePlanPreventReq: [], budgets: [] },
     };

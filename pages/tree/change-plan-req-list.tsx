@@ -3,11 +3,14 @@ import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
 import { getSession } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
+import FolderIcon from "@mui/icons-material/Folder";
+import FolderOffIcon from "@mui/icons-material/FolderOff";
 import { AlertSnackBarType } from "@/types/snack-bar";
 import {
   FormAddPlanTree,
   FormCancelPlanTree,
   FormChangePlanTree,
+  IdsHasSentPlanTreeRequest,
   MonthTotalBudget,
 } from "@/types/report-tree";
 import ChangePlanTreeFormDialog from "@/components/tree/change-plan/form-dialog";
@@ -15,11 +18,17 @@ import ChangePlanTreeCard from "@/components/tree/change-plan/change-plan-tree-r
 import { useRouter } from "next/router";
 import PrintChangePlanTree from "@/components/tree/change-plan/print-change-plan-tree";
 import {
+  Avatar,
   Box,
   Breadcrumbs,
   Button,
   Grid,
   Link,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+  ListSubheader,
   Stack,
   Tab,
   Tabs,
@@ -46,9 +55,8 @@ export async function getServerSideProps(context: any) {
     };
   }
 
+  const mongoClient = await clientPromise;
   try {
-    const mongoClient = await clientPromise;
-
     const planTreeCollection = mongoClient.db("tree").collection("plan");
 
     let docs = (await planTreeCollection
@@ -68,6 +76,8 @@ export async function getServerSideProps(context: any) {
           $match: {
             "changePlanRequest.typeReq": { $in: ["change", "add", "cancel"] },
             "changePlanRequest.status": "progress",
+            "changePlanRequest.sendId": { $exists: false },
+            "changePlanRequest.userReq.userid": session.pea.userid,
           },
         },
         {
@@ -89,7 +99,6 @@ export async function getServerSideProps(context: any) {
       | FormCancelPlanTree
     )[];
 
-    //const plan = await planLVCollection.find(query,options).toArray();
     let changePlanTreeReq: (
       | FormChangePlanTree
       | FormAddPlanTree
@@ -145,13 +154,39 @@ export async function getServerSideProps(context: any) {
 
     monthTotalBudget.sort((a, b) => a.month - b.month);
 
+    let idsHasSentPlanTreeRequest = (await mongoClient
+      .db("tree")
+      .collection("idsHasSentRequest")
+      .find({
+        businessName: session.pea.karnfaifa,
+        _id: { $exists: true },
+        userId: session.pea.userid,
+      })
+      .toArray()) as unknown as IdsHasSentPlanTreeRequest[];
+    idsHasSentPlanTreeRequest.forEach((val, i) => {
+      if (val._id instanceof ObjectId) {
+        idsHasSentPlanTreeRequest[i]._id = val._id.toHexString();
+      }
+      val.changePlanRequest.forEach((v, j) => {
+        if (v._id instanceof ObjectId) {
+          idsHasSentPlanTreeRequest[i].changePlanRequest[j]._id =
+            v._id.toHexString();
+        }
+      });
+    });
+    mongoClient.close();
     return {
-      props: { changePlanTreeReq, monthTotalBudget },
+      props: { changePlanTreeReq, monthTotalBudget, idsHasSentPlanTreeRequest },
     };
   } catch (e) {
+    mongoClient.close();
     console.error(e);
     return {
-      props: { changePlanTreeReq: [], monthTotalBudget: [] },
+      props: {
+        changePlanTreeReq: [],
+        monthTotalBudget: [],
+        idsHasSentPlanTreeRequest: [],
+      },
     };
   }
 }
@@ -159,6 +194,7 @@ export async function getServerSideProps(context: any) {
 export default function ChangePlanReqList({
   changePlanTreeReq,
   monthTotalBudget,
+  idsHasSentPlanTreeRequest,
 }: {
   changePlanTreeReq: (
     | FormChangePlanTree
@@ -166,6 +202,7 @@ export default function ChangePlanReqList({
     | FormCancelPlanTree
   )[];
   monthTotalBudget: MonthTotalBudget[];
+  idsHasSentPlanTreeRequest: IdsHasSentPlanTreeRequest[];
 }) {
   const stickyRef = useRef<HTMLDivElement>();
   const router = useRouter();
@@ -178,6 +215,11 @@ export default function ChangePlanReqList({
     sevirity: "success",
     massege: "",
   });
+
+  const [print, setPrint] = useState<
+    (FormChangePlanTree | FormAddPlanTree | FormCancelPlanTree)[]
+  >([]);
+  const [version, setVersion] = useState("");
 
   const [changePlanRequire, setChangePlanRequire] = useState<
     FormChangePlanTree | FormAddPlanTree | FormCancelPlanTree
@@ -261,8 +303,61 @@ export default function ChangePlanReqList({
     router.reload();
   };
 
-  const handlePrint = () => {
-    window.print();
+  const handlePrint = (
+    plan: (FormChangePlanTree | FormAddPlanTree | FormCancelPlanTree)[],
+    ver: string,
+  ) => {
+    setPrint(plan);
+    setVersion(ver);
+    setTimeout(() => window.print(), 100);
+  };
+
+  const handleSendRequest = async () => {
+    let changePlanIds: string[] = [];
+    changePlanTreeReq.forEach((val) => {
+      changePlanIds.push(val._id as string);
+    });
+    const res = await fetch("/api/tree/send-request", {
+      method: "POST",
+      body: JSON.stringify({
+        changePlanIds,
+      }),
+    });
+    if (res.status != 200) {
+      setSnackBar({
+        massege: "เกิดข้อผิดพลาด",
+        sevirity: "error",
+        open: true,
+      });
+      return;
+    }
+    setSnackBar({
+      massege: "สำเร็จ",
+      sevirity: "success",
+      open: true,
+    }),
+      router.reload();
+  };
+
+  const handleCancelRequest = async (ids: IdsHasSentPlanTreeRequest) => {
+    const res = await fetch("/api/tree/send-request", {
+      method: "PUT",
+      body: JSON.stringify(ids),
+    });
+    if (res.status != 200) {
+      setSnackBar({
+        massege: "เกิดข้อผิดพลาด",
+        sevirity: "error",
+        open: true,
+      });
+      return;
+    }
+    setSnackBar({
+      massege: "สำเร็จ",
+      sevirity: "success",
+      open: true,
+    }),
+      router.reload();
   };
 
   const handleScroll = () => {
@@ -349,7 +444,7 @@ export default function ChangePlanReqList({
                 <Tab label="เพิ่ม" {...a11yProps(1)} />
                 <Tab label="ยกเลิก" {...a11yProps(2)} />
               </Tabs>
-              <Button onClick={handlePrint}>พิมพ์</Button>
+              <Button onClick={handleSendRequest}>ส่ง</Button>
             </Box>
             <TabPanel value={tab} index={0}>
               <Grid container spacing={1}>
@@ -397,6 +492,66 @@ export default function ChangePlanReqList({
               </Grid>
             </TabPanel>
           </Box>
+
+          <List
+            id="main-content"
+            className="mx-auto w-11/12 mb-3 bg-white grid grid-cols-1 relative"
+            subheader={
+              <ListSubheader component="div" id="nested-list-subheader">
+                รายการที่ส่งแล้ว
+              </ListSubheader>
+            }
+          >
+            {idsHasSentPlanTreeRequest.length == 0 && (
+              <ListItem>
+                <ListItemAvatar>
+                  <Avatar>
+                    <FolderOffIcon />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText primary="ไม่มีรายการที่ส่ง" />
+              </ListItem>
+            )}
+            {idsHasSentPlanTreeRequest.map((val) => {
+              return (
+                <ListItem key={val._id as string}>
+                  <ListItemAvatar>
+                    <Avatar>
+                      <FolderIcon />
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary={`วันที่: ${new Date(
+                      val.sendDate,
+                    ).toLocaleDateString("th-TH", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })} เวลา: ${new Date(val.sendDate).toLocaleTimeString("th-TH")}`}
+                    secondary={`จำนวน: ${val.changePlanRequest.length} แผนงาน`}
+                  />
+                  <Button
+                    onClick={() =>
+                      handlePrint(val.changePlanRequest, val._id as string)
+                    }
+                  >
+                    พิมพ์รายละเอียดแนบ
+                  </Button>
+                  {(new Date().getTime() - new Date(val.sendDate).getTime()) /
+                    36e5 <=
+                    24 && (
+                    <Button
+                      onClick={() => {
+                        handleCancelRequest(val);
+                      }}
+                    >
+                      ยกเลิกการส่ง
+                    </Button>
+                  )}
+                </ListItem>
+              );
+            })}
+          </List>
           <div className="mt-3 flex flew-row justify-center">
             <Button
               sx={{ margin: "1rem auto" }}
@@ -422,11 +577,11 @@ export default function ChangePlanReqList({
           snackBar={snackBar}
           defaultValOldPlan={false}
         />
-
         <AlertSnackBar setSnackBar={setSnackBar} snackBar={snackBar} />
         <LoadingBackDrop progress={progress} setProgress={setProgress} />
         <PrintChangePlanTree
-          printPlan={changePlanTreeReq}
+          versionPlan={version}
+          printPlan={print}
           monthTotalBudget={monthTotalBudget}
         />
         <style jsx global>{`

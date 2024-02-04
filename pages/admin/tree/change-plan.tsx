@@ -60,7 +60,7 @@ export async function getServerSideProps(context: any) {
     let docs = (await mongoClient
       .db("tree")
       .collection("typeRequest")
-      .find({businessName: {$ne:"กฟฟ.ทดสอบ"}})
+      .find({ businessName: { $ne: "กฟฟ.ทดสอบ" } })
       .toArray()) as AdminChangePlanTree[];
 
     let changePlanTreeReq: AdminChangePlanTree[] = [];

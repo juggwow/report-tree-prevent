@@ -35,11 +35,13 @@ export default async function handler(
     });
 
     if (!plan) {
+      mongoClient.close();
       res.status(404).end();
       return;
     }
 
     if (plan.businessName != session.pea.karnfaifa) {
+      mongoClient.close();
       res.status(403).end();
       return;
     }
@@ -84,10 +86,12 @@ export default async function handler(
           options,
         );
         if (!resultUpdate.acknowledged) {
+          mongoClient.close();
           res.status(404).end();
           return;
         }
 
+        mongoClient.close();
         res.status(200).end();
         return;
       }
@@ -105,10 +109,12 @@ export default async function handler(
         const resultDelete = await planLVCollection.updateOne(filter, update);
 
         if (!resultDelete.acknowledged) {
+          mongoClient.close();
           res.status(404).end();
           return;
         }
 
+        mongoClient.close();
         res.status(200).end();
         return;
       }
@@ -131,14 +137,16 @@ export default async function handler(
           update,
         );
         if (!resultInsert.ok) {
+          mongoClient.close();
           res.status(404).end();
           return;
         }
-
+        mongoClient.close();
         res.status(200).end();
         return;
       }
       default: {
+        mongoClient.close();
         res.status(404).end();
         return;
       }

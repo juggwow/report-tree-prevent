@@ -36,6 +36,7 @@ export default async function handler(
           { projection: { businessName: 1 } },
         );
         if (!(doc && doc.businessName == session.pea?.karnfaifa)) {
+          mongoClient.close();
           res.status(404).end();
           return;
         }
@@ -52,11 +53,13 @@ export default async function handler(
           },
         );
         if (!resultUpdate.acknowledged) {
+          mongoClient.close();
           res.status(404).end();
           return;
         }
       });
 
+      mongoClient.close();
       res.status(200).send({ massege: `รายงาน ZPM4/PO สำเร็จ` });
       return;
     } catch {

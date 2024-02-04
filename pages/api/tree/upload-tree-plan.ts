@@ -27,6 +27,7 @@ export default async function handler(
   switch (req.method) {
     case "POST": {
       if (uploadPlanTree.length == 0) {
+        mongoClient.close();
         res.status(400).end();
         return;
       }
@@ -40,6 +41,7 @@ export default async function handler(
         });
         console.log(resultDeleteAllPlan.deletedCount);
         if (!resultDeleteAllPlan.acknowledged) {
+          mongoClient.close();
           res.status(400).end();
           return;
         }
@@ -47,15 +49,16 @@ export default async function handler(
 
       const resultUpload = await planTreeCollection.insertMany(uploadPlanTree);
       if (!resultUpload.acknowledged) {
+        mongoClient.close();
         res.status(400).end();
         return;
       }
-
+      mongoClient.close();
       res.status(200).end();
       return;
     }
   }
-
+  mongoClient.close();
   res.status(404).end();
   return;
 }
