@@ -56,6 +56,7 @@ export async function getServerSideProps(context: any) {
   }
 
   const mongoClient = await clientPromise;
+  await mongoClient.connect()
   try {
     const planTreeCollection = mongoClient.db("tree").collection("plan");
 

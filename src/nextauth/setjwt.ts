@@ -23,6 +23,7 @@ export default async function setJWT(
   account ? (token.provider = account.provider) : undefined;
   //ค้นห้าข้อมูล PEA ใน Firestore
   const mongoClient = await clientPromise;
+  await mongoClient.connect()
   const userCollection = mongoClient.db("user").collection("user");
   const query = {
     sub: token.sub,

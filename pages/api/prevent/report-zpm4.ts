@@ -23,6 +23,7 @@ export default async function handler(
   if (session && session.sub && session.pea && session.pea.karnfaifa) {
     try {
       const mongoClient = await clientPromise;
+      await mongoClient.connect()
 
       const planPreventCollection = mongoClient
         .db("prevent")

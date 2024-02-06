@@ -54,6 +54,7 @@ export default async function handler(
     return;
   }
   const mongoClient = await clientPromise;
+  await mongoClient.connect()
   const vineBeGoneCollection = mongoClient
     .db("vine-be-gone")
     .collection("risk");
@@ -71,16 +72,15 @@ export default async function handler(
     res.status(405).end();
     return;
   }
+  await mongoClient.close();
 
   await sendMessageToReporter(session.sub);
   await sendMessageToMaintenance(data, doc.insertedId);
-  await mongoClient.close();
   res.status(200).end();
   return;
 }
 
 async function sendMessageToReporter(user: string) {
-  console.log(user);
   const lineApiUrl = "https://api.line.me/v2/bot/message/push";
   const accessToken =
     "Cnps9+Xgzybwu7N36fvxzef+iWWZAHAIW71klZ72y6fHaEOQH2xrlC5ELes26j77qXtSaTX2wsBAwVMk9shh3HA4+3yZ7O/eEMmkY3vRM5OMylg/QZakY3LwXibylLfI5rQZNf0LKOS3zEJH7BG3uQdB04t89/1O/w1cDnyilFU=";
@@ -115,6 +115,7 @@ async function sendMessageToMaintenance(data: RequestData, id: ObjectId) {
   console.log(data, id);
 
   const mongoClient = await clientPromise;
+  await mongoClient.connect()
   const userCollection = mongoClient.db("user").collection("user");
 
   const result = await userCollection

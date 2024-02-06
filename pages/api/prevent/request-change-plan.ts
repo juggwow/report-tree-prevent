@@ -26,6 +26,7 @@ export default async function handler(
   let changeReq: ChangePlanRequirePrevent = JSON.parse(req.body);
   try {
     const mongoClient = await clientPromise;
+    await mongoClient.connect()
     const planPreventCollection = mongoClient.db("prevent").collection("plan");
 
     switch (req.method) {

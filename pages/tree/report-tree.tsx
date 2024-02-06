@@ -38,6 +38,7 @@ export async function getServerSideProps(context: any) {
   }
 
   const mongoClient = await clientPromise;
+  await mongoClient.connect()
   try {
     const query = {
       businessName: session.pea.karnfaifa,

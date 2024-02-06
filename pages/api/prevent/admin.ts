@@ -18,6 +18,7 @@ export default async function handler(
   }
 
   const mongoClient = await clientPromise;
+  await mongoClient.connect()
   const planTreeCollection = mongoClient.db("prevent").collection("plan");
 
   switch (req.method) {

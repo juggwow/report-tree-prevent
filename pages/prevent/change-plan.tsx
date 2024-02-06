@@ -49,6 +49,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   }
 
   const mongoClient = await clientPromise;
+  await mongoClient.connect()
   try {
     const preventCollection = mongoClient.db("prevent").collection("plan");
 

@@ -29,6 +29,7 @@ export default async function handler(
       pea = { ...pea, role: "operator" };
     }
     const mongoClient = await clientPromise;
+    await mongoClient.connect()
     const employeeInfoCollection = mongoClient
       .db("user")
       .collection("pea-s3-employee-info");

@@ -12,6 +12,7 @@ export default async function handler(
 ) {
   
   const mongoClient = await clientPromise;
+  await mongoClient.connect()
   try {
     switch (req.method) {
       case "GET": {
