@@ -93,12 +93,12 @@ export async function getServerSideProps(context: any) {
         _id: val._id instanceof ObjectId ? val._id.toHexString() : val._id,
       });
     });
-    mongoClient.close();
+    await mongoClient.close();
     return {
       props: { planTree },
     };
   } catch (e) {
-    mongoClient.close();
+    await mongoClient.close();
     console.error(e);
     return {
       props: { planTree: [] },
@@ -268,7 +268,7 @@ export default function ChangePlanTree({
           typeof newChangePlan.newPlan.quantity.plentifully == "string" &&
           /^\d+\.?\d{0,2}$/.test(newChangePlan.newPlan.quantity.plentifully)
         ) {
-          newChangePlan.newPlan.quantity.plentifully = parseFloat(
+          newChangePlan.newPlan.quantity.plentifully = Number(
             newChangePlan.newPlan?.quantity?.plentifully,
           );
         }
@@ -277,7 +277,7 @@ export default function ChangePlanTree({
           typeof newChangePlan.newPlan.quantity.moderate == "string" &&
           /^\d+\.?\d{0,2}$/.test(newChangePlan.newPlan.quantity.moderate)
         ) {
-          newChangePlan.newPlan.quantity.moderate = parseFloat(
+          newChangePlan.newPlan.quantity.moderate = Number(
             newChangePlan.newPlan.quantity.moderate,
           );
         }
@@ -286,7 +286,7 @@ export default function ChangePlanTree({
           typeof newChangePlan.newPlan.quantity.lightly == "string" &&
           /^\d+\.?\d{0,2}$/.test(newChangePlan.newPlan.quantity.lightly)
         ) {
-          newChangePlan.newPlan.quantity.lightly = parseFloat(
+          newChangePlan.newPlan.quantity.lightly = Number(
             newChangePlan.newPlan.quantity.lightly,
           );
         }
@@ -295,7 +295,7 @@ export default function ChangePlanTree({
           typeof newChangePlan.newPlan.quantity.clear == "string" &&
           /^\d+\.?\d{0,2}$/.test(newChangePlan.newPlan.quantity.clear)
         ) {
-          newChangePlan.newPlan.quantity.clear = parseFloat(
+          newChangePlan.newPlan.quantity.clear = Number(
             newChangePlan.newPlan.quantity.clear,
           );
         }
@@ -306,7 +306,7 @@ export default function ChangePlanTree({
           typeof newChangePlan.newPlan.quantity.distance == "string" &&
           /^\d+\.?\d{0,2}$/.test(newChangePlan.newPlan.quantity.distance)
         ) {
-          newChangePlan.newPlan.quantity.distance = parseFloat(
+          newChangePlan.newPlan.quantity.distance = Number(
             newChangePlan.newPlan.quantity.distance,
           );
         }
@@ -316,7 +316,7 @@ export default function ChangePlanTree({
         typeof newChangePlan.newPlan.budget == "string" &&
         /^\d+\.?\d{0,2}$/.test(newChangePlan.newPlan.budget)
       ) {
-        newChangePlan.newPlan.budget = parseFloat(newChangePlan.newPlan.budget);
+        newChangePlan.newPlan.budget = Number(newChangePlan.newPlan.budget);
       }
     }
 

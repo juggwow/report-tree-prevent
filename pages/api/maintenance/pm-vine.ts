@@ -33,7 +33,7 @@ export default async function handler(
         Array.isArray(typeDoc) ||
         !["all", "success", "progress"].includes(typeDoc)
       ) {
-        mongoClient.close();
+        await mongoClient.close();
         res.status(405).end();
         return;
       }
@@ -95,16 +95,16 @@ export default async function handler(
         .toArray();
 
       if (result.length == 0) {
-        mongoClient.close();
+        await mongoClient.close();
         res.status(404).end();
         return;
       }
-      mongoClient.close();
+      await mongoClient.close();
       res.status(200).send(result[0] as unknown as Data);
       return;
     }
     default: {
-      mongoClient.close();
+      await mongoClient.close();
       res.status(404).end();
       return;
     }

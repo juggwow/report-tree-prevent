@@ -47,7 +47,7 @@ export default async function handler(
             _id: new ObjectId(val),
           });
           if (!doc || doc["businessName"] != session.pea.karnfaifa) {
-            mongoClient.close();
+            await mongoClient.close();
             res.status(403).end();
             return;
           } else {
@@ -78,12 +78,12 @@ export default async function handler(
             options,
           );
           if (!resultUpdate.acknowledged) {
-            mongoClient.close();
+            await mongoClient.close();
             res.status(404).end();
             return;
           }
         }
-        mongoClient.close();
+        await mongoClient.close();
         res.status(200).end();
         return;
       }
@@ -94,7 +94,7 @@ export default async function handler(
           .collection("idsHasSentRequest")
           .findOne({ _id: new ObjectId(body._id as string) });
         if (!doc) {
-          mongoClient.close();
+          await mongoClient.close();
           res.status(404).end();
           return;
         }
@@ -115,23 +115,23 @@ export default async function handler(
             .collection("plan")
             .updateOne({ _id: new ObjectId(val._id) }, update, options);
           if (!resultDelete.acknowledged) {
-            mongoClient.close();
+            await mongoClient.close();
             res.status(500).end();
             return;
           }
         }
-        mongoClient.close();
+        await mongoClient.close();
         res.status(200).end();
         return;
       }
       default: {
-        mongoClient.close();
+        await mongoClient.close();
         res.status(404).end();
         return;
       }
     }
   } catch (e) {
-    mongoClient.close();
+    await mongoClient.close();
     res.status(500).end();
     return;
   }

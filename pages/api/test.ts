@@ -27,7 +27,7 @@ export default async function handler(
     console.log(plan);
 
     if (!plan) {
-      mongoClient.close();
+      await mongoClient.close();
       res.status(404).end();
       return;
     }

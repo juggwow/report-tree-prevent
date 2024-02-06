@@ -174,12 +174,12 @@ export async function getServerSideProps(context: any) {
         }
       });
     });
-    mongoClient.close();
+    await mongoClient.close();
     return {
       props: { changePlanTreeReq, monthTotalBudget, idsHasSentPlanTreeRequest },
     };
   } catch (e) {
-    mongoClient.close();
+    await mongoClient.close();
     console.error(e);
     return {
       props: {

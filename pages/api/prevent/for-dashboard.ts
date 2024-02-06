@@ -19,7 +19,7 @@ export default async function handler(
           .collection("forDashBoard")
           .find()
           .toArray();
-        mongoClient.close();
+        await mongoClient.close();
         res.send(data);
         res.end();
         return;

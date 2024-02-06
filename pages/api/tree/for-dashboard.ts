@@ -10,26 +10,29 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<any>,
 ) {
+  
+  const mongoClient = await clientPromise;
   try {
     switch (req.method) {
       case "GET": {
-        const mongoClient = await clientPromise;
         const data = await mongoClient
           .db("tree")
           .collection("forDashBoard")
           .find()
           .toArray();
-        mongoClient.close();
+        await mongoClient.close();
         res.send(data);
         res.end();
         return;
       }
       default: {
+        await mongoClient.close()
         res.status(404).end();
         return;
       }
     }
   } catch (e) {
+    await mongoClient.close()
     res.status(500).end();
     return;
   }

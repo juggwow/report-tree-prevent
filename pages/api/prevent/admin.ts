@@ -41,16 +41,16 @@ export default async function handler(
           },
         );
         if (resultGsheet.status == 200) {
-          mongoClient.close();
+          await mongoClient.close();
           res.status(200).end();
           return;
         } else {
-          mongoClient.close();
+          await mongoClient.close();
           res.status(500).end();
           return;
         }
       } catch (e) {
-        mongoClient.close();
+        await mongoClient.close();
         res.status(500).end();
         return;
       }
@@ -87,7 +87,7 @@ export default async function handler(
               options,
             );
             if (!resultApprove.acknowledged) {
-              mongoClient.close();
+              await mongoClient.close();
               res.status(404).end();
             }
             break;
@@ -110,17 +110,17 @@ export default async function handler(
               options,
             );
             if (!resultApprove.acknowledged) {
-              mongoClient.close();
+              await mongoClient.close();
               res.status(404).end();
             }
             break;
           }
         }
-        mongoClient.close();
+        await mongoClient.close();
         res.status(200).end();
         return;
       } catch (e) {
-        mongoClient.close();
+        await mongoClient.close();
         res.status(500).end();
         return;
       }
@@ -147,21 +147,21 @@ export default async function handler(
           options,
         );
         if (!resultReject.acknowledged) {
-          mongoClient.close();
+          await mongoClient.close();
           res.status(404).end();
           return;
         }
-        mongoClient.close();
+        await mongoClient.close();
         res.status(200).end();
         return;
       } catch (e) {
-        mongoClient.close();
+        await mongoClient.close();
         res.status(500).end();
         return;
       }
     }
     default: {
-      mongoClient.close();
+      await mongoClient.close();
       res.status(404).end();
       return;
     }

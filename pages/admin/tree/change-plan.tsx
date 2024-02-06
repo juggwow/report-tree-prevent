@@ -9,16 +9,25 @@ import {
   FormAddPlanTree,
   FormCancelPlanTree,
   FormChangePlanTree,
+  SentReq,
 } from "@/types/report-tree";
+import FolderIcon from "@mui/icons-material/Folder";
+import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import ChangePlanTreeCard from "@/components/tree/change-plan/change-plan-tree-req-card";
 import { useRouter } from "next/router";
 import {
   Autocomplete,
+  Avatar,
   Box,
   Breadcrumbs,
   Button,
   Grid,
   Link,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+  ListSubheader,
   Stack,
   Tab,
   Tabs,
@@ -54,41 +63,46 @@ export async function getServerSideProps(context: any) {
     };
   }
 
+  const mongoClient = await clientPromise;
   try {
-    const mongoClient = await clientPromise;
 
-    let docs = (await mongoClient
-      .db("tree")
-      .collection("typeRequest")
-      .find({ businessName: { $ne: "กฟฟ.ทดสอบ" } })
-      .toArray()) as AdminChangePlanTree[];
+    const sentReqProjection = {
+      _id: { $toString: '$_id' },
+      businessName: "$businessName",
+      sendDate: "$sendDate",
+      add: "$add",
+      cancel: "$cancel",
+      change: "$change",
+      changeBudget: "$changeBudget"
+    }
 
-    let changePlanTreeReq: AdminChangePlanTree[] = [];
-    docs.forEach((val) => {
-      changePlanTreeReq.push({
-        ...val,
-        _id: val._id instanceof ObjectId ? val._id.toHexString() : val._id,
-      });
-    });
-
+    let sentReq = await mongoClient.db("tree").collection("idsHasSentRequest").find({businessName: {$ne:"กฟฟ.ทดสอบ"}},{projection: sentReqProjection}).toArray()
+    await mongoClient.close()
     return {
-      props: { changePlanTreeReq },
+      props: { sentReq },
     };
   } catch (e) {
     console.error(e);
+    await mongoClient.close()
     return {
-      props: { changePlanTreeReq: [] },
+      props: { sentReq: [] },
     };
   }
 }
 
 export default function ChangePlanReqList({
-  changePlanTreeReq,
+  sentReq
 }: {
-  changePlanTreeReq: AdminChangePlanTree[];
+  sentReq: SentReq[];
 }) {
+  const [changePlanTreeReq, setChangePlanTreeReq] = useState<(
+    | FormChangePlanTree
+    | FormAddPlanTree
+    | FormCancelPlanTree
+  )[]>([])
   const stickyRef = useRef<HTMLDivElement>();
   const router = useRouter();
+  const [selectedVer,setSelectedVer] = useState("")
   const [isSticky, setIsSticky] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
   const [progress, setProgress] = useState(false);
@@ -99,6 +113,25 @@ export default function ChangePlanReqList({
     massege: "",
   });
   const [deleteId, setDeleteId] = useState<string[]>([]);
+
+  const handleShow = async (_id:string)=>{
+    const res = await fetch(`/api/tree/admin/get-plan/${_id}`)
+    if(res.status != 200){
+      setSnackBar({
+        massege: "เกิดข้อผิดพลาด",
+        sevirity: "error",
+        open: true
+      })
+      return
+    }
+    const {changePlanRequest}:{changePlanRequest:((
+      | FormChangePlanTree
+      | FormAddPlanTree
+      | FormCancelPlanTree
+    )[])} = await res.json()
+    setChangePlanTreeReq(changePlanRequest)
+    setSelectedVer(_id)
+  }
 
   const handleAprove = async (
     changePlanRequire:
@@ -221,7 +254,11 @@ export default function ChangePlanReqList({
     );
   };
 
-  const handlePrint = async () => {
+  const handleImport = async () => {
+    if(!window.confirm("หากตกลง จะเป็นการทับไฟล์ Google Sheet เดิม? กดยกเลิกเพื่อเปิด Google sheet")){
+      handlePrint()
+      return                        
+    }
     setProgress(true);
     const res = await fetch("/api/tree/admin");
     if (res.status == 200) {
@@ -230,9 +267,6 @@ export default function ChangePlanReqList({
         sevirity: "success",
         open: true,
       });
-      window.open(
-        "https://docs.google.com/spreadsheets/d/1r6xiCX-mSE0FzVb1iLwVdqoWMggjzSddrGdYky4AC1A/",
-      );
     } else {
       setSnackBar({
         massege: "Error " + res.status,
@@ -243,44 +277,57 @@ export default function ChangePlanReqList({
     setProgress(false);
   };
 
+  const handlePrint = async () => {
+    window.open(
+      "https://docs.google.com/spreadsheets/d/1r6xiCX-mSE0FzVb1iLwVdqoWMggjzSddrGdYky4AC1A/",
+    );
+  }
+
   const businessNameOptions: string[] = useMemo(() => {
     let autoComplete: string[] = [];
-    changePlanTreeReq.forEach((val) => {
+    sentReq.forEach((val) => {
       autoComplete.push(val.businessName);
     });
     autoComplete = autoComplete.filter((val, i, arr) => {
       return arr.indexOf(val) === i;
     });
     return autoComplete;
-  }, [changePlanTreeReq]);
+  }, [sentReq]);
 
   const [businessName, setBusinessName] = useState(
     businessNameOptions.length > 0 ? businessNameOptions[0] : "",
   );
+
+  const showSentReq: SentReq[] = useMemo(()=>{
+    let req: SentReq[] = sentReq.filter((val)=>{
+      return val.businessName == businessName
+    })
+    return req
+  },[sentReq,businessName])
 
   const {
     changeType,
     addType,
     cancelType,
   }: {
-    changeType: (FormChangePlanTree & { businessName: string })[];
-    addType: (FormAddPlanTree & { businessName: string })[];
-    cancelType: (FormCancelPlanTree & { businessName: string })[];
+    changeType: (FormChangePlanTree)[];
+    addType: (FormAddPlanTree)[];
+    cancelType: (FormCancelPlanTree)[];
   } = useMemo(() => {
-    let changeType: (FormChangePlanTree & { businessName: string })[] = [];
-    let addType: (FormAddPlanTree & { businessName: string })[] = [];
-    let cancelType: (FormCancelPlanTree & { businessName: string })[] = [];
+    let changeType: (FormChangePlanTree)[] = [];
+    let addType: (FormAddPlanTree)[] = [];
+    let cancelType: (FormCancelPlanTree)[] = [];
     changePlanTreeReq.forEach((val) => {
       if (!deleteId.includes(val._id as string)) {
-        if (val.typeReq == "add" && val.businessName == businessName) {
+        if (val.typeReq == "add" ) {
           addType.push(val);
         }
 
-        if (val.typeReq == "change" && val.businessName == businessName) {
+        if (val.typeReq == "change" ) {
           changeType.push(val);
         }
 
-        if (val.typeReq == "cancel" && val.businessName == businessName) {
+        if (val.typeReq == "cancel" ) {
           cancelType.push(val);
         }
       }
@@ -317,6 +364,53 @@ export default function ChangePlanReqList({
             รายการขอเปลี่ยนแปลง / เพิ่ม / ยกเลิกแผนงานตัดต้นไม้
           </p>
           <CustomSeparator setProgress={setProgress} />
+          <List
+            className="mx-auto w-11/12 mb-3 bg-white grid grid-cols-1 relative"
+            subheader={
+              <ListSubheader component="div" id="nested-list-subheader">
+                <Autocomplete
+                  size="small"
+                  disablePortal
+                  value={businessName}
+                  id="combo-box-demo"
+                  options={businessNameOptions}
+                  sx={{ margin: "0.5rem 0 0 0", width: "200px" }}
+                  renderInput={(params) => (
+                    <TextField {...params} required label="กฟฟ." />
+                  )}
+                  onChange={(e, v) => {
+                    setBusinessName(v ? v : "")
+                    setSelectedVer("")
+                    setChangePlanTreeReq([])
+                  }}
+                />
+              </ListSubheader>
+            }
+          >
+            {showSentReq.map((val) => {
+              return (
+                <ListItem key={val._id}>
+                  <ListItemAvatar>
+                    <Avatar>
+                      {val._id == selectedVer ?<FolderOpenIcon/>: <FolderIcon />}
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ListItemText
+                    secondary={`version: ${val._id}`}
+                    primary={`เพิ่ม: ${val.add}, เปลี่ยนแปลง: ${val.change}, ยกเลิก: ${val.cancel}, วงเงินเปลี่ยนแปลง:${val.changeBudget.toLocaleString("th-TH",{ style: "currency", currency: "THB" })}`}
+                  />
+                  <Button
+                    disabled={selectedVer==val._id}
+                    onClick={() =>
+                      handleShow(val._id)
+                    }
+                  >
+                    แสดง
+                  </Button>
+                </ListItem>
+              );
+            })}
+          </List>
           <Box className="mx-auto w-11/12 mb-3 bg-white grid grid-cols-1 relative">
             <Box
               ref={stickyRef}
@@ -348,20 +442,9 @@ export default function ChangePlanReqList({
                   gap: "1rem",
                 }}
               >
-                <Autocomplete
-                  size="small"
-                  disablePortal
-                  value={businessName}
-                  id="combo-box-demo"
-                  options={businessNameOptions}
-                  sx={{ margin: "0.5rem 0 0 0", width: "200px" }}
-                  renderInput={(params) => (
-                    <TextField {...params} required label="กฟฟ." />
-                  )}
-                  onChange={(e, v) => setBusinessName(v ? v : "")}
-                />
 
-                <Button onClick={handlePrint}>โหลดเอกสารแนบ</Button>
+                <Button onClick={handleImport}>นำข้อมูลเข้า gSheet</Button>
+                <Button onClick={handlePrint}>เปิด gSheet</Button>
               </Box>
             </Box>
             <TabPanel value={tab} index={0}>

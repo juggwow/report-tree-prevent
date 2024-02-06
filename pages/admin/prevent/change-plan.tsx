@@ -56,8 +56,8 @@ export async function getServerSideProps(contex: any) {
     };
   }
 
+  const mongoClient = await clientPromise;
   try {
-    const mongoClient = await clientPromise;
     const planPreventCollection = mongoClient
       .db("prevent")
       .collection("changePlanRequest");
@@ -73,11 +73,13 @@ export async function getServerSideProps(contex: any) {
       });
     });
 
+    await mongoClient.close()
     return {
       props: { changePlanPreventReq },
     };
   } catch (e) {
     console.log(e);
+    await mongoClient.close()
     return {
       props: { changePlanPreventReq: [] },
     };

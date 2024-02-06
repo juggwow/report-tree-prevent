@@ -75,12 +75,12 @@ export async function getServerSideProps(context: any) {
     preventData.forEach((val, i, arr) => {
       arr[i].id = (val.id as ObjectId).toHexString();
     });
-    mongoClient.close();
+    await mongoClient.close();
     return {
       props: { preventData },
     };
   } catch {
-    mongoClient.close();
+    await mongoClient.close();
     return {
       redirect: {
         destination: "/404",

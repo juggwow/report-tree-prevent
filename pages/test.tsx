@@ -34,12 +34,12 @@ export async function getServerSideProps(context: any) {
       ? (plan._id = plan._id.toHexString())
       : undefined,
       console.log(plan);
-    mongoClient.close();
+    await mongoClient.close();
     return {
       props: { plan },
     };
   } catch (e) {
-    mongoClient.close();
+    await mongoClient.close();
     console.error(e);
     return {
       props: { planLV: [] },

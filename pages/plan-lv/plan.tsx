@@ -86,13 +86,13 @@ export async function getServerSideProps(context: any) {
         _id: val._id instanceof ObjectId ? val._id.toHexString() : val._id,
       });
     });
-    mongoClient.close();
+    await mongoClient.close();
     return {
       props: { planLV },
     };
   } catch (e) {
     console.error(e);
-    mongoClient.close();
+    await mongoClient.close();
     return {
       props: { planLV: [] },
     };

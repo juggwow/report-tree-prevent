@@ -46,13 +46,13 @@ export default async function handler(
         .findOne({ _id: new ObjectId(changeReq._id as string) });
 
       if (!plan) {
-        mongoClient.close();
+        await mongoClient.close();
         res.status(404).end();
         return;
       }
 
       if (plan.businessName != session.pea.karnfaifa) {
-        mongoClient.close();
+        await mongoClient.close();
         res.status(403).end();
         return;
       }
@@ -89,7 +89,7 @@ export default async function handler(
               update,
             );
             if (!resultInsert.ok) {
-              mongoClient.close();
+              await mongoClient.close();
               res.status(404).end();
               return;
             }
@@ -103,7 +103,7 @@ export default async function handler(
                 businessName: session.pea.karnfaifa,
               });
             if (!resultInsert.acknowledged) {
-              mongoClient.close();
+              await mongoClient.close();
               res.status(404).end();
               return;
             }
@@ -128,19 +128,19 @@ export default async function handler(
                 },
               );
             if (!resultUpdate.acknowledged) {
-              mongoClient.close();
+              await mongoClient.close();
               res.status(404).end();
               return;
             }
             break;
           }
           default: {
-            mongoClient.close();
+            await mongoClient.close();
             res.status(404).end();
             return;
           }
         }
-        mongoClient.close();
+        await mongoClient.close();
         res.status(200).end();
         return;
       }
@@ -164,11 +164,11 @@ export default async function handler(
           options,
         );
         if (!resultUpdate.acknowledged) {
-          mongoClient.close();
+          await mongoClient.close();
           res.status(404).end();
           return;
         }
-        mongoClient.close();
+        await mongoClient.close();
         res.status(200).end();
         return;
       }
@@ -185,16 +185,16 @@ export default async function handler(
         const resultDelete = await planTreeCollection.updateOne(filter, update);
 
         if (!resultDelete.acknowledged) {
-          mongoClient.close();
+          await mongoClient.close();
           res.status(404).end();
           return;
         }
-        mongoClient.close();
+        await mongoClient.close();
         res.status(200).end();
         return;
       }
       default: {
-        mongoClient.close();
+        await mongoClient.close();
         res.status(404).end();
         return;
       }

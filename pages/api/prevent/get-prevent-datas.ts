@@ -42,7 +42,7 @@ export default async function handler(
     const preventDatas = await planPreventCollection
       .find(query, options)
       .toArray();
-    mongoClient.close();
+    await mongoClient.close();
     res.status(200).send(preventDatas);
     return;
   } catch {

@@ -189,3 +189,13 @@ type IdsHasSentPlanTreeRequest = {
     | FormCancelPlanTree
   )[];
 };
+
+type SentReq = {
+  _id: string,
+  businessName: string,
+  sendDate: string
+  add: number;
+  cancel: number;
+  change: number;
+  changeBudget: number
+}

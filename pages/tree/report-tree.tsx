@@ -70,19 +70,19 @@ export async function getServerSideProps(context: any) {
       treeData.forEach((val, i, arr) => {
         arr[i].id = (val.id as ObjectId).toHexString();
       });
-      mongoClient.close();
+      await mongoClient.close();
       return {
         props: { treeData },
       };
     }
-    mongoClient.close();
+    await mongoClient.close();
     return {
       redirect: {
         destination: "/404",
       },
     };
   } catch {
-    mongoClient.close();
+    await mongoClient.close();
     return {
       redirect: {
         destination: "/404",

@@ -70,7 +70,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       options,
     )) as null | ImgMediaCardProp;
     if (!doc) {
-      mongoClient.close();
+      await mongoClient.close();
       return {
         redirect: {
           destination: "/404",
@@ -79,14 +79,14 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     }
 
     doc.id = (doc.id as ObjectId).toHexString();
-    mongoClient.close();
+    await mongoClient.close();
     return {
       props: {
         doc,
       },
     };
   } catch (err) {
-    mongoClient.close();
+    await mongoClient.close();
     return {
       redirect: {
         destination: "/404",

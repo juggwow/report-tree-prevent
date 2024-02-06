@@ -86,7 +86,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         preventDatas[i]._id = val._id.toHexString();
       }
     });
-    mongoClient.close();
+    await mongoClient.close();
     return {
       props: {
         preventDatas,
@@ -94,7 +94,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     };
   } catch (e) {
     const preventDatas: PreventDataForChange[] = [];
-    mongoClient.close();
+    await mongoClient.close();
     return {
       props: { preventDatas },
     };

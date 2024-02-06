@@ -113,13 +113,13 @@ export async function getServerSideProps(contex: any) {
     ]);
 
     const budgets = await cursor.toArray();
-    mongoClient.close();
+    await mongoClient.close();
     return {
       props: { changePlanPreventReq, budgets },
     };
   } catch (e) {
     console.log(e);
-    mongoClient.close();
+    await mongoClient.close();
     return {
       props: { changePlanPreventReq: [], budgets: [] },
     };

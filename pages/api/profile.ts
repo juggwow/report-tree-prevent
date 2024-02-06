@@ -37,7 +37,7 @@ export default async function handler(
       userid: pea.userid,
     });
     if (!employeeDoc) {
-      mongoClient.close();
+      await mongoClient.close();
       res.status(404).send({
         message:
           "ไม่พบฐานข้อมูลพนักงาน หรือ ชื่อ สังกัด รหัสพนักงานไม่ตรงกับฐานข้อมูล",
@@ -57,11 +57,11 @@ export default async function handler(
         update,
       );
       if (!resultUpdate.ok) {
-        mongoClient.close();
+        await mongoClient.close();
         res.status(500).end();
         return;
       }
-      mongoClient.close();
+      await mongoClient.close();
       res.status(200).end();
       return;
     } else {
@@ -71,11 +71,11 @@ export default async function handler(
         provider: session.provider,
       });
       if (!doc.acknowledged) {
-        mongoClient.close();
+        await mongoClient.close();
         res.status(500).end();
         return;
       }
-      mongoClient.close();
+      await mongoClient.close();
       res.status(200).end();
       return;
     }
