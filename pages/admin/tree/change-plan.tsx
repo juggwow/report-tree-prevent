@@ -365,137 +365,140 @@ export default function ChangePlanReqList({
             รายการขอเปลี่ยนแปลง / เพิ่ม / ยกเลิกแผนงานตัดต้นไม้
           </p>
           <CustomSeparator setProgress={setProgress} />
-          <List
-            className="mx-auto w-11/12 mb-3 bg-white grid grid-cols-1 relative"
-            subheader={
-              <ListSubheader component="div" id="nested-list-subheader">
-                <Autocomplete
-                  size="small"
-                  disablePortal
-                  value={businessName}
-                  id="combo-box-demo"
-                  options={businessNameOptions}
-                  sx={{ margin: "0.5rem 0 0 0", width: "200px" }}
-                  renderInput={(params) => (
-                    <TextField {...params} required label="กฟฟ." />
-                  )}
-                  onChange={(e, v) => {
-                    setBusinessName(v ? v : "")
-                    setSelectedVer("")
-                    setChangePlanTreeReq([])
-                  }}
-                />
-              </ListSubheader>
-            }
-          >
-            {showSentReq.map((val) => {
-              return (
-                <ListItem key={val._id}>
-                  <ListItemAvatar>
-                    <Avatar>
-                      {val._id == selectedVer ?<FolderOpenIcon/>: <FolderIcon />}
-                    </Avatar>
-                  </ListItemAvatar>
-                  <ListItemText
-                    secondary={`version: ${val._id}`}
-                    primary={`เพิ่ม: ${val.add}, เปลี่ยนแปลง: ${val.change}, ยกเลิก: ${val.cancel}, วงเงินเปลี่ยนแปลง:${val.changeBudget.toLocaleString("th-TH",{ style: "currency", currency: "THB" })}`}
+          <Box className="flex flex-col items-center">
+            <List
+              className="w-11/12 mb-3 bg-white grid grid-cols-1 relative"
+              subheader={
+                <ListSubheader component="div" id="nested-list-subheader">
+                  <Autocomplete
+                    size="small"
+                    disablePortal
+                    value={businessName}
+                    id="combo-box-demo"
+                    options={businessNameOptions}
+                    sx={{ margin: "0.5rem 0 0 0", width: "200px" }}
+                    renderInput={(params) => (
+                      <TextField {...params} required label="กฟฟ." />
+                    )}
+                    onChange={(e, v) => {
+                      setBusinessName(v ? v : "")
+                      setSelectedVer("")
+                      setChangePlanTreeReq([])
+                    }}
                   />
-                  <Button
-                    disabled={selectedVer==val._id}
-                    onClick={() =>
-                      handleShow(val._id)
-                    }
-                  >
-                    แสดง
-                  </Button>
-                </ListItem>
-              );
-            })}
-          </List>
-          <Box className="mx-auto w-11/12 mb-3 bg-white grid grid-cols-1 relative">
-            <Box
-              ref={stickyRef}
-              className={`${isSticky ? "sticky" : ""}`}
-              sx={{
-                borderBottom: 1,
-                borderColor: "divider",
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-between",
-                flexWrap: "wrap",
-              }}
+                </ListSubheader>
+              }
             >
-              <Tabs
-                value={tab}
-                onChange={(e, v) => setTab(v)}
-                aria-label="basic tabs example"
-                sx={{ display: "flex", flexDirection: "row", flexWrap: "wrap" }}
-              >
-                <Tab label="เปลี่ยนแปลง" {...a11yProps(0)} />
-                <Tab label="เพิ่ม" {...a11yProps(1)} />
-                <Tab label="ยกเลิก" {...a11yProps(2)} />
-              </Tabs>
+              {showSentReq.map((val) => {
+                return (
+                  <ListItem key={val._id}>
+                    <ListItemAvatar>
+                      <Avatar>
+                        {val._id == selectedVer ?<FolderOpenIcon/>: <FolderIcon />}
+                      </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText
+                      secondary={`version: ${val._id}`}
+                      primary={`เพิ่ม: ${val.add}, เปลี่ยนแปลง: ${val.change}, ยกเลิก: ${val.cancel}, วงเงินเปลี่ยนแปลง:${val.changeBudget.toLocaleString("th-TH",{ style: "currency", currency: "THB" })}`}
+                    />
+                    <Button
+                      disabled={selectedVer==val._id}
+                      onClick={() =>
+                        handleShow(val._id)
+                      }
+                    >
+                      แสดง
+                    </Button>
+                  </ListItem>
+                );
+              })}
+            </List>
+            <Box className="w-11/12 mb-3 bg-white grid grid-cols-1 relative">
               <Box
+                ref={stickyRef}
+                className={`${isSticky ? "sticky" : ""}`}
                 sx={{
+                  borderBottom: 1,
+                  borderColor: "divider",
                   display: "flex",
                   flexDirection: "row",
-                  alignContent: "center",
-                  gap: "1rem",
+                  justifyContent: "space-between",
+                  flexWrap: "wrap",
                 }}
               >
+                <Tabs
+                  value={tab}
+                  onChange={(e, v) => setTab(v)}
+                  aria-label="basic tabs example"
+                  sx={{ display: "flex", flexDirection: "row", flexWrap: "wrap" }}
+                >
+                  <Tab label="เปลี่ยนแปลง" {...a11yProps(0)} />
+                  <Tab label="เพิ่ม" {...a11yProps(1)} />
+                  <Tab label="ยกเลิก" {...a11yProps(2)} />
+                </Tabs>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignContent: "center",
+                    gap: "1rem",
+                  }}
+                >
 
-                <Button onClick={handleImport}>นำข้อมูลเข้า gSheet</Button>
-                <Button onClick={handlePrint}>เปิด gSheet</Button>
+                  <Button onClick={handleImport}>นำข้อมูลเข้า gSheet</Button>
+                  <Button onClick={handlePrint}>เปิด gSheet</Button>
+                </Box>
               </Box>
+              <TabPanel value={tab} index={0}>
+                <Grid container spacing={1}>
+                  {changeType.map((val) => {
+                    return (
+                      <Grid item key={val._id as string} xs={12} sm={6} md={4}>
+                        <ChangePlanTreeCard
+                          plan={val}
+                          onClickEdit={() => handleAprove(val)}
+                          onClickCancel={() => handleReject(val)}
+                          isAdmin
+                        />
+                      </Grid>
+                    );
+                  })}
+                </Grid>
+              </TabPanel>
+              <TabPanel value={tab} index={1}>
+                <Grid container spacing={1}>
+                  {addType.map((val) => {
+                    return (
+                      <Grid item key={val._id as string} xs={12} sm={6} md={4}>
+                        <ChangePlanTreeCard
+                          plan={val}
+                          onClickEdit={() => handleAprove(val)}
+                          onClickCancel={() => handleReject(val)}
+                          isAdmin
+                        />
+                      </Grid>
+                    );
+                  })}
+                </Grid>
+              </TabPanel>
+              <TabPanel value={tab} index={2}>
+                <Grid container spacing={1}>
+                  {cancelType.map((val) => {
+                    return (
+                      <Grid item key={val._id as string} xs={12} sm={6} md={4}>
+                        <ChangePlanTreeCard
+                          plan={val}
+                          onClickEdit={() => handleAprove(val)}
+                          onClickCancel={() => handleReject(val)}
+                          isAdmin
+                        />
+                      </Grid>
+                    );
+                  })}
+                </Grid>
+              </TabPanel>
             </Box>
-            <TabPanel value={tab} index={0}>
-              <Grid container spacing={1}>
-                {changeType.map((val) => {
-                  return (
-                    <Grid item key={val._id as string} xs={12} sm={6} md={4}>
-                      <ChangePlanTreeCard
-                        plan={val}
-                        onClickEdit={() => handleAprove(val)}
-                        onClickCancel={() => handleReject(val)}
-                        isAdmin
-                      />
-                    </Grid>
-                  );
-                })}
-              </Grid>
-            </TabPanel>
-            <TabPanel value={tab} index={1}>
-              <Grid container spacing={1}>
-                {addType.map((val) => {
-                  return (
-                    <Grid item key={val._id as string} xs={12} sm={6} md={4}>
-                      <ChangePlanTreeCard
-                        plan={val}
-                        onClickEdit={() => handleAprove(val)}
-                        onClickCancel={() => handleReject(val)}
-                        isAdmin
-                      />
-                    </Grid>
-                  );
-                })}
-              </Grid>
-            </TabPanel>
-            <TabPanel value={tab} index={2}>
-              <Grid container spacing={1}>
-                {cancelType.map((val) => {
-                  return (
-                    <Grid item key={val._id as string} xs={12} sm={6} md={4}>
-                      <ChangePlanTreeCard
-                        plan={val}
-                        onClickEdit={() => handleAprove(val)}
-                        onClickCancel={() => handleReject(val)}
-                        isAdmin
-                      />
-                    </Grid>
-                  );
-                })}
-              </Grid>
-            </TabPanel>
+
           </Box>
           <div className="mt-3 flex flew-row justify-center">
             <Button

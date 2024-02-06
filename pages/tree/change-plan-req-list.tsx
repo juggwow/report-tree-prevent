@@ -422,137 +422,139 @@ export default function ChangePlanReqList({
             รายการขอเปลี่ยนแปลง / เพิ่ม / ยกเลิกแผนงานตัดต้นไม้
           </p>
           <CustomSeparator setProgress={setProgress} />
-          <Box className="mx-auto w-11/12 mb-3 bg-white grid grid-cols-1 relative">
-            <Box
-              ref={stickyRef}
-              className={`${isSticky ? "sticky" : ""}`}
-              sx={{
-                borderBottom: 1,
-                borderColor: "divider",
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-between",
-                flexWrap: "wrap",
-              }}
-            >
-              <Tabs
-                value={tab}
-                onChange={(e, v) => setTab(v)}
-                aria-label="basic tabs example"
-                sx={{ display: "flex", flexDirection: "row", flexWrap: "wrap" }}
+          <Box className="flex flex-col items-center">
+            <Box className="w-11/12 mb-3 bg-white grid grid-cols-1 relative">
+              <Box
+                ref={stickyRef}
+                className={`${isSticky ? "sticky" : ""}`}
+                sx={{
+                  borderBottom: 1,
+                  borderColor: "divider",
+                  display: "flex",
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  flexWrap: "wrap",
+                }}
               >
-                <Tab label="เปลี่ยนแปลง" {...a11yProps(0)} />
-                <Tab label="เพิ่ม" {...a11yProps(1)} />
-                <Tab label="ยกเลิก" {...a11yProps(2)} />
-              </Tabs>
-              <Button onClick={handleSendRequest}>ส่ง</Button>
+                <Tabs
+                  value={tab}
+                  onChange={(e, v) => setTab(v)}
+                  aria-label="basic tabs example"
+                  sx={{ display: "flex", flexDirection: "row", flexWrap: "wrap" }}
+                >
+                  <Tab label="เปลี่ยนแปลง" {...a11yProps(0)} />
+                  <Tab label="เพิ่ม" {...a11yProps(1)} />
+                  <Tab label="ยกเลิก" {...a11yProps(2)} />
+                </Tabs>
+                <Button onClick={handleSendRequest}>ส่ง</Button>
+              </Box>
+              <TabPanel value={tab} index={0}>
+                <Grid container spacing={1}>
+                  {changeType.map((val) => {
+                    return (
+                      <Grid item key={val._id as string} xs={12} sm={6} md={4}>
+                        <ChangePlanTreeCard
+                          plan={val}
+                          onClickEdit={() => handleEdit(val)}
+                          onClickCancel={() => handleCancel(val)}
+                        />
+                      </Grid>
+                    );
+                  })}
+                </Grid>
+              </TabPanel>
+              <TabPanel value={tab} index={1}>
+                <Grid container spacing={1}>
+                  {addType.map((val) => {
+                    return (
+                      <Grid item key={val._id as string} xs={12} sm={6} md={4}>
+                        <ChangePlanTreeCard
+                          plan={val}
+                          onClickEdit={() => handleEdit(val)}
+                          onClickCancel={() => handleCancel(val)}
+                        />
+                      </Grid>
+                    );
+                  })}
+                </Grid>
+              </TabPanel>
+              <TabPanel value={tab} index={2}>
+                <Grid container spacing={1}>
+                  {cancelType.map((val) => {
+                    return (
+                      <Grid item key={val._id as string} xs={12} sm={6} md={4}>
+                        <ChangePlanTreeCard
+                          plan={val}
+                          onClickEdit={() => handleEdit(val)}
+                          onClickCancel={() => handleCancel(val)}
+                        />
+                      </Grid>
+                    );
+                  })}
+                </Grid>
+              </TabPanel>
             </Box>
-            <TabPanel value={tab} index={0}>
-              <Grid container spacing={1}>
-                {changeType.map((val) => {
-                  return (
-                    <Grid item key={val._id as string} xs={12} sm={6} md={4}>
-                      <ChangePlanTreeCard
-                        plan={val}
-                        onClickEdit={() => handleEdit(val)}
-                        onClickCancel={() => handleCancel(val)}
-                      />
-                    </Grid>
-                  );
-                })}
-              </Grid>
-            </TabPanel>
-            <TabPanel value={tab} index={1}>
-              <Grid container spacing={1}>
-                {addType.map((val) => {
-                  return (
-                    <Grid item key={val._id as string} xs={12} sm={6} md={4}>
-                      <ChangePlanTreeCard
-                        plan={val}
-                        onClickEdit={() => handleEdit(val)}
-                        onClickCancel={() => handleCancel(val)}
-                      />
-                    </Grid>
-                  );
-                })}
-              </Grid>
-            </TabPanel>
-            <TabPanel value={tab} index={2}>
-              <Grid container spacing={1}>
-                {cancelType.map((val) => {
-                  return (
-                    <Grid item key={val._id as string} xs={12} sm={6} md={4}>
-                      <ChangePlanTreeCard
-                        plan={val}
-                        onClickEdit={() => handleEdit(val)}
-                        onClickCancel={() => handleCancel(val)}
-                      />
-                    </Grid>
-                  );
-                })}
-              </Grid>
-            </TabPanel>
-          </Box>
 
-          <List
-            id="main-content"
-            className="mx-auto w-11/12 mb-3 bg-white grid grid-cols-1 relative"
-            subheader={
-              <ListSubheader component="div" id="nested-list-subheader">
-                รายการที่ส่งแล้ว
-              </ListSubheader>
-            }
-          >
-            {idsHasSentPlanTreeRequest.length == 0 && (
-              <ListItem>
-                <ListItemAvatar>
-                  <Avatar>
-                    <FolderOffIcon />
-                  </Avatar>
-                </ListItemAvatar>
-                <ListItemText primary="ไม่มีรายการที่ส่ง" />
-              </ListItem>
-            )}
-            {idsHasSentPlanTreeRequest.map((val) => {
-              return (
-                <ListItem key={val._id as string}>
+            <List
+              id="main-content"
+              className=" w-11/12 my-3 bg-white grid grid-cols-1 relative"
+              subheader={
+                <ListSubheader component="div" id="nested-list-subheader">
+                  รายการที่ส่งแล้ว
+                </ListSubheader>
+              }
+            >
+              {idsHasSentPlanTreeRequest.length == 0 && (
+                <ListItem>
                   <ListItemAvatar>
                     <Avatar>
-                      <FolderIcon />
+                      <FolderOffIcon />
                     </Avatar>
                   </ListItemAvatar>
-                  <ListItemText
-                    primary={`วันที่: ${new Date(
-                      val.sendDate,
-                    ).toLocaleDateString("th-TH", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })} เวลา: ${new Date(val.sendDate).toLocaleTimeString("th-TH")}`}
-                    secondary={`จำนวน: ${val.changePlanRequest.length} แผนงาน`}
-                  />
-                  <Button
-                    onClick={() =>
-                      handlePrint(val.changePlanRequest, val._id as string)
-                    }
-                  >
-                    พิมพ์รายละเอียดแนบ
-                  </Button>
-                  {(new Date().getTime() - new Date(val.sendDate).getTime()) /
-                    36e5 <=
-                    24 && (
-                    <Button
-                      onClick={() => {
-                        handleCancelRequest(val);
-                      }}
-                    >
-                      ยกเลิกการส่ง
-                    </Button>
-                  )}
+                  <ListItemText primary="ไม่มีรายการที่ส่ง" />
                 </ListItem>
-              );
-            })}
-          </List>
+              )}
+              {idsHasSentPlanTreeRequest.map((val) => {
+                return (
+                  <ListItem key={val._id as string}>
+                    <ListItemAvatar>
+                      <Avatar>
+                        <FolderIcon />
+                      </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary={`วันที่: ${new Date(
+                        val.sendDate,
+                      ).toLocaleDateString("th-TH", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })} เวลา: ${new Date(val.sendDate).toLocaleTimeString("th-TH")}`}
+                      secondary={`จำนวน: ${val.changePlanRequest.length} แผนงาน`}
+                    />
+                    <Button
+                      onClick={() =>
+                        handlePrint(val.changePlanRequest, val._id as string)
+                      }
+                    >
+                      พิมพ์รายละเอียดแนบ
+                    </Button>
+                    {(new Date().getTime() - new Date(val.sendDate).getTime()) /
+                      36e5 <=
+                      24 && (
+                      <Button
+                        onClick={() => {
+                          handleCancelRequest(val);
+                        }}
+                      >
+                        ยกเลิกการส่ง
+                      </Button>
+                    )}
+                  </ListItem>
+                );
+              })}
+            </List>
+          </Box>
           <div className="mt-3 flex flew-row justify-center">
             <Button
               sx={{ margin: "1rem auto" }}
