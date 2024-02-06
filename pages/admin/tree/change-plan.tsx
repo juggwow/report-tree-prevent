@@ -366,6 +366,9 @@ export default function ChangePlanReqList({
           </p>
           <CustomSeparator setProgress={setProgress} />
           <Box className="flex flex-col items-center">
+            <Box className="w-11/12 mb-3 bg-white grid grid-cols-1 relative">
+              ไม่มี
+            </Box>
             <List
               className="w-11/12 mb-3 bg-white grid grid-cols-1 relative"
               subheader={
