@@ -32,7 +32,7 @@ export default async function handler(
 
       const data: treeData[] = JSON.parse(req.body);
 
-      data.forEach(async (val) => {
+      for(const val of data){
         const doc = await planTreeCollection.findOne(
           { _id: new ObjectId(val.id as string) },
           { projection: { businessName: 1 } },
@@ -59,7 +59,8 @@ export default async function handler(
           res.status(404).end();
           return;
         }
-      });
+      }
+      
       await mongoClient.close();
       res.status(200).send({ massege: `รายงาน ZPM4/PO สำเร็จ` });
       return;
