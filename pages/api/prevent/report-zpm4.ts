@@ -99,35 +99,6 @@ export default async function handler(
         return
       }
 
-      // for(const val of data){
-      //   const doc = await planPreventCollection.findOne(
-      //     { _id: new ObjectId(val.id as string) },
-      //     { projection: { businessName: 1 } },
-      //   );
-      //   if (!(doc && doc.businessName == session.pea?.karnfaifa)) {
-      //     await mongoClient.close();
-      //     res.status(404).end();
-      //     return;
-      //   }
-      //   const resultUpdate = await planPreventCollection.updateOne(
-      //     {
-      //       _id: new ObjectId(val.id as string),
-      //     },
-      //     {
-      //       $set: {
-      //         editReport: val.editDate,
-      //         reportDate: val.reportDate,
-      //         zpm4: val.zpm4,
-      //       },
-      //     },
-      //   );
-      //   if (!resultUpdate.acknowledged) {
-      //     await mongoClient.close();
-      //     res.status(404).end();
-      //     return;
-      //   }
-      // }
-
       await mongoClient.close();
       res.status(200).send({ massege: `รายงาน ZPM4/PO สำเร็จ` });
       return;
