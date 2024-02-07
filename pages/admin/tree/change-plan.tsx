@@ -367,12 +367,15 @@ export default function ChangePlanReqList({
           <CustomSeparator setProgress={setProgress} />
           <Box className="flex flex-col items-center">
             <Box className="w-11/12 mb-3 bg-white grid grid-cols-1 relative">
-              ไม่มี
+              
             </Box>
             <List
               className="w-11/12 mb-3 bg-white grid grid-cols-1 relative"
               subheader={
-                <ListSubheader component="div" id="nested-list-subheader">
+                <ListSubheader className="flex flex-row flex-wrap justify-between items-center" component="div" id="nested-list-subheader">
+                  <Typography>
+                    รายการเปลี่ยนแปลงที่มีการส่งเข้ามา
+                  </Typography>
                   <Autocomplete
                     size="small"
                     disablePortal
@@ -416,7 +419,7 @@ export default function ChangePlanReqList({
                 );
               })}
             </List>
-            <Box className="w-11/12 mb-3 bg-white grid grid-cols-1 relative">
+            <Box className="w-11/12 my-3 bg-white grid grid-cols-1 relative">
               <Box
                 ref={stickyRef}
                 className={`${isSticky ? "sticky" : ""}`}

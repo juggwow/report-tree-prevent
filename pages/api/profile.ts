@@ -30,21 +30,21 @@ export default async function handler(
     }
     const mongoClient = await clientPromise;
     await mongoClient.connect()
-    const employeeInfoCollection = mongoClient
-      .db("user")
-      .collection("pea-s3-employee-info");
-    const employeeDoc = await employeeInfoCollection.findOne({
-      businessName: pea.karnfaifa,
-      userid: pea.userid,
-    });
-    if (!employeeDoc) {
-      await mongoClient.close();
-      res.status(404).send({
-        message:
-          "ไม่พบฐานข้อมูลพนักงาน หรือ ชื่อ สังกัด รหัสพนักงานไม่ตรงกับฐานข้อมูล",
-      });
-      return;
-    }
+    // const employeeInfoCollection = mongoClient
+    //   .db("user")
+    //   .collection("pea-s3-employee-info");
+    // const employeeDoc = await employeeInfoCollection.findOne({
+    //   businessName: pea.karnfaifa,
+    //   userid: pea.userid,
+    // });
+    // if (!employeeDoc) {
+    //   await mongoClient.close();
+    //   res.status(404).send({
+    //     message:
+    //       "ไม่พบฐานข้อมูลพนักงาน หรือ ชื่อ สังกัด รหัสพนักงานไม่ตรงกับฐานข้อมูล",
+    //   });
+    //   return;
+    // }
 
     const userCollection = mongoClient.db("user").collection("user");
     const findDoc = await userCollection.findOne({ sub: session.sub });
