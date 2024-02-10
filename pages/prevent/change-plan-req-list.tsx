@@ -53,7 +53,7 @@ export async function getServerSideProps(contex: any) {
   }
 
   const mongoClient = await clientPromise;
-  await mongoClient.connect()
+  await mongoClient.connect();
   try {
     const planPreventCollection = mongoClient.db("prevent").collection("plan");
     let cursor = planPreventCollection.aggregate([

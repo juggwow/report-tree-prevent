@@ -4,7 +4,12 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
 import authOptions from "../../../auth/authoption";
 import { getServerSession } from "next-auth";
-import { AdminChangePlanTree, FormAddPlanTree, FormCancelPlanTree, FormChangePlanTree } from "@/types/report-tree";
+import {
+  AdminChangePlanTree,
+  FormAddPlanTree,
+  FormCancelPlanTree,
+  FormChangePlanTree,
+} from "@/types/report-tree";
 
 export default async function handler(
   req: NextApiRequest,
@@ -18,11 +23,11 @@ export default async function handler(
 
   const { _id } = req.query;
   if (!_id || Array.isArray(_id)) {
-    res.status(400).json({ error: 'Missing _id parameter' });
-} 
+    res.status(400).json({ error: "Missing _id parameter" });
+  }
 
   const mongoClient = await clientPromise;
-  await mongoClient.connect()
+  await mongoClient.connect();
 
   switch (req.method) {
     case "GET": {
@@ -30,29 +35,33 @@ export default async function handler(
         let docs = await mongoClient
           .db("tree")
           .collection("idsHasSentRequest")
-          .findOne({ _id: new ObjectId(_id as string) },{projection:{_id:0,changePlanRequest : "$changePlanRequest"}});
-        
-        if(!docs){
-            await mongoClient.close()
-            res.status(404).json({ error: 'ไม่พบเอกสารนี้' })
+          .findOne(
+            { _id: new ObjectId(_id as string) },
+            { projection: { _id: 0, changePlanRequest: "$changePlanRequest" } },
+          );
+
+        if (!docs) {
+          await mongoClient.close();
+          res.status(404).json({ error: "ไม่พบเอกสารนี้" });
         }
 
-        let changePlanRequest:((
-            | FormChangePlanTree
-            | FormAddPlanTree
-            | FormCancelPlanTree
-          )[]) = docs!['changePlanRequest']
-        
-        changePlanRequest.forEach((val,i)=>{
-            val._id instanceof ObjectId? changePlanRequest[i]._id = val._id.toHexString():undefined
-        })
+        let changePlanRequest: (
+          | FormChangePlanTree
+          | FormAddPlanTree
+          | FormCancelPlanTree
+        )[] = docs!["changePlanRequest"];
 
-        await mongoClient.close()
-        res.status(200).json({changePlanRequest})
-        
+        changePlanRequest.forEach((val, i) => {
+          val._id instanceof ObjectId
+            ? (changePlanRequest[i]._id = val._id.toHexString())
+            : undefined;
+        });
+
+        await mongoClient.close();
+        res.status(200).json({ changePlanRequest });
       } catch (e) {
         await mongoClient.close();
-        res.status(500).json({ error: 'error' })
+        res.status(500).json({ error: "error" });
         return;
       }
     }

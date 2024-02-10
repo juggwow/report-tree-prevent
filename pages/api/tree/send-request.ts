@@ -28,8 +28,6 @@ export default async function handler(
     return;
   }
 
-  
-
   try {
     switch (req.method) {
       case "POST": {
@@ -37,22 +35,22 @@ export default async function handler(
           req.body,
         );
         let changeRequestIds: ObjectId[] = [];
-        for(const val of changePlanIds){
-          changeRequestIds.push(new ObjectId(val))
+        for (const val of changePlanIds) {
+          changeRequestIds.push(new ObjectId(val));
         }
-        
+
         const filter = {
           _id: { $in: changeRequestIds },
         };
 
         const mongoClient = await clientPromise;
-        await mongoClient.connect()
+        await mongoClient.connect();
         const treePlanCollection = mongoClient.db("tree").collection("plan");
-        const docs = await treePlanCollection.find(filter).toArray()
-        if(docs.length != changePlanIds.length){
-          await mongoClient.close()
-          res.status(403)
-          return
+        const docs = await treePlanCollection.find(filter).toArray();
+        if (docs.length != changePlanIds.length) {
+          await mongoClient.close();
+          res.status(403);
+          return;
         }
 
         const sendId = new ObjectId();
@@ -69,7 +67,7 @@ export default async function handler(
             },
           ],
         };
-        await mongoClient.connect()
+        await mongoClient.connect();
         const resultUpdate = await treePlanCollection.updateMany(
           filter,
           update,
@@ -88,7 +86,7 @@ export default async function handler(
       case "PUT": {
         const body: IdsHasSentPlanTreeRequest = JSON.parse(req.body);
         const mongoClient = await clientPromise;
-        await mongoClient.connect()
+        await mongoClient.connect();
         let doc = await mongoClient
           .db("tree")
           .collection("idsHasSentRequest")
@@ -99,14 +97,14 @@ export default async function handler(
           return;
         }
 
-        let cancelIdsRequest: ObjectId[]=[]
-        for (const val of doc['changePlanRequest']){
-          cancelIdsRequest.push(val._id)
+        let cancelIdsRequest: ObjectId[] = [];
+        for (const val of doc["changePlanRequest"]) {
+          cancelIdsRequest.push(val._id);
         }
 
         const filter = {
-          _id: {$in : cancelIdsRequest}
-        }
+          _id: { $in: cancelIdsRequest },
+        };
         const update = {
           $unset: {
             "changePlanRequest.$[elem].sendId": "",
@@ -119,13 +117,17 @@ export default async function handler(
         };
 
         const treePlanCollection = mongoClient.db("tree").collection("plan");
-        const resultDelete = await treePlanCollection.updateMany(filter,update,options)
-        if(!resultDelete.acknowledged){
-          await mongoClient.close()
-          res.status(500).end()
-          return
+        const resultDelete = await treePlanCollection.updateMany(
+          filter,
+          update,
+          options,
+        );
+        if (!resultDelete.acknowledged) {
+          await mongoClient.close();
+          res.status(500).end();
+          return;
         }
-        
+
         await mongoClient.close();
         res.status(200).end();
         return;
@@ -136,7 +138,7 @@ export default async function handler(
       }
     }
   } catch (e) {
-    console.log(e)
+    console.log(e);
     res.status(500).end();
     return;
   }

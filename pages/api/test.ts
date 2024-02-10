@@ -17,8 +17,8 @@ export default async function handler(
 
   try {
     const mongoClient = await clientPromise;
-    
-    await mongoClient.connect()
+
+    await mongoClient.connect();
 
     const planLVCollection = mongoClient.db("patrol-LV").collection("plan");
 

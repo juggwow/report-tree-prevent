@@ -12,7 +12,7 @@ import {
   SentReq,
 } from "@/types/report-tree";
 import FolderIcon from "@mui/icons-material/Folder";
-import FolderOpenIcon from '@mui/icons-material/FolderOpen';
+import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import ChangePlanTreeCard from "@/components/tree/change-plan/change-plan-tree-req-card";
 import { useRouter } from "next/router";
 import {
@@ -64,46 +64,43 @@ export async function getServerSideProps(context: any) {
   }
 
   const mongoClient = await clientPromise;
-  await mongoClient.connect()
+  await mongoClient.connect();
   try {
-
     const sentReqProjection = {
-      _id: { $toString: '$_id' },
+      _id: { $toString: "$_id" },
       businessName: "$businessName",
       sendDate: "$sendDate",
       add: "$add",
       cancel: "$cancel",
       change: "$change",
-      changeBudget: "$changeBudget"
-    }
+      changeBudget: "$changeBudget",
+    };
 
-    let sentReq = await mongoClient.db("tree").collection("idsHasSentRequest").find({businessName: {$ne:"กฟฟ.ทดสอบ"}},{projection: sentReqProjection}).toArray()
-    await mongoClient.close()
+    let sentReq = await mongoClient
+      .db("tree")
+      .collection("idsHasSentRequest")
+      .find({ businessName: { $ne: "" } }, { projection: sentReqProjection })
+      .toArray();
+    await mongoClient.close();
     return {
       props: { sentReq },
     };
   } catch (e) {
     console.error(e);
-    await mongoClient.close()
+    await mongoClient.close();
     return {
       props: { sentReq: [] },
     };
   }
 }
 
-export default function ChangePlanReqList({
-  sentReq
-}: {
-  sentReq: SentReq[];
-}) {
-  const [changePlanTreeReq, setChangePlanTreeReq] = useState<(
-    | FormChangePlanTree
-    | FormAddPlanTree
-    | FormCancelPlanTree
-  )[]>([])
+export default function ChangePlanReqList({ sentReq }: { sentReq: SentReq[] }) {
+  const [changePlanTreeReq, setChangePlanTreeReq] = useState<
+    (FormChangePlanTree | FormAddPlanTree | FormCancelPlanTree)[]
+  >([]);
   const stickyRef = useRef<HTMLDivElement>();
   const router = useRouter();
-  const [selectedVer,setSelectedVer] = useState("")
+  const [selectedVer, setSelectedVer] = useState("");
   const [isSticky, setIsSticky] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
   const [progress, setProgress] = useState(false);
@@ -113,26 +110,57 @@ export default function ChangePlanReqList({
     sevirity: "success",
     massege: "",
   });
+  const [gsheetSentReq, setGsheetSentReq] = useState<SentReq[]>([]);
   const [deleteId, setDeleteId] = useState<string[]>([]);
 
-  const handleShow = async (_id:string)=>{
-    const res = await fetch(`/api/tree/admin/get-plan/${_id}`)
-    if(res.status != 200){
+  const handleShow = async (_id: string) => {
+    const res = await fetch(`/api/tree/admin/get-plan/${_id}`);
+    if (res.status != 200) {
       setSnackBar({
         massege: "เกิดข้อผิดพลาด",
         sevirity: "error",
-        open: true
-      })
-      return
+        open: true,
+      });
+      return;
     }
-    const {changePlanRequest}:{changePlanRequest:((
-      | FormChangePlanTree
-      | FormAddPlanTree
-      | FormCancelPlanTree
-    )[])} = await res.json()
-    setChangePlanTreeReq(changePlanRequest)
-    setSelectedVer(_id)
-  }
+    const {
+      changePlanRequest,
+    }: {
+      changePlanRequest: (
+        | FormChangePlanTree
+        | FormAddPlanTree
+        | FormCancelPlanTree
+      )[];
+    } = await res.json();
+    setChangePlanTreeReq(changePlanRequest);
+    setSelectedVer(_id);
+  };
+
+  const handleAllAprove = async (id: string) => {
+    if (!window.confirm(`ต้องการอนุมัติแผนงานทั้งหมดของ ver: ?${id}`)) {
+      return;
+    }
+    const res = await fetch("/api/tree/admin/aprove-change-plan", {
+      method: "POST",
+      body: JSON.stringify({
+        id,
+      }),
+    });
+    if (res.status != 200) {
+      setSnackBar({
+        massege: "เกิดข้อผิดพลาด",
+        sevirity: "error",
+        open: true,
+      });
+      return;
+    }
+    setSnackBar({
+      massege: "สำเร็จ",
+      sevirity: "success",
+      open: true,
+    });
+    router.reload();
+  };
 
   const handleAprove = async (
     changePlanRequire:
@@ -256,12 +284,23 @@ export default function ChangePlanReqList({
   };
 
   const handleImport = async () => {
-    if(!window.confirm("หากตกลง จะเป็นการทับไฟล์ Google Sheet เดิม? กดยกเลิกเพื่อเปิด Google sheet")){
-      handlePrint()
-      return                        
+    if (
+      !window.confirm(
+        "หากตกลง จะเป็นการทับไฟล์ Google Sheet เดิม? กดยกเลิกเพื่อเปิด Google sheet",
+      )
+    ) {
+      handlePrint();
+      return;
     }
     setProgress(true);
-    const res = await fetch("/api/tree/admin");
+    let ids: string[] = [];
+    gsheetSentReq.forEach((val) => {
+      ids.push(val._id);
+    });
+    const res = await fetch("/api/tree/admin/gsheet", {
+      method: "POST",
+      body: JSON.stringify({ ids }),
+    });
     if (res.status == 200) {
       setSnackBar({
         massege: "สำเร็จ",
@@ -278,11 +317,25 @@ export default function ChangePlanReqList({
     setProgress(false);
   };
 
+  const handleAddtoGsheet = (val: SentReq) => {
+    setGsheetSentReq([...gsheetSentReq, val]);
+  };
+
+  const handleRemovefromGsheet = (sentReq: SentReq) => {
+    let arr: SentReq[] = [];
+    gsheetSentReq.forEach((val) => {
+      if (val._id != sentReq._id) {
+        arr.push(val);
+      }
+    });
+    setGsheetSentReq(arr);
+  };
+
   const handlePrint = async () => {
     window.open(
       "https://docs.google.com/spreadsheets/d/1r6xiCX-mSE0FzVb1iLwVdqoWMggjzSddrGdYky4AC1A/",
     );
-  }
+  };
 
   const businessNameOptions: string[] = useMemo(() => {
     let autoComplete: string[] = [];
@@ -299,36 +352,36 @@ export default function ChangePlanReqList({
     businessNameOptions.length > 0 ? businessNameOptions[0] : "",
   );
 
-  const showSentReq: SentReq[] = useMemo(()=>{
-    let req: SentReq[] = sentReq.filter((val)=>{
-      return val.businessName == businessName
-    })
-    return req
-  },[sentReq,businessName])
+  const showSentReq: SentReq[] = useMemo(() => {
+    let req: SentReq[] = sentReq.filter((val) => {
+      return val.businessName == businessName;
+    });
+    return req;
+  }, [sentReq, businessName]);
 
   const {
     changeType,
     addType,
     cancelType,
   }: {
-    changeType: (FormChangePlanTree)[];
-    addType: (FormAddPlanTree)[];
-    cancelType: (FormCancelPlanTree)[];
+    changeType: FormChangePlanTree[];
+    addType: FormAddPlanTree[];
+    cancelType: FormCancelPlanTree[];
   } = useMemo(() => {
-    let changeType: (FormChangePlanTree)[] = [];
-    let addType: (FormAddPlanTree)[] = [];
-    let cancelType: (FormCancelPlanTree)[] = [];
+    let changeType: FormChangePlanTree[] = [];
+    let addType: FormAddPlanTree[] = [];
+    let cancelType: FormCancelPlanTree[] = [];
     changePlanTreeReq.forEach((val) => {
       if (!deleteId.includes(val._id as string)) {
-        if (val.typeReq == "add" ) {
+        if (val.typeReq == "add") {
           addType.push(val);
         }
 
-        if (val.typeReq == "change" ) {
+        if (val.typeReq == "change") {
           changeType.push(val);
         }
 
-        if (val.typeReq == "cancel" ) {
+        if (val.typeReq == "cancel") {
           cancelType.push(val);
         }
       }
@@ -366,16 +419,16 @@ export default function ChangePlanReqList({
           </p>
           <CustomSeparator setProgress={setProgress} />
           <Box className="flex flex-col items-center">
-            <Box className="w-11/12 mb-3 bg-white grid grid-cols-1 relative">
-              
-            </Box>
+            <Box className="w-11/12 mb-3 bg-white grid grid-cols-1 relative"></Box>
             <List
               className="w-11/12 mb-3 bg-white grid grid-cols-1 relative"
               subheader={
-                <ListSubheader className="flex flex-row flex-wrap justify-between items-center" component="div" id="nested-list-subheader">
-                  <Typography>
-                    รายการเปลี่ยนแปลงที่มีการส่งเข้ามา
-                  </Typography>
+                <ListSubheader
+                  className="flex flex-row flex-wrap justify-between items-center"
+                  component="div"
+                  id="nested-list-subheader"
+                >
+                  <Typography>รายการเปลี่ยนแปลงที่มีการส่งเข้ามา</Typography>
                   <Autocomplete
                     size="small"
                     disablePortal
@@ -387,9 +440,9 @@ export default function ChangePlanReqList({
                       <TextField {...params} required label="กฟฟ." />
                     )}
                     onChange={(e, v) => {
-                      setBusinessName(v ? v : "")
-                      setSelectedVer("")
-                      setChangePlanTreeReq([])
+                      setBusinessName(v ? v : "");
+                      setSelectedVer("");
+                      setChangePlanTreeReq([]);
                     }}
                   />
                 </ListSubheader>
@@ -400,18 +453,32 @@ export default function ChangePlanReqList({
                   <ListItem key={val._id}>
                     <ListItemAvatar>
                       <Avatar>
-                        {val._id == selectedVer ?<FolderOpenIcon/>: <FolderIcon />}
+                        {val._id == selectedVer ? (
+                          <FolderOpenIcon />
+                        ) : (
+                          <FolderIcon />
+                        )}
                       </Avatar>
                     </ListItemAvatar>
                     <ListItemText
                       secondary={`version: ${val._id}`}
-                      primary={`เพิ่ม: ${val.add}, เปลี่ยนแปลง: ${val.change}, ยกเลิก: ${val.cancel}, วงเงินเปลี่ยนแปลง:${val.changeBudget.toLocaleString("th-TH",{ style: "currency", currency: "THB" })}`}
+                      primary={`เพิ่ม: ${val.add}, เปลี่ยนแปลง: ${val.change}, ยกเลิก: ${val.cancel}, วงเงินเปลี่ยนแปลง:${val.changeBudget.toLocaleString("th-TH", { style: "currency", currency: "THB" })}`}
                     />
                     <Button
-                      disabled={selectedVer==val._id}
-                      onClick={() =>
-                        handleShow(val._id)
-                      }
+                      disabled={gsheetSentReq.includes(val)}
+                      onClick={() => handleAddtoGsheet(val)}
+                    >
+                      นำเข้า Gsheet
+                    </Button>
+                    <Button
+                      disabled={selectedVer != val._id}
+                      onClick={() => handleAllAprove(val._id)}
+                    >
+                      อนุมัติทั้งหมด
+                    </Button>
+                    <Button
+                      disabled={selectedVer == val._id}
+                      onClick={() => handleShow(val._id)}
                     >
                       แสดง
                     </Button>
@@ -436,24 +503,16 @@ export default function ChangePlanReqList({
                   value={tab}
                   onChange={(e, v) => setTab(v)}
                   aria-label="basic tabs example"
-                  sx={{ display: "flex", flexDirection: "row", flexWrap: "wrap" }}
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    flexWrap: "wrap",
+                  }}
                 >
                   <Tab label="เปลี่ยนแปลง" {...a11yProps(0)} />
                   <Tab label="เพิ่ม" {...a11yProps(1)} />
                   <Tab label="ยกเลิก" {...a11yProps(2)} />
                 </Tabs>
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "row",
-                    alignContent: "center",
-                    gap: "1rem",
-                  }}
-                >
-
-                  <Button onClick={handleImport}>นำข้อมูลเข้า gSheet</Button>
-                  <Button onClick={handlePrint}>เปิด gSheet</Button>
-                </Box>
               </Box>
               <TabPanel value={tab} index={0}>
                 <Grid container spacing={1}>
@@ -504,7 +563,52 @@ export default function ChangePlanReqList({
                 </Grid>
               </TabPanel>
             </Box>
-
+            <List
+              className="w-11/12 my-3 bg-white grid grid-cols-1 relative"
+              subheader={
+                <ListSubheader
+                  className="p-3 flex flex-row flex-wrap justify-between items-center"
+                  component="div"
+                  id="nested-list-subheader"
+                >
+                  <Typography>รายการสำหรับนำข้อมูลเข้า Google Sheet</Typography>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "row",
+                      alignContent: "center",
+                      gap: "1rem",
+                    }}
+                  >
+                    <Button onClick={handleImport}>นำข้อมูลเข้า gSheet</Button>
+                    <Button onClick={handlePrint}>เปิด gSheet</Button>
+                  </Box>
+                </ListSubheader>
+              }
+            >
+              {gsheetSentReq.map((val) => {
+                return (
+                  <ListItem key={val._id}>
+                    <ListItemAvatar>
+                      <Avatar>
+                        {val._id == selectedVer ? (
+                          <FolderOpenIcon />
+                        ) : (
+                          <FolderIcon />
+                        )}
+                      </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText
+                      secondary={`version: ${val._id}`}
+                      primary={`เพิ่ม: ${val.add}, เปลี่ยนแปลง: ${val.change}, ยกเลิก: ${val.cancel}, วงเงินเปลี่ยนแปลง:${val.changeBudget.toLocaleString("th-TH", { style: "currency", currency: "THB" })}`}
+                    />
+                    <Button onClick={() => handleRemovefromGsheet(val)}>
+                      นำออก
+                    </Button>
+                  </ListItem>
+                );
+              })}
+            </List>
           </Box>
           <div className="mt-3 flex flew-row justify-center">
             <Button

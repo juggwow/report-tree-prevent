@@ -27,79 +27,86 @@ export default async function handler(
   if (session && session.sub && session.pea && session.pea.karnfaifa) {
     try {
       const mongoClient = await clientPromise;
-      await mongoClient.connect()
+      await mongoClient.connect();
 
       const planTreeCollection = mongoClient.db("tree").collection("plan");
 
       const data: treeData[] = JSON.parse(req.body);
 
-      let editIds:ObjectId[]=[]
-      let reportIds:ObjectId[]=[]
-      let date=formatDate(new Date())
-      let order:string[]=[]
-      data.forEach((val)=>{
-        val.reportDate?reportIds.push(new ObjectId(val.id as string)):editIds.push(new ObjectId(val.id as string))
-        order.push(val.zpm4Po as string)
-        }
-      )
+      let editIds: ObjectId[] = [];
+      let reportIds: ObjectId[] = [];
+      let date = formatDate(new Date());
+      let order: string[] = [];
+      data.forEach((val) => {
+        val.reportDate
+          ? reportIds.push(new ObjectId(val.id as string))
+          : editIds.push(new ObjectId(val.id as string));
+        order.push(val.zpm4Po as string);
+      });
 
-      order = order.filter((val,i,arr)=>{
-        return arr.indexOf(val) === i
-      })
-      if(order.length !=1){
-        res.status(405).end()
-        return
+      order = order.filter((val, i, arr) => {
+        return arr.indexOf(val) === i;
+      });
+      if (order.length != 1) {
+        res.status(405).end();
+        return;
       }
 
       const reportfilter = {
-        _id : {$in : reportIds},
-        businessName: session.pea.karnfaifa
-      }
-      const reportDocs = await planTreeCollection.find(reportfilter).toArray()
-      if(reportDocs.length != reportIds.length){
-        await mongoClient.close()
-        res.status(404).end()
-        return
+        _id: { $in: reportIds },
+        businessName: session.pea.karnfaifa,
+      };
+      const reportDocs = await planTreeCollection.find(reportfilter).toArray();
+      if (reportDocs.length != reportIds.length) {
+        await mongoClient.close();
+        res.status(404).end();
+        return;
       }
 
       const editFilter = {
-        _id : {$in : editIds},
-        businessName: session.pea.karnfaifa
-      }
-      const editDocs = await planTreeCollection.find(editFilter).toArray()
-      if(editDocs.length != editIds.length){
-        await mongoClient.close()
-        res.status(404).end()
-        return
+        _id: { $in: editIds },
+        businessName: session.pea.karnfaifa,
+      };
+      const editDocs = await planTreeCollection.find(editFilter).toArray();
+      if (editDocs.length != editIds.length) {
+        await mongoClient.close();
+        res.status(404).end();
+        return;
       }
 
       const reportUpdate = {
         $set: {
           reportDate: date,
           editReport: date,
-          zpm4Po: order[0]
-        }
-      }
-      const resReport = await planTreeCollection.updateMany(reportfilter,reportUpdate)
-      if(!resReport.acknowledged){
-        await mongoClient.close()
-        res.status(500).end()
-        return
+          zpm4Po: order[0],
+        },
+      };
+      const resReport = await planTreeCollection.updateMany(
+        reportfilter,
+        reportUpdate,
+      );
+      if (!resReport.acknowledged) {
+        await mongoClient.close();
+        res.status(500).end();
+        return;
       }
 
       const editUpdate = {
-        $set : {
+        $set: {
           editReport: date,
-          zpm4Po: order[0]
-        }
+          zpm4Po: order[0],
+        },
+      };
+      const resEdit = await planTreeCollection.updateMany(
+        editFilter,
+        editUpdate,
+      );
+      if (!resEdit.acknowledged) {
+        await mongoClient.close();
+        res.status(500).end();
+        return;
       }
-      const resEdit = await planTreeCollection.updateMany(editFilter, editUpdate)
-      if(!resEdit.acknowledged){
-        await mongoClient.close()
-        res.status(500).end()
-        return
-      }
-      
+
       await mongoClient.close();
       res.status(200).send({ massege: `รายงาน ZPM4/PO สำเร็จ` });
       return;

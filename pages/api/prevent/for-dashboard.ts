@@ -14,7 +14,7 @@ export default async function handler(
     switch (req.method) {
       case "GET": {
         const mongoClient = await clientPromise;
-        await mongoClient.connect()
+        await mongoClient.connect();
         const data = await mongoClient
           .db("prevent")
           .collection("forDashBoard")

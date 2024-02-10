@@ -14,7 +14,7 @@ export default async function handler(
 ) {
   try {
     const mongoClient = await clientPromise;
-    await mongoClient.connect()
+    await mongoClient.connect();
 
     const planPreventCollection = mongoClient.db("prevent").collection("plan");
 

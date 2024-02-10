@@ -54,7 +54,7 @@ export default async function handler(
     return;
   }
   const mongoClient = await clientPromise;
-  await mongoClient.connect()
+  await mongoClient.connect();
   const vineBeGoneCollection = mongoClient
     .db("vine-be-gone")
     .collection("risk");
@@ -115,7 +115,7 @@ async function sendMessageToMaintenance(data: RequestData, id: ObjectId) {
   console.log(data, id);
 
   const mongoClient = await clientPromise;
-  await mongoClient.connect()
+  await mongoClient.connect();
   const userCollection = mongoClient.db("user").collection("user");
 
   const result = await userCollection

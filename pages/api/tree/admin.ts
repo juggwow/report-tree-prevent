@@ -17,7 +17,7 @@ export default async function handler(
   }
 
   const mongoClient = await clientPromise;
-  await mongoClient.connect()
+  await mongoClient.connect();
   const planTreeCollection = mongoClient.db("tree").collection("plan");
 
   switch (req.method) {
@@ -44,7 +44,6 @@ export default async function handler(
           .collection("typeRequest")
           .find({ businessName: { $ne: "กฟฟ.ทดสอบ" } }, { projection });
         let typeReq = await allRequest.toArray();
-        console.log(typeReq);
         const resultGsheet = await fetch(
           "https://script.google.com/macros/s/AKfycby6XVzv3SuZqo-mtMM63wPtSnOJXbPPYcWtZ0lJnASbdIHDt5ukgx8l89s-EPtcz8WKNA/exec",
           {
@@ -78,68 +77,19 @@ export default async function handler(
             },
           ],
         };
-        switch (data.typeReq) {
-          case "cancel": {
-            const update = {
-              $set: {
-                "changePlanRequest.$[elem].status": "success",
-              },
-              $unset: {
-                planName: 1,
-                quantity: 1,
-                budget: 1,
-                systemVolt: 1,
-                month: 1,
-                distance: 1,
-                hireType: 1,
-              },
-            };
-            const resultApprove = await planTreeCollection.updateOne(
-              filter,
-              update,
-              options,
-            );
-            if (!resultApprove.acknowledged) {
-              await mongoClient.close();
-              res.status(404).end();
-            }
-            break;
-          }
-          case "add":
-          case "change": {
-            let distance = 0;
-            if (data.newPlan.hireType == "normal") {
-              distance =
-                Number(data.newPlan.quantity.clear) +
-                Number(data.newPlan.quantity.lightly) +
-                Number(data.newPlan.quantity.moderate) +
-                Number(data.newPlan.quantity.plentifully);
-            } else if (data.newPlan.hireType == "self") {
-              distance = Number(data.newPlan.quantity.distance);
-            }
-            const update = {
-              $set: {
-                "changePlanRequest.$[elem].status": "success",
-                planName: data.newPlan.planName,
-                quantity: data.newPlan.quantity,
-                budget: data.newPlan.budget,
-                systemVolt: data.newPlan.systemVolt,
-                month: data.newPlan.month,
-                hireType: data.newPlan.hireType,
-                distance,
-              },
-            };
-            const resultApprove = await planTreeCollection.updateOne(
-              filter,
-              update,
-              options,
-            );
-            if (!resultApprove.acknowledged) {
-              await mongoClient.close();
-              res.status(404).end();
-            }
-            break;
-          }
+        const update = {
+          $set: {
+            "changePlanRequest.$[elem].status": "success",
+          },
+        };
+        const resultApprove = await planTreeCollection.updateOne(
+          filter,
+          update,
+          options,
+        );
+        if (!resultApprove.acknowledged) {
+          await mongoClient.close();
+          res.status(404).end();
         }
         await mongoClient.close();
         res.status(200).end();
@@ -156,7 +106,7 @@ export default async function handler(
         const filter = { _id: new ObjectId(data._id as string) };
         const update = {
           $set: {
-            "changePlanRequest.$[elem]": data,
+            "changePlanRequest.$[elem].status": "reject",
           },
         };
         const options = {

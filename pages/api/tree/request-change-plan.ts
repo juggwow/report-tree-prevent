@@ -32,7 +32,7 @@ export default async function handler(
 
   try {
     const mongoClient = await clientPromise;
-    await mongoClient.connect()
+    await mongoClient.connect();
 
     const planTreeCollection = mongoClient
       .db("tree")

@@ -50,7 +50,7 @@ export async function getServerSideProps(context: any) {
     };
   }
   const mongoClient = await clientPromise;
-  await mongoClient.connect()
+  await mongoClient.connect();
 
   try {
     const planLVCollection: Collection<PlanLV> = mongoClient

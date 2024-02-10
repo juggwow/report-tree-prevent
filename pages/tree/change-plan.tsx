@@ -28,7 +28,6 @@ import {
   FormCancelPlanTree,
   FormChangePlanTree,
 } from "@/types/report-tree";
-import { clear } from "console";
 import { useRouter } from "next/router";
 
 export async function getServerSideProps(context: any) {
@@ -51,24 +50,32 @@ export async function getServerSideProps(context: any) {
   }
 
   const mongoClient = await clientPromise;
-  await mongoClient.connect()
+  await mongoClient.connect();
   try {
     const planLVCollection: Collection<FormChangePlanTree> = mongoClient
       .db("tree")
-      .collection("plan");
+      .collection("showPlan");
+
+    // const query = {
+    //   businessName: session.pea.karnfaifa,
+    //   planName: {
+    //     $ne: null,
+    //     $exists: true,
+    //   },
+    //   changePlanRequest: {
+    //     $not: {
+    //       $elemMatch: {
+    //         status: "progress",
+    //       },
+    //     },
+    //   },
+    // };
 
     const query = {
       businessName: session.pea.karnfaifa,
       planName: {
         $ne: null,
         $exists: true,
-      },
-      changePlanRequest: {
-        $not: {
-          $elemMatch: {
-            status: "progress",
-          },
-        },
       },
     };
 

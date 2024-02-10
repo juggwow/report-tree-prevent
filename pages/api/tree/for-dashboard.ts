@@ -10,9 +10,8 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<any>,
 ) {
-  
   const mongoClient = await clientPromise;
-  await mongoClient.connect()
+  await mongoClient.connect();
   try {
     switch (req.method) {
       case "GET": {
@@ -27,13 +26,13 @@ export default async function handler(
         return;
       }
       default: {
-        await mongoClient.close()
+        await mongoClient.close();
         res.status(404).end();
         return;
       }
     }
   } catch (e) {
-    await mongoClient.close()
+    await mongoClient.close();
     res.status(500).end();
     return;
   }

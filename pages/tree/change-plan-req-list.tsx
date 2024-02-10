@@ -56,7 +56,7 @@ export async function getServerSideProps(context: any) {
   }
 
   const mongoClient = await clientPromise;
-  await mongoClient.connect()
+  await mongoClient.connect();
   try {
     const planTreeCollection = mongoClient.db("tree").collection("plan");
 
@@ -440,7 +440,11 @@ export default function ChangePlanReqList({
                   value={tab}
                   onChange={(e, v) => setTab(v)}
                   aria-label="basic tabs example"
-                  sx={{ display: "flex", flexDirection: "row", flexWrap: "wrap" }}
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    flexWrap: "wrap",
+                  }}
                 >
                   <Tab label="เปลี่ยนแปลง" {...a11yProps(0)} />
                   <Tab label="เพิ่ม" {...a11yProps(1)} />

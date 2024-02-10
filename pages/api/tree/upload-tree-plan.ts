@@ -19,7 +19,7 @@ export default async function handler(
   let uploadPlanTree: UploadTreePlan[] = req.body;
 
   const mongoClient = await clientPromise;
-  await mongoClient.connect()
+  await mongoClient.connect();
 
   const planTreeCollection: Collection<UploadTreePlan> = mongoClient
     .db("tree")

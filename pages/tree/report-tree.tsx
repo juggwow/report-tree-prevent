@@ -38,16 +38,23 @@ export async function getServerSideProps(context: any) {
   }
 
   const mongoClient = await clientPromise;
-  await mongoClient.connect()
+  await mongoClient.connect();
   try {
+    // const query = {
+    //   businessName: session.pea.karnfaifa,
+    //   changePlanRequest: {
+    //     $not: {
+    //       $elemMatch: {
+    //         status: "progress",
+    //       },
+    //     },
+    //   },
+    // };
     const query = {
       businessName: session.pea.karnfaifa,
-      changePlanRequest: {
-        $not: {
-          $elemMatch: {
-            status: "progress",
-          },
-        },
+      planName: {
+        $ne: null,
+        $exists: true,
       },
     };
     const options = {
@@ -63,7 +70,7 @@ export async function getServerSideProps(context: any) {
 
     const treeData = (await mongoClient
       .db("tree")
-      .collection<treeData>("plan")
+      .collection<treeData>("showPlan")
       .find(query, options)
       .toArray()) as unknown as treeData[];
 
