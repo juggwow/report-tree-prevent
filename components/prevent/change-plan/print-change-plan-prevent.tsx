@@ -88,13 +88,13 @@ export default function PrintChangePlanPrevent({
           animal.change = animal.change + Number(val.newPlan.budget);
         }
         if (val.newPlan.typePrevent.includes("หมาย")) {
-          paint.change = animal.change + Number(val.newPlan.budget);
+          paint.change = paint.change + Number(val.newPlan.budget);
         }
         if (val.newPlan.typePrevent.includes("น้ำ")) {
-          water.change = animal.change + Number(val.newPlan.budget);
+          water.change = water.change + Number(val.newPlan.budget);
         }
         if (val.newPlan.typePrevent.includes("อื่น")) {
-          etc.change = animal.change + Number(val.newPlan.budget);
+          etc.change = etc.change + Number(val.newPlan.budget);
         }
       }
 
@@ -103,13 +103,13 @@ export default function PrintChangePlanPrevent({
           animal.change = animal.change - Number(val.oldPlan.budget);
         }
         if (val.oldPlan.typePrevent.includes("หมาย")) {
-          paint.change = animal.change - Number(val.oldPlan.budget);
+          paint.change = paint.change - Number(val.oldPlan.budget);
         }
         if (val.oldPlan.typePrevent.includes("น้ำ")) {
-          water.change = animal.change - Number(val.oldPlan.budget);
+          water.change = water.change - Number(val.oldPlan.budget);
         }
         if (val.oldPlan.typePrevent.includes("อื่น")) {
-          etc.change = animal.change - Number(val.oldPlan.budget);
+          etc.change = etc.change - Number(val.oldPlan.budget);
         }
       }
     });
