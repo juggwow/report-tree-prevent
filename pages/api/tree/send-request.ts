@@ -1,18 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 import authOptions from "../auth/authoption";
-import NextAuth from "next-auth/next";
 import clientPromise from "@/lib/mongodb";
-import { Collection, ObjectId } from "mongodb";
-import { ChangePlanLV, PlanLV } from "@/types/plan-lv";
-import { peaUser } from "@/types/next-auth";
+import { ObjectId } from "mongodb";
 import {
-  FormAddPlanTree,
-  FormCancelPlanTree,
-  FormChangePlanTree,
   IdsHasSentPlanTreeRequest,
 } from "@/types/report-tree";
-import formatDate from "@/lib/format-date";
 
 type Data = {
   name: string;

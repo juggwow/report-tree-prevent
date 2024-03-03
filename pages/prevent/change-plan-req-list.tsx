@@ -4,6 +4,8 @@ import ChangePlanPreventCard from "@/components/prevent/change-plan/change-plan-
 import ChangePlanPreventFormDialog from "@/components/prevent/change-plan/form-dialog";
 import PrintChangePlanPrevent from "@/components/prevent/change-plan/print-change-plan-prevent";
 import ChangePlanTreeCard from "@/components/tree/change-plan/change-plan-tree-req-card";
+import FolderIcon from "@mui/icons-material/Folder";
+import FolderOffIcon from "@mui/icons-material/FolderOff";
 import clientPromise from "@/lib/mongodb";
 import {
   ChangePlanRequirePrevent,
@@ -14,15 +16,22 @@ import {
   FormCancelPlanPreventWithStatus,
   FormChangePlanPrevent,
   FormChangePlanPreventWithStatus,
+  IdsHasSentPlanPreventRequest,
   TotalBudgetEachTypePrevent,
 } from "@/types/report-prevent";
 import { AlertSnackBarType } from "@/types/snack-bar";
 import {
+  Avatar,
   Box,
   Breadcrumbs,
   Button,
   Grid,
   Link,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+  ListSubheader,
   Stack,
   Tab,
   Tabs,
@@ -72,6 +81,8 @@ export async function getServerSideProps(contex: any) {
         $match: {
           "changePlanRequest.typeReq": { $in: ["change", "add", "cancel"] },
           "changePlanRequest.status": "progress",
+          "changePlanRequest.sendId": { $exists: false },
+          "changePlanRequest.userReq.userid": session.pea.userid,
         },
       },
       {
@@ -114,15 +125,36 @@ export async function getServerSideProps(contex: any) {
     ]);
 
     const budgets = await cursor.toArray();
+
+    let idsHasSentPlanPreventRequest = (await mongoClient
+      .db("prevent")
+      .collection("idsHaveSentRequest")
+      .find({
+        businessName: session.pea.karnfaifa,
+        _id: { $exists: true },
+        userId: session.pea.userid,
+      })
+      .toArray()) as unknown as IdsHasSentPlanPreventRequest[];
+    idsHasSentPlanPreventRequest.forEach((val, i) => {
+      if (val._id instanceof ObjectId) {
+        idsHasSentPlanPreventRequest[i]._id = val._id.toHexString();
+      }
+      val.changePlanRequest.forEach((v, j) => {
+        if (v._id instanceof ObjectId) {
+          idsHasSentPlanPreventRequest[i].changePlanRequest[j]._id =
+            v._id.toHexString();
+        }
+      });
+    });
     await mongoClient.close();
     return {
-      props: { changePlanPreventReq, budgets },
+      props: { changePlanPreventReq, budgets, idsHasSentPlanPreventRequest },
     };
   } catch (e) {
     console.log(e);
     await mongoClient.close();
     return {
-      props: { changePlanPreventReq: [], budgets: [] },
+      props: { changePlanPreventReq: [], budgets: [], idsHasSentPlanPreventRequest: [] },
     };
   }
 }
@@ -130,13 +162,17 @@ export async function getServerSideProps(contex: any) {
 export default function PreventChangePlanReqList({
   changePlanPreventReq,
   budgets,
+  idsHasSentPlanPreventRequest
 }: {
   changePlanPreventReq: ChangePlanWithStatus[];
   budgets: TotalBudgetEachTypePrevent[];
+  idsHasSentPlanPreventRequest: IdsHasSentPlanPreventRequest[];
 }) {
   const stickyRef = useRef<HTMLDivElement>();
   const router = useRouter();
   const [isSticky, setIsSticky] = useState(false);
+  const [print,setPrint] = useState<ChangePlanWithStatus[]>([])
+  const [version,setVersion] = useState("")
   const [openDialog, setOpenDialog] = useState(false);
   const [progress, setProgress] = useState(false);
   const [tab, setTab] = useState(0);
@@ -159,13 +195,39 @@ export default function PreventChangePlanReqList({
       _id: "",
     });
 
-  const handlePrint = () => {
-    window.print();
-  };
+    const handlePrint = (
+      plan: ChangePlanWithStatus[],
+      ver: string,
+    ) => {
+      setPrint(plan);
+      setVersion(ver);
+      setTimeout(() => window.print(), 100);
+    };
 
   const handleEdit = (val: ChangePlanWithStatus) => {
     setChangePlanRequire(val);
     setOpenDialog(true);
+  };
+
+  const handleCancelRequest = async (ids: IdsHasSentPlanPreventRequest) => {
+    const res = await fetch("/api/prevent/send-request", {
+      method: "PUT",
+      body: JSON.stringify(ids),
+    });
+    if (res.status != 200) {
+      setSnackBar({
+        massege: "เกิดข้อผิดพลาด",
+        sevirity: "error",
+        open: true,
+      });
+      return;
+    }
+    setSnackBar({
+      massege: "สำเร็จ",
+      sevirity: "success",
+      open: true,
+    }),
+      router.reload();
   };
 
   const handleCancel = async (val: ChangePlanWithStatus) => {
@@ -181,6 +243,33 @@ export default function PreventChangePlanReqList({
 
     setSnackBar({ sevirity: "success", massege: "สำเร็จ", open: true });
     router.reload();
+  };
+
+  const handleSendRequest = async () => {
+    let changePlanIds: string[] = [];
+    changePlanPreventReq.forEach((val) => {
+      changePlanIds.push(val._id as string);
+    });
+    const res = await fetch("/api/prevent/send-request", {
+      method: "POST",
+      body: JSON.stringify({
+        changePlanIds,
+      }),
+    });
+    if (res.status != 200) {
+      setSnackBar({
+        massege: "เกิดข้อผิดพลาด",
+        sevirity: "error",
+        open: true,
+      });
+      return;
+    }
+    setSnackBar({
+      massege: "สำเร็จ",
+      sevirity: "success",
+      open: true,
+    }),
+      router.reload();
   };
 
   const handleScroll = () => {
@@ -260,6 +349,7 @@ export default function PreventChangePlanReqList({
           </div>
         </div>
         <CustomSeparator setProgress={setProgress} />
+        <Box sx={{display: "flex",flexDirection:"column",alignItems:"center"}}>
         <Box className="mx-auto w-11/12 mb-3 bg-white grid grid-cols-1">
           <Box
             ref={stickyRef}
@@ -283,7 +373,7 @@ export default function PreventChangePlanReqList({
               <Tab label="เพิ่ม" {...a11yProps(1)} />
               <Tab label="ยกเลิก" {...a11yProps(2)} />
             </Tabs>
-            <Button onClick={handlePrint}>พิมพ์</Button>
+            <Button onClick={handleSendRequest}>ส่ง</Button>
           </Box>
           <TabPanel value={tab} index={0}>
             <Grid container spacing={1}>
@@ -331,6 +421,66 @@ export default function PreventChangePlanReqList({
             </Grid>
           </TabPanel>
         </Box>
+        <List
+              id="main-content"
+              className=" w-11/12 my-3 bg-white grid grid-cols-1 relative"
+              subheader={
+                <ListSubheader component="div" id="nested-list-subheader">
+                  รายการที่ส่งแล้ว
+                </ListSubheader>
+              }
+            >
+              {idsHasSentPlanPreventRequest.length == 0 && (
+                <ListItem>
+                  <ListItemAvatar>
+                    <Avatar>
+                      <FolderOffIcon />
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ListItemText primary="ไม่มีรายการที่ส่ง" />
+                </ListItem>
+              )}
+              {idsHasSentPlanPreventRequest.map((val) => {
+                return (
+                  <ListItem key={val._id as string}>
+                    <ListItemAvatar>
+                      <Avatar>
+                        <FolderIcon />
+                      </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary={`วันที่: ${new Date(
+                        val.sendDate,
+                      ).toLocaleDateString("th-TH", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })} เวลา: ${new Date(val.sendDate).toLocaleTimeString("th-TH")}`}
+                      secondary={`จำนวน: ${val.changePlanRequest.length} แผนงาน`}
+                    />
+                    <Button
+                      onClick={() =>
+                        handlePrint(val.changePlanRequest, val._id as string)
+                      }
+                    >
+                      พิมพ์รายละเอียดแนบ
+                    </Button>
+                    {(new Date().getTime() - new Date(val.sendDate).getTime()) /
+                      36e5 <=
+                      24 && (
+                      <Button
+                        onClick={() => {
+                          handleCancelRequest(val);
+                        }}
+                      >
+                        ยกเลิกการส่ง
+                      </Button>
+                    )}
+                  </ListItem>
+                );
+              })}
+            </List>
+        </Box>
         <div className="mt-3 flex flew-row justify-center">
           <Button
             sx={{ margin: "1rem auto" }}
@@ -357,8 +507,9 @@ export default function PreventChangePlanReqList({
       <AlertSnackBar setSnackBar={setSnackBar} snackBar={snackBar} />
       <LoadingBackDrop progress={progress} setProgress={setProgress} />
       <PrintChangePlanPrevent
-        printPlan={changePlanPreventReq}
+        printPlan={print}
         budgets={budgets}
+        version={version}
       />
       <style jsx global>{`
         @media print {

@@ -132,3 +132,9 @@ type TotalBudgetEachTypePrevent = {
 type FormChangePlanPreventWithStatus = FormChangePlanPrevent & ChangePlanStatus;
 type FormAddPlanPreventWithStatus = FormAddPlanPrevent & ChangePlanStatus;
 type FormCancelPlanPreventWithStatus = FormCancelPlanPrevent & ChangePlanStatus;
+
+type IdsHasSentPlanPreventRequest = {
+  _id: ObjectId | string;
+  sendDate: string;
+  changePlanRequest: ChangePlanWithStatus[];
+};
