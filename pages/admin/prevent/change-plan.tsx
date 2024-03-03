@@ -348,20 +348,22 @@ export default function PreventChangePlanReqList({ sentReq }: { sentReq: SentReq
       businessName: string;
     })[] = [];
     changePlanPreventReq.forEach((val) => {
-      if (val.typeReq == "add") {
-        addType.push(val);
-      }
-
-      if (val.typeReq == "change") {
-        changeType.push(val);
-      }
-
-      if (val.typeReq == "cancel") {
-        cancelType.push(val);
+      if(!deleteId.includes(val._id as string)){
+        if (val.typeReq == "add") {
+          addType.push(val);
+        }
+  
+        if (val.typeReq == "change") {
+          changeType.push(val);
+        }
+  
+        if (val.typeReq == "cancel") {
+          cancelType.push(val);
+        }
       }
     });
     return { changeType, addType, cancelType };
-  }, [changePlanPreventReq]);
+  }, [changePlanPreventReq,deleteId]);
 
   return (
     <div>

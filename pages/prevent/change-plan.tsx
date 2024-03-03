@@ -51,7 +51,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   const mongoClient = await clientPromise;
   await mongoClient.connect();
   try {
-    const preventCollection = mongoClient.db("prevent").collection("plan");
+    const preventCollection = mongoClient.db("prevent").collection("showPlan");
 
     const query = {
       businessName: session.pea.karnfaifa,
