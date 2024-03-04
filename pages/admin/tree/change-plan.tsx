@@ -401,9 +401,9 @@ export default function ChangePlanReqList({ sentReq }: { sentReq: SentReq[] }) {
           </p>
           <CustomSeparator setProgress={setProgress} />
           <Box className="flex flex-col items-center">
-            <Box className="w-11/12 mb-3 bg-white grid grid-cols-1 relative"></Box>
+            <Box className="w-11/12 mb-3 bg-white grid grid-cols-1"></Box>
             <List
-              className="w-11/12 mb-3 bg-white grid grid-cols-1 relative"
+              className="w-11/12 mb-3 bg-white grid grid-cols-1"
               subheader={
                 <ListSubheader
                   className="flex flex-row flex-wrap justify-between items-center"
@@ -417,7 +417,7 @@ export default function ChangePlanReqList({ sentReq }: { sentReq: SentReq[] }) {
                     value={businessName}
                     id="combo-box-demo"
                     options={businessNameOptions}
-                    sx={{ margin: "0.5rem 0 0 0", width: "200px" }}
+                    sx={{ margin: "0.5rem 0 0 0", width: "200px" ,zIndex:"20"}}
                     renderInput={(params) => (
                       <TextField {...params} required label="กฟฟ." />
                     )}
@@ -468,7 +468,7 @@ export default function ChangePlanReqList({ sentReq }: { sentReq: SentReq[] }) {
                 );
               })}
             </List>
-            <Box className="w-11/12 my-3 bg-white grid grid-cols-1 relative">
+            <Box className="w-11/12 my-3 bg-white grid grid-cols-1">
               <Box
                 sx={{
                   borderBottom: 1,
@@ -544,7 +544,7 @@ export default function ChangePlanReqList({ sentReq }: { sentReq: SentReq[] }) {
               </TabPanel>
             </Box>
             <List
-              className="w-11/12 my-3 bg-white grid grid-cols-1 relative"
+              className="w-11/12 my-3 bg-white grid grid-cols-1 -z-10"
               subheader={
                 <ListSubheader
                   className="p-3 flex flex-row flex-wrap justify-between items-center"
