@@ -102,7 +102,6 @@ export default function PreventChangePlanReqList({ sentReq }: { sentReq: SentReq
   >([]);
   const [selectedVer,setSelectedVer] = useState("")
   const router = useRouter();
-  const [isSticky, setIsSticky] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
   const [progress, setProgress] = useState(false);
   const [tab, setTab] = useState(0);
@@ -457,7 +456,6 @@ export default function PreventChangePlanReqList({ sentReq }: { sentReq: SentReq
             </List>
         <Box className="mx-auto w-11/12 my-3 bg-white grid grid-cols-1">
           <Box
-            className={`${isSticky ? "sticky" : ""}`}
             sx={{
               borderBottom: 1,
               borderColor: "divider",
@@ -589,7 +587,6 @@ export default function PreventChangePlanReqList({ sentReq }: { sentReq: SentReq
           </Button>
         </div>
       </div>
-      <Box>{JSON.stringify(sentReq)}</Box>
       <AlertSnackBar setSnackBar={setSnackBar} snackBar={snackBar} />
       <LoadingBackDrop progress={progress} setProgress={setProgress} />
     </div>

@@ -98,10 +98,8 @@ export default function ChangePlanReqList({ sentReq }: { sentReq: SentReq[] }) {
   const [changePlanTreeReq, setChangePlanTreeReq] = useState<
     (FormChangePlanTree | FormAddPlanTree | FormCancelPlanTree)[]
   >([]);
-  const stickyRef = useRef<HTMLDivElement>();
   const router = useRouter();
   const [selectedVer, setSelectedVer] = useState("");
-  const [isSticky, setIsSticky] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
   const [progress, setProgress] = useState(false);
   const [tab, setTab] = useState(0);
@@ -274,15 +272,6 @@ export default function ChangePlanReqList({ sentReq }: { sentReq: SentReq[] }) {
     }
   };
 
-  const handleScroll = () => {
-    // ตรวจสอบว่า scroll position มีค่ามากกว่าความสูงของ header หรือไม่
-    setIsSticky(
-      stickyRef && stickyRef.current
-        ? window.scrollY > stickyRef.current.offsetHeight + 50
-        : false,
-    );
-  };
-
   const handleImport = async () => {
     if (
       !window.confirm(
@@ -389,13 +378,6 @@ export default function ChangePlanReqList({ sentReq }: { sentReq: SentReq[] }) {
     return { changeType, addType, cancelType };
   }, [changePlanTreeReq, deleteId, businessName]);
 
-  useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
-
   return (
     <div>
       <div className="flex flex-row" id="main-content">
@@ -488,8 +470,6 @@ export default function ChangePlanReqList({ sentReq }: { sentReq: SentReq[] }) {
             </List>
             <Box className="w-11/12 my-3 bg-white grid grid-cols-1 relative">
               <Box
-                ref={stickyRef}
-                className={`${isSticky ? "sticky" : ""}`}
                 sx={{
                   borderBottom: 1,
                   borderColor: "divider",
