@@ -527,7 +527,7 @@ export default function PreventChangePlanReqList({ sentReq }: { sentReq: SentReq
           
         </Box>
         <List
-              className="w-11/12 mt-3 bg-white grid grid-cols-1 -z-10"
+              className="w-11/12 mt-3 bg-white grid grid-cols-1"
               subheader={
                 <ListSubheader
                   className="p-3 flex flex-row flex-wrap justify-between items-center"
