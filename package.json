@@ -23,6 +23,7 @@
     "react": "^18",
     "react-dom": "^18",
     "react-pdf": "^7.6.0",
+    "react-webcam": "^7.2.0",
     "utm-latlng": "^1.0.7"
   },
   "devDependencies": {

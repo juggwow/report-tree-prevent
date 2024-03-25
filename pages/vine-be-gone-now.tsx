@@ -1,25 +1,13 @@
-import {
-  Box,
-  Button,
-  Card,
-  CardActions,
-  CardContent,
-  Grid,
-  TextField,
-  Typography,
-} from "@mui/material";
-import { useState, ChangeEvent, useRef, useEffect } from "react";
-import { styled } from "@mui/material/styles";
-import InsertPhotoIcon from "@mui/icons-material/InsertPhoto";
-import exifr from "exifr";
+import { useRef, useState, useCallback, useEffect, ChangeEvent } from "react";
+import Webcam from "react-webcam";
+import Head from "next/head";
+import AddAPhotoIcon from '@mui/icons-material/AddAPhoto';
+import DeleteIcon from '@mui/icons-material/Delete';
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import LocationOffIcon from "@mui/icons-material/LocationOff";
 import BusinessIcon from "@mui/icons-material/Business";
-import AlertSnackBar from "@/components/alert-snack-bar";
 import { snackBar } from "@/types/report-prevent";
-import LoadingBackDrop from "@/components/loading-backdrop";
-import Head from "next/head";
-import { signIn, useSession } from "next-auth/react";
+import { Box, Button, Card, CardContent, Grid, TextField, CardActions } from "@mui/material";
 import {
   Karnfaifa,
   RequestData,
@@ -27,18 +15,15 @@ import {
   ResponeUploadImageFail,
   ResponeUploadImageSuccess,
 } from "@/types/vine-be-gone-now";
+import { getSession, signIn, useSession } from "next-auth/react";
+import AlertSnackBar from "@/components/alert-snack-bar";
+import LoadingBackDrop from "@/components/loading-backdrop";
 
-const VisuallyHiddenInput = styled("input")({
-  clip: "rect(0 0 0 0)",
-  clipPath: "inset(50%)",
-  height: 1,
-  overflow: "hidden",
-  position: "absolute",
-  bottom: 0,
-  left: 0,
-  whiteSpace: "nowrap",
-  width: 1,
-});
+const videoConstraints = {
+  width: 360,
+  height: 360,
+  facingMode: "environment"
+};
 
 const findBusinessArea = async (
   lat: number,
@@ -85,6 +70,24 @@ export async function getServerSideProps(context: any) {
     };
   }
 
+  const session = await getSession(context);
+
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/linelogin?link=/test?liff=TRUE",
+      },
+    };
+  }
+
+  if (!session.pea) {
+    return {
+      redirect: {
+        destination: "/profile?link=/test?liff=TRUE",
+      },
+    };
+  }
+
   return {
     props: {
       vine: true,
@@ -92,48 +95,60 @@ export async function getServerSideProps(context: any) {
   };
 }
 
-export default function VineBeGoneNow() {
-  const { data, status } = useSession();
-  if (status == "unauthenticated") {
-    signIn("line", { callbackUrl: "/vine-be-gone-now?liff=TRUE" });
-  }
-  const [positionError, setPositionError] = useState<string>();
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [geolocation, setGeolocation] = useState<Geolocation | null>(null);
+export default function App() {
+  
+  const webcamRef = useRef<Webcam>(null);
+  const [geolocation, setGeolocation] = useState<Geolocation>({
+    lat: "0.0000",
+    lon: "0.0000",
+    karnfaifa: null
+  });
   const [snackBar, setSnackBar] = useState<snackBar>({
     sevirity: "success",
     massege: "",
     open: false,
   });
   const [progress, setProgress] = useState<boolean>(false);
-  const [isCompletedUpload, setIsCompleteUpload] = useState<boolean>(false);
-
   const formRef = useRef<HTMLFormElement | null>(null);
-  const imgRef = useRef<HTMLImageElement | null>(null);
+  const [url, setUrl] = useState<string | null>(null);
+  const [positionError, setPositionError] = useState<string>();
 
-  const handleCancel = () => {
-    setIsCompleteUpload(false);
-    setGeolocation(null);
-    setSelectedImage(null);
-    formRef.current?.reset();
-  };
+  const setLocation = useCallback(async () => {
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        setGeolocation({
+          lat: position.coords.latitude.toFixed(6).toString(),
+          lon: position.coords.longitude.toFixed(6).toString(),
+          karnfaifa: await findBusinessArea(
+            position.coords.latitude,
+            position.coords.longitude,
+          ),
+        });
+      },
+      (error) => {
+        handleGeolocationError(error);
+        setGeolocation({
+          lat: "0.0000",
+          lon: "0.0000",
+          karnfaifa: null
+        } );
+      },
+    );
 
-  const handleGeolocationError = (error: GeolocationPositionError) => {
-    switch (error.code) {
-      case error.PERMISSION_DENIED:
-        setPositionError("ผู้ใช้ปฏิเสธคำขอตำแหน่ง");
-        break;
-      case error.POSITION_UNAVAILABLE:
-        setPositionError("ไม่พบข้อมูลตำแหน่ง");
-        break;
-      case error.TIMEOUT:
-        setPositionError("หมดเวลาคำขอตำแหน่ง");
-        break;
+  },[])
+
+  const handleCapture = useCallback(() => {
+    const imageSrc = webcamRef.current?.getScreenshot();
+    if (imageSrc) {
+      setUrl(imageSrc);
     }
-  };
+    console.log(imageSrc)
+  }, [webcamRef]);
 
   const handleSubmit = async (e: ChangeEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setProgress(true)
+
     const form = formRef.current;
     if (!form) {
       setSnackBar({
@@ -144,7 +159,7 @@ export default function VineBeGoneNow() {
       return;
     }
 
-    if (!selectedImage || !geolocation) {
+    if (!url || !geolocation.karnfaifa) {
       setSnackBar({
         sevirity: "error",
         massege: "เกิดข้อผิดพลาด ไม่มีรูปภาพ หรือไม่มีตำแหน่ง",
@@ -154,7 +169,7 @@ export default function VineBeGoneNow() {
     }
 
     setProgress(true);
-    const uploadedImage = await uploadPhoto(selectedImage);
+    const uploadedImage = await uploadPhoto(url);
     if (!uploadedImage) {
       setProgress(false);
       setSnackBar({
@@ -193,92 +208,34 @@ export default function VineBeGoneNow() {
     });
   };
 
-  const retrieveGeoArterPhotoUploap = () => {
-    if (!imgRef.current) {
-      return;
-    }
-
-    const gpsPromise = exifr.gps(imgRef.current);
-
-    const timeoutPromise = new Promise<{}>((_, reject) => {
-      setTimeout(() => {
-        reject(new Error("Timeout exceeded"));
-      }, 5000);
+  const handleCancel = () => {
+    setGeolocation({
+      lat: "0.0000",
+      lon: "0.0000",
+      karnfaifa: null
     });
-
-    Promise.race([gpsPromise, timeoutPromise])
-      .then(async (val: { latitude?: number; longitude?: number }) => {
-        if (val && val.latitude && val.longitude) {
-          setGeolocation({
-            lat: val.latitude.toFixed(6),
-            lon: val.longitude.toFixed(6),
-            karnfaifa: await findBusinessArea(val.latitude, val.longitude),
-          });
-          setIsCompleteUpload(true);
-          setProgress(false);
-        } else {
-          navigator.geolocation.getCurrentPosition(
-            async (position) => {
-              setGeolocation({
-                lat: position.coords.latitude.toFixed(6).toString(),
-                lon: position.coords.longitude.toFixed(6).toString(),
-                karnfaifa: await findBusinessArea(
-                  position.coords.latitude,
-                  position.coords.longitude,
-                ),
-              });
-              setIsCompleteUpload(true);
-              setProgress(false);
-            },
-            (error) => {
-              handleGeolocationError(error);
-              setGeolocation(null);
-              setIsCompleteUpload(true);
-              setProgress(false);
-            },
-          );
-        }
-      })
-      .catch(async () => {
-        navigator.geolocation.getCurrentPosition(
-          async (position) => {
-            setGeolocation({
-              lat: position.coords.latitude.toFixed(6).toString(),
-              lon: position.coords.longitude.toFixed(6).toString(),
-              karnfaifa: await findBusinessArea(
-                position.coords.latitude,
-                position.coords.longitude,
-              ),
-            });
-            setIsCompleteUpload(true);
-            setProgress(false);
-          },
-          (error) => {
-            handleGeolocationError(error);
-            setGeolocation(null);
-            setIsCompleteUpload(true);
-            setProgress(false);
-          },
-        );
-      });
+    setUrl(null);
+    formRef.current?.reset();
+    setLocation()
   };
 
-  const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setGeolocation(null);
-    setSelectedImage(null);
-    setIsCompleteUpload(false);
-    setProgress(true);
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const result = reader.result as string;
-        setSelectedImage(result);
-        setTimeout(retrieveGeoArterPhotoUploap, 1000);
-      };
-      reader.readAsDataURL(file);
+  const handleGeolocationError = (error: GeolocationPositionError) => {
+    switch (error.code) {
+      case error.PERMISSION_DENIED:
+        setPositionError("ผู้ใช้ปฏิเสธคำขอตำแหน่ง");
+        break;
+      case error.POSITION_UNAVAILABLE:
+        setPositionError("ไม่พบข้อมูลตำแหน่ง");
+        break;
+      case error.TIMEOUT:
+        setPositionError("หมดเวลาคำขอตำแหน่ง");
+        break;
     }
   };
+
+  useEffect(()=>{
+    setLocation()
+  },[])
 
   return (
     <>
@@ -286,23 +243,46 @@ export default function VineBeGoneNow() {
         <title>เถาวัลย์จงหายไป</title>
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
       </Head>
-      <form ref={formRef} onSubmit={handleSubmit}>
-        <Box sx={{ maxWidth: "430px", margin: "1rem auto 0" }}>
+      <form onSubmit={handleSubmit} ref={formRef}>
+        <Box sx={{ maxWidth: "430px", margin: "1rem auto 0", display:"flex", flexDirection:"column",alignItems:"center"}}>
+        {!url?(
+          <>
           <Button
             component="label"
             variant="contained"
-            sx={{ width: "100%" }}
-            startIcon={<InsertPhotoIcon />}
+            sx={{ width: "100%", marginBottom: "1rem" }}
+            startIcon={<AddAPhotoIcon />}
+            onClick={handleCapture}
           >
-            Upload or Take Photo
-            <VisuallyHiddenInput
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-            />
+            Capture Photo
           </Button>
-          {selectedImage && (
-            <Card
+            
+          
+          <Webcam
+              audio={false}
+              ref={webcamRef}
+              screenshotFormat="image/jpeg"
+              videoConstraints={videoConstraints}
+            />
+          </>
+        ):(<>
+        <Button
+            component="label"
+            variant="contained"
+            sx={{ width: "100%", marginBottom: "1rem" }}
+            startIcon={<DeleteIcon />}
+            onClick={() => {
+              setUrl(null);
+            }}
+          >
+            Delete Photo
+          </Button>
+        <div>
+            <img src={url} alt="Screenshot" />
+          </div>
+          
+        </>)}
+        <Card
               sx={{
                 width: "100%",
                 margin: "1rem auto 0",
@@ -310,17 +290,6 @@ export default function VineBeGoneNow() {
                 fontSize: "14px",
               }}
             >
-              <img
-                ref={imgRef}
-                src={selectedImage}
-                alt="Selected"
-                style={{
-                  maxWidth: "100%",
-                  height: "300px",
-                  objectFit: "contain",
-                  margin: "auto",
-                }}
-              />
               {geolocation && (
                 <CardContent>
                   <Grid container spacing={2}>
@@ -340,6 +309,7 @@ export default function VineBeGoneNow() {
                     </Grid>
                     <Grid item xs={12} sx={{ paddingTop: "0" }}>
                       <TextField
+                        disabled = {!geolocation.karnfaifa?true:false}
                         name="riskPoint"
                         required
                         type="text"
@@ -350,6 +320,7 @@ export default function VineBeGoneNow() {
                     </Grid>
                     <Grid item xs={12} sx={{ paddingTop: "0" }}>
                       <TextField
+                        disabled = {!geolocation.karnfaifa?true:false}
                         name="place"
                         required
                         type="text"
@@ -361,33 +332,29 @@ export default function VineBeGoneNow() {
                   </Grid>
                 </CardContent>
               )}
-              {!geolocation && isCompletedUpload && (
+              {positionError && (
                 <CardContent>
                   <Grid container spacing={2}>
                     <Grid item xs={1}>
                       <LocationOffIcon color="error" />
                     </Grid>
                     <Grid item xs={11}>
-                      ไฟล์รูปไม่มีตำแหน่ง และ {positionError}{" "}
-                      กรุณาลองใหม่อีกครั้ง
+                      {positionError}{" "}
                     </Grid>
                   </Grid>
                 </CardContent>
               )}
               <CardActions sx={{ direction: "flex", justifyContent: "end" }}>
-                {isCompletedUpload && (
-                  <Button onClick={handleCancel}>Cancel</Button>
-                )}
-                {geolocation && geolocation.karnfaifa && isCompletedUpload && (
+                {geolocation.karnfaifa && url && !positionError && (
                   <Button type="submit">Send</Button>
                 )}
               </CardActions>
             </Card>
-          )}
+        
         </Box>
-        <AlertSnackBar setSnackBar={setSnackBar} snackBar={snackBar} />
-        <LoadingBackDrop setProgress={setProgress} progress={progress} />
       </form>
+      <AlertSnackBar setSnackBar={setSnackBar} snackBar={snackBar}/>
+      <LoadingBackDrop setProgress={setProgress} progress={progress}/>  
     </>
   );
-}
+};
