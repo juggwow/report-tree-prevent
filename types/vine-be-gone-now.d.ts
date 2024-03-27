@@ -27,7 +27,20 @@ export type ImgMediaCardProp = {
   lat: string;
   lon: string;
   id: string | ObjectId;
-  maintenance?: any;
+  maintenance?: {
+    operator: {
+      karnfaifa: string;
+      firstname: string;
+      lastname: string;
+      userid: string;
+      mobileno: string;
+      role: string;
+    };
+    image: {
+      url: string;
+      id: string;
+    };
+  };
 };
 
 export type MaintenanceVineBeGoneData = {
@@ -38,4 +51,16 @@ export type RequestData = Geolocation & {
   riskPoint: string;
   place: string;
   uploadedImage: ResponeUploadImageSuccess;
+};
+
+export type RequestDataMaintenance = {
+  uploadedImage: ResponeUploadImageSuccess;
+};
+
+export type RequestDataForSendToReporter = {
+  sub: string;
+  riskPoint: string;
+  place: string;
+  img: string;
+  id: string;
 };

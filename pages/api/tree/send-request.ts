@@ -3,9 +3,7 @@ import { getServerSession } from "next-auth";
 import authOptions from "../auth/authoption";
 import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
-import {
-  IdsHasSentPlanTreeRequest,
-} from "@/types/report-tree";
+import { IdsHasSentPlanTreeRequest } from "@/types/report-tree";
 
 type Data = {
   name: string;

@@ -79,9 +79,11 @@ export async function getServerSideProps(contex: any) {
       changeBudget: "$changeBudget",
     };
 
-    const sentReq = await mongoClient.db("prevent").collection("idsHaveSentRequest")
-      .find({ businessName: { $ne: "" } },{projection:sentReqProjection})
-      .toArray()
+    const sentReq = await mongoClient
+      .db("prevent")
+      .collection("idsHaveSentRequest")
+      .find({ businessName: { $ne: "" } }, { projection: sentReqProjection })
+      .toArray();
 
     await mongoClient.close();
     return {
@@ -96,11 +98,15 @@ export async function getServerSideProps(contex: any) {
   }
 }
 
-export default function PreventChangePlanReqList({ sentReq }: { sentReq: SentReq[] }) {
+export default function PreventChangePlanReqList({
+  sentReq,
+}: {
+  sentReq: SentReq[];
+}) {
   const [changePlanPreventReq, setChangePlanPreventReq] = useState<
     AdminChangePlanWithStatus[]
   >([]);
-  const [selectedVer,setSelectedVer] = useState("")
+  const [selectedVer, setSelectedVer] = useState("");
   const router = useRouter();
   const [openDialog, setOpenDialog] = useState(false);
   const [progress, setProgress] = useState(false);
@@ -153,7 +159,8 @@ export default function PreventChangePlanReqList({ sentReq }: { sentReq: SentReq
     router.reload();
   };
 
-  const handleImport = async () => { //here
+  const handleImport = async () => {
+    //here
     if (
       !window.confirm(
         "หากตกลง จะเป็นการทับไฟล์ Google Sheet เดิม? กดยกเลิกเพื่อเปิด Google sheet",
@@ -161,13 +168,13 @@ export default function PreventChangePlanReqList({ sentReq }: { sentReq: SentReq
     ) {
       handlePrint();
       return;
-    }                                                                                               
+    }
     setProgress(true);
     let ids: string[] = [];
     gsheetSentReq.forEach((val) => {
       ids.push(val._id);
     });
-    const res = await fetch("/api/prevent/admin/gsheet", { 
+    const res = await fetch("/api/prevent/admin/gsheet", {
       method: "POST",
       body: JSON.stringify({ ids }),
     });
@@ -305,7 +312,6 @@ export default function PreventChangePlanReqList({ sentReq }: { sentReq: SentReq
       setDeleteId([...deleteId, val._id as string]);
     }
   };
-  
 
   const businessNameOptions: string[] = useMemo(() => {
     let autoComplete: string[] = [];
@@ -347,22 +353,22 @@ export default function PreventChangePlanReqList({ sentReq }: { sentReq: SentReq
       businessName: string;
     })[] = [];
     changePlanPreventReq.forEach((val) => {
-      if(!deleteId.includes(val._id as string)){
+      if (!deleteId.includes(val._id as string)) {
         if (val.typeReq == "add") {
           addType.push(val);
         }
-  
+
         if (val.typeReq == "change") {
           changeType.push(val);
         }
-  
+
         if (val.typeReq == "cancel") {
           cancelType.push(val);
         }
       }
     });
     return { changeType, addType, cancelType };
-  }, [changePlanPreventReq,deleteId]);
+  }, [changePlanPreventReq, deleteId]);
 
   return (
     <div>
@@ -388,190 +394,189 @@ export default function PreventChangePlanReqList({ sentReq }: { sentReq: SentReq
         </div>
         <CustomSeparator setProgress={setProgress} />
         <Box className="flex flex-col items-center">
-            <List
-              className="w-11/12 mb-3 bg-white grid grid-cols-1"
-              subheader={
-                <ListSubheader
-                  className="flex flex-row flex-wrap justify-between items-center"
-                  component="div"
-                  id="nested-list-subheader"
-                >
-                  <Typography>รายการเปลี่ยนแปลงที่มีการส่งเข้ามา</Typography>
-                  <Autocomplete
-                    size="small"
-                    disablePortal
-                    value={businessName}
-                    id="combo-box-demo"
-                    options={businessNameOptions}
-                    sx={{ margin: "0.5rem 0 0 0", width: "200px", zIndex: "20" }}
-                    renderInput={(params) => (
-                      <TextField {...params} required label="กฟฟ." />
-                    )}
-                    onChange={(e, v) => {
-                      setBusinessName(v ? v : "");
-                      setSelectedVer("");
-                      setChangePlanPreventReq([]);
-                    }}
-                  />
-                </ListSubheader>
-              }
-            >
-              {showSentReq.map((val) => {
-                return (
-                  <ListItem key={val._id}>
-                    <ListItemAvatar>
-                      <Avatar>
-                        {val._id == selectedVer ? (
-                          <FolderOpenIcon />
-                        ) : (
-                          <FolderIcon />
-                        )}
-                      </Avatar>
-                    </ListItemAvatar>
-                    <ListItemText
-                      secondary={`version: ${val._id}`}
-                      primary={`เพิ่ม: ${val.add}, เปลี่ยนแปลง: ${val.change}, ยกเลิก: ${val.cancel}, วงเงินเปลี่ยนแปลง:${val.changeBudget.toLocaleString("th-TH", { style: "currency", currency: "THB" })}`}
-                    />
-                    <Button
-                      disabled={gsheetSentReq.includes(val)}
-                      onClick={() => handleAddtoGsheet(val)}
-                    >
-                      นำเข้า Gsheet
-                    </Button>
-                    <Button
-                      disabled={selectedVer != val._id}
-                      onClick={() => handleAllAprove(val._id)}
-                    >
-                      อนุมัติทั้งหมด
-                    </Button>
-                    <Button
-                      disabled={selectedVer == val._id}
-                      onClick={() => handleShow(val._id)}
-                    >
-                      แสดง
-                    </Button>
-                  </ListItem>
-                );
-              })}
-            </List>
-        <Box className="mx-auto w-11/12 my-3 bg-white grid grid-cols-1">
-          <Box
-            sx={{
-              borderBottom: 1,
-              borderColor: "divider",
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-between",
-              flexWrap: "wrap",
-            }}
+          <List
+            className="w-11/12 mb-3 bg-white grid grid-cols-1"
+            subheader={
+              <ListSubheader
+                className="flex flex-row flex-wrap justify-between items-center"
+                component="div"
+                id="nested-list-subheader"
+              >
+                <Typography>รายการเปลี่ยนแปลงที่มีการส่งเข้ามา</Typography>
+                <Autocomplete
+                  size="small"
+                  disablePortal
+                  value={businessName}
+                  id="combo-box-demo"
+                  options={businessNameOptions}
+                  sx={{ margin: "0.5rem 0 0 0", width: "200px", zIndex: "20" }}
+                  renderInput={(params) => (
+                    <TextField {...params} required label="กฟฟ." />
+                  )}
+                  onChange={(e, v) => {
+                    setBusinessName(v ? v : "");
+                    setSelectedVer("");
+                    setChangePlanPreventReq([]);
+                  }}
+                />
+              </ListSubheader>
+            }
           >
-            <Tabs
-              value={tab}
-              onChange={(e, v) => setTab(v)}
-              aria-label="basic tabs example"
-              sx={{ display: "flex", flexDirection: "row", flexWrap: "wrap" }}
-            >
-              <Tab label="เปลี่ยนแปลง" {...a11yProps(0)} />
-              <Tab label="เพิ่ม" {...a11yProps(1)} />
-              <Tab label="ยกเลิก" {...a11yProps(2)} />
-            </Tabs>
-          </Box>
-          <TabPanel value={tab} index={0}>
-            <Grid container spacing={1}>
-              {changeType.map((val) => {
-                return (
-                  <Grid item key={val._id as string} xs={12} sm={6} md={4}>
-                    <ChangePlanPreventCard
-                      isAdmin
-                      plan={val}
-                      onClickEdit={() => handleApprove(val)}
-                      onClickCancel={() => handleReject(val)}
-                    />
-                  </Grid>
-                );
-              })}
-            </Grid>
-          </TabPanel>
-          <TabPanel value={tab} index={1}>
-            <Grid container spacing={1}>
-              {addType.map((val) => {
-                return (
-                  <Grid item key={val._id as string} xs={12} sm={6} md={4}>
-                    <ChangePlanPreventCard
-                      isAdmin
-                      plan={val}
-                      onClickEdit={() => handleApprove(val)}
-                      onClickCancel={() => handleReject(val)}
-                    />
-                  </Grid>
-                );
-              })}
-            </Grid>
-          </TabPanel>
-          <TabPanel value={tab} index={2}>
-            <Grid container spacing={1}>
-              {cancelType.map((val) => {
-                return (
-                  <Grid item key={val._id as string} xs={12} sm={6} md={4}>
-                    <ChangePlanPreventCard
-                      isAdmin
-                      plan={val}
-                      onClickEdit={() => handleApprove(val)}
-                      onClickCancel={() => handleReject(val)}
-                    />
-                  </Grid>
-                );
-              })}
-            </Grid>
-          </TabPanel>
-          
-        </Box>
-        <List
-              className="w-11/12 mt-3 bg-white grid grid-cols-1"
-              subheader={
-                <ListSubheader
-                  className="p-3 flex flex-row flex-wrap justify-between items-center"
-                  component="div"
-                  id="nested-list-subheader"
-                >
-                  <Typography>รายการสำหรับนำข้อมูลเข้า Google Sheet</Typography>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "row",
-                      alignContent: "center",
-                      gap: "1rem",
-                    }}
+            {showSentReq.map((val) => {
+              return (
+                <ListItem key={val._id}>
+                  <ListItemAvatar>
+                    <Avatar>
+                      {val._id == selectedVer ? (
+                        <FolderOpenIcon />
+                      ) : (
+                        <FolderIcon />
+                      )}
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ListItemText
+                    secondary={`version: ${val._id}`}
+                    primary={`เพิ่ม: ${val.add}, เปลี่ยนแปลง: ${val.change}, ยกเลิก: ${val.cancel}, วงเงินเปลี่ยนแปลง:${val.changeBudget.toLocaleString("th-TH", { style: "currency", currency: "THB" })}`}
+                  />
+                  <Button
+                    disabled={gsheetSentReq.includes(val)}
+                    onClick={() => handleAddtoGsheet(val)}
                   >
-                    <Button onClick={handleImport}>นำข้อมูลเข้า gSheet</Button>
-                    <Button onClick={handlePrint}>เปิด gSheet</Button>
-                  </Box>
-                </ListSubheader>
-              }
+                    นำเข้า Gsheet
+                  </Button>
+                  <Button
+                    disabled={selectedVer != val._id}
+                    onClick={() => handleAllAprove(val._id)}
+                  >
+                    อนุมัติทั้งหมด
+                  </Button>
+                  <Button
+                    disabled={selectedVer == val._id}
+                    onClick={() => handleShow(val._id)}
+                  >
+                    แสดง
+                  </Button>
+                </ListItem>
+              );
+            })}
+          </List>
+          <Box className="mx-auto w-11/12 my-3 bg-white grid grid-cols-1">
+            <Box
+              sx={{
+                borderBottom: 1,
+                borderColor: "divider",
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+                flexWrap: "wrap",
+              }}
             >
-              {gsheetSentReq.map((val) => {
-                return (
-                  <ListItem key={val._id}>
-                    <ListItemAvatar>
-                      <Avatar>
-                        {val._id == selectedVer ? (
-                          <FolderOpenIcon />
-                        ) : (
-                          <FolderIcon />
-                        )}
-                      </Avatar>
-                    </ListItemAvatar>
-                    <ListItemText
-                      secondary={`version: ${val._id}`}
-                      primary={`เพิ่ม: ${val.add}, เปลี่ยนแปลง: ${val.change}, ยกเลิก: ${val.cancel}, วงเงินเปลี่ยนแปลง:${val.changeBudget.toLocaleString("th-TH", { style: "currency", currency: "THB" })}`}
-                    />
-                    <Button onClick={() => handleRemovefromGsheet(val)}>
-                      นำออก
-                    </Button>
-                  </ListItem>
-                );
-              })}
-            </List>
+              <Tabs
+                value={tab}
+                onChange={(e, v) => setTab(v)}
+                aria-label="basic tabs example"
+                sx={{ display: "flex", flexDirection: "row", flexWrap: "wrap" }}
+              >
+                <Tab label="เปลี่ยนแปลง" {...a11yProps(0)} />
+                <Tab label="เพิ่ม" {...a11yProps(1)} />
+                <Tab label="ยกเลิก" {...a11yProps(2)} />
+              </Tabs>
+            </Box>
+            <TabPanel value={tab} index={0}>
+              <Grid container spacing={1}>
+                {changeType.map((val) => {
+                  return (
+                    <Grid item key={val._id as string} xs={12} sm={6} md={4}>
+                      <ChangePlanPreventCard
+                        isAdmin
+                        plan={val}
+                        onClickEdit={() => handleApprove(val)}
+                        onClickCancel={() => handleReject(val)}
+                      />
+                    </Grid>
+                  );
+                })}
+              </Grid>
+            </TabPanel>
+            <TabPanel value={tab} index={1}>
+              <Grid container spacing={1}>
+                {addType.map((val) => {
+                  return (
+                    <Grid item key={val._id as string} xs={12} sm={6} md={4}>
+                      <ChangePlanPreventCard
+                        isAdmin
+                        plan={val}
+                        onClickEdit={() => handleApprove(val)}
+                        onClickCancel={() => handleReject(val)}
+                      />
+                    </Grid>
+                  );
+                })}
+              </Grid>
+            </TabPanel>
+            <TabPanel value={tab} index={2}>
+              <Grid container spacing={1}>
+                {cancelType.map((val) => {
+                  return (
+                    <Grid item key={val._id as string} xs={12} sm={6} md={4}>
+                      <ChangePlanPreventCard
+                        isAdmin
+                        plan={val}
+                        onClickEdit={() => handleApprove(val)}
+                        onClickCancel={() => handleReject(val)}
+                      />
+                    </Grid>
+                  );
+                })}
+              </Grid>
+            </TabPanel>
+          </Box>
+          <List
+            className="w-11/12 mt-3 bg-white grid grid-cols-1"
+            subheader={
+              <ListSubheader
+                className="p-3 flex flex-row flex-wrap justify-between items-center"
+                component="div"
+                id="nested-list-subheader"
+              >
+                <Typography>รายการสำหรับนำข้อมูลเข้า Google Sheet</Typography>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignContent: "center",
+                    gap: "1rem",
+                  }}
+                >
+                  <Button onClick={handleImport}>นำข้อมูลเข้า gSheet</Button>
+                  <Button onClick={handlePrint}>เปิด gSheet</Button>
+                </Box>
+              </ListSubheader>
+            }
+          >
+            {gsheetSentReq.map((val) => {
+              return (
+                <ListItem key={val._id}>
+                  <ListItemAvatar>
+                    <Avatar>
+                      {val._id == selectedVer ? (
+                        <FolderOpenIcon />
+                      ) : (
+                        <FolderIcon />
+                      )}
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ListItemText
+                    secondary={`version: ${val._id}`}
+                    primary={`เพิ่ม: ${val.add}, เปลี่ยนแปลง: ${val.change}, ยกเลิก: ${val.cancel}, วงเงินเปลี่ยนแปลง:${val.changeBudget.toLocaleString("th-TH", { style: "currency", currency: "THB" })}`}
+                  />
+                  <Button onClick={() => handleRemovefromGsheet(val)}>
+                    นำออก
+                  </Button>
+                </ListItem>
+              );
+            })}
+          </List>
         </Box>
         <div className="mt-3 flex flew-row justify-center">
           <Button

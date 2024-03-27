@@ -112,8 +112,6 @@ async function sendMessageToReporter(user: string) {
 }
 
 async function sendMessageToMaintenance(data: RequestData, id: ObjectId) {
-  console.log(data, id);
-
   const mongoClient = await clientPromise;
   await mongoClient.connect();
   const userCollection = mongoClient.db("user").collection("user");
@@ -177,7 +175,7 @@ async function sendMessageToMaintenance(data: RequestData, id: ObjectId) {
             {
               type: "uri",
               label: "แก้ไข",
-              uri: "https://www.google.co.th",
+              uri: `${process.env.NEXTAUTH_URL}/maintenance/pm-vine/${id.toHexString()}`,
             },
           ],
         },

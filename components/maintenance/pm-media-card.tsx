@@ -54,13 +54,16 @@ export default function MaintenanceImgMediaCard({
   return (
     <Card sx={{ width: 345 }}>
       <CardMedia
+        crossOrigin="anonymous"
         ref={imgRef}
         onLoad={handleOnload}
         component="img"
         alt="green iguana"
         sx={{ objectFit: "cover", height: "300px" }}
         className="hidden"
-        image={data ? data.uploadedImage.url : ""}
+        image={
+          data ? `https://drive.lienuc.com/uc?id=${data.uploadedImage.id}` : ""
+        }
       />
       <CardContent>
         <Chip

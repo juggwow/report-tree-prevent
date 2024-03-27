@@ -39,7 +39,8 @@ export default async function handler(
           res.status(404).json({ error: "ไม่พบเอกสารนี้" });
         }
 
-        let changePlanRequest: AdminChangePlanWithStatus[] = docs!["changePlanRequest"];
+        let changePlanRequest: AdminChangePlanWithStatus[] =
+          docs!["changePlanRequest"];
 
         changePlanRequest.forEach((val, i) => {
           val._id instanceof ObjectId

@@ -417,7 +417,11 @@ export default function ChangePlanReqList({ sentReq }: { sentReq: SentReq[] }) {
                     value={businessName}
                     id="combo-box-demo"
                     options={businessNameOptions}
-                    sx={{ margin: "0.5rem 0 0 0", width: "200px" ,zIndex:"20"}}
+                    sx={{
+                      margin: "0.5rem 0 0 0",
+                      width: "200px",
+                      zIndex: "20",
+                    }}
                     renderInput={(params) => (
                       <TextField {...params} required label="กฟฟ." />
                     )}

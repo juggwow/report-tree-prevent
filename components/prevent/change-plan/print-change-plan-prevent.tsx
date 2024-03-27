@@ -11,11 +11,11 @@ import { useMemo } from "react";
 export default function PrintChangePlanPrevent({
   printPlan,
   budgets,
-  version
+  version,
 }: {
   printPlan: ChangePlanWithStatus[];
   budgets: TotalBudgetEachTypePrevent[];
-  version: string
+  version: string;
 }) {
   const addType: FormAddPlanPreventWithStatus[] = useMemo(() => {
     let arr: FormAddPlanPreventWithStatus[] = [];
@@ -127,12 +127,16 @@ export default function PrintChangePlanPrevent({
   return (
     <div className="hidden" id="printable-content" style={{ width: "24cm" }}>
       <Grid container sx={{ marginTop: "16pt" }}>
-        <Grid item xs={12} sx={{
+        <Grid
+          item
+          xs={12}
+          sx={{
             display: "flex",
             flexDirection: "row",
             justifyContent: "space-between",
             alignItems: "center",
-          }}>
+          }}
+        >
           <Typography sx={{ fontSize: "16pt" }}>
             เอกสารแนบ สรุปขอเปลี่ยนแปลง / เพิ่ม / ยกเลิกแผนงานงบป้องกันระบบไฟฟ้า
           </Typography>
@@ -300,7 +304,12 @@ export default function PrintChangePlanPrevent({
         <Grid item xs={4}>
           <Typography sx={{ fontSize: "14pt" }}>
             งบประมาณเดิม:{" "}
-            {(typeBudget.animal.old+typeBudget.etc.old+typeBudget.paint.old+typeBudget.water.old).toLocaleString("th-TH", {
+            {(
+              typeBudget.animal.old +
+              typeBudget.etc.old +
+              typeBudget.paint.old +
+              typeBudget.water.old
+            ).toLocaleString("th-TH", {
               style: "currency",
               currency: "THB",
             })}
@@ -309,7 +318,12 @@ export default function PrintChangePlanPrevent({
         <Grid item xs={4}>
           <Typography sx={{ fontSize: "14pt" }}>
             งบประมาณใหม่:{" "}
-            {(typeBudget.animal.new+typeBudget.etc.new+typeBudget.paint.new+typeBudget.water.new).toLocaleString("th-TH", {
+            {(
+              typeBudget.animal.new +
+              typeBudget.etc.new +
+              typeBudget.paint.new +
+              typeBudget.water.new
+            ).toLocaleString("th-TH", {
               style: "currency",
               currency: "THB",
             })}
@@ -318,7 +332,12 @@ export default function PrintChangePlanPrevent({
         <Grid item xs={4}>
           <Typography sx={{ fontSize: "14pt" }}>
             เปลี่ยนแปลง:{" "}
-            {(typeBudget.animal.change+typeBudget.etc.change+typeBudget.paint.change+typeBudget.water.change).toLocaleString("th-TH", {
+            {(
+              typeBudget.animal.change +
+              typeBudget.etc.change +
+              typeBudget.paint.change +
+              typeBudget.water.change
+            ).toLocaleString("th-TH", {
               style: "currency",
               currency: "THB",
             })}

@@ -30,9 +30,9 @@ export default async function handler(
           _id: {
             $in: sentIds,
           },
-        //   businessName: {
-        //     $ne: "กฟฟ.ทดสอบ",
-        //   },
+          //   businessName: {
+          //     $ne: "กฟฟ.ทดสอบ",
+          //   },
         };
         const docs = await mongoClient
           .db("prevent")
@@ -65,12 +65,12 @@ export default async function handler(
         await mongoClient.close();
 
         const resultGsheet = await fetch(
-            "https://script.google.com/macros/s/AKfycbxYLQ5vHbDmUBEjDsgvj7tYd8kPm6NI5V3f7POtc-0OUUPzi4_EbiGveb8PkMkdvixU/exec",
-            {
-              method: "POST",
-              body: JSON.stringify({ summary, typeReq }),
-            },
-          );
+          "https://script.google.com/macros/s/AKfycbxYLQ5vHbDmUBEjDsgvj7tYd8kPm6NI5V3f7POtc-0OUUPzi4_EbiGveb8PkMkdvixU/exec",
+          {
+            method: "POST",
+            body: JSON.stringify({ summary, typeReq }),
+          },
+        );
 
         if (resultGsheet.status != 200) {
           res.status(500).end();

@@ -1,13 +1,21 @@
 import { useRef, useState, useCallback, useEffect, ChangeEvent } from "react";
 import Webcam from "react-webcam";
 import Head from "next/head";
-import AddAPhotoIcon from '@mui/icons-material/AddAPhoto';
-import DeleteIcon from '@mui/icons-material/Delete';
+import AddAPhotoIcon from "@mui/icons-material/AddAPhoto";
+import DeleteIcon from "@mui/icons-material/Delete";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import LocationOffIcon from "@mui/icons-material/LocationOff";
 import BusinessIcon from "@mui/icons-material/Business";
 import { snackBar } from "@/types/report-prevent";
-import { Box, Button, Card, CardContent, Grid, TextField, CardActions } from "@mui/material";
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Grid,
+  TextField,
+  CardActions,
+} from "@mui/material";
 import {
   Karnfaifa,
   RequestData,
@@ -18,11 +26,12 @@ import {
 import { getSession, signIn, useSession } from "next-auth/react";
 import AlertSnackBar from "@/components/alert-snack-bar";
 import LoadingBackDrop from "@/components/loading-backdrop";
+import uploadPhoto from "@/src/uploadimage";
 
 const videoConstraints = {
   width: 360,
   height: 360,
-  facingMode: "environment"
+  facingMode: "environment",
 };
 
 const findBusinessArea = async (
@@ -42,24 +51,6 @@ const findBusinessArea = async (
   return (await res.json()) as Karnfaifa;
 };
 
-const uploadPhoto = async (
-  file: string,
-): Promise<ResponeUploadImageSuccess | null> => {
-  const uploadResult = await fetch(
-    "https://script.google.com/macros/s/AKfycbyTltbACbFhsd7ubH22dGXUyI0OShWmJe551lVfUg7KhgZkpJTl4F6AwElGk09ZKZPw/exec",
-    {
-      method: "POST",
-      body: file,
-    },
-  );
-  const uploadedImage: ResponeUploadImageSuccess | ResponeUploadImageFail =
-    await uploadResult.json();
-  if ("error" in uploadedImage) {
-    return null;
-  }
-  return uploadedImage;
-};
-
 export async function getServerSideProps(context: any) {
   const liff = context.query.liff;
   if (liff != "TRUE") {
@@ -75,7 +66,7 @@ export async function getServerSideProps(context: any) {
   if (!session) {
     return {
       redirect: {
-        destination: "/linelogin?link=/test?liff=TRUE",
+        destination: "/linelogin?link=/vine-be-gone-now?liff=TRUE",
       },
     };
   }
@@ -83,7 +74,7 @@ export async function getServerSideProps(context: any) {
   if (!session.pea) {
     return {
       redirect: {
-        destination: "/profile?link=/test?liff=TRUE",
+        destination: "/profile?link=/vine-be-gone-now?liff=TRUE",
       },
     };
   }
@@ -96,12 +87,11 @@ export async function getServerSideProps(context: any) {
 }
 
 export default function App() {
-  
   const webcamRef = useRef<Webcam>(null);
   const [geolocation, setGeolocation] = useState<Geolocation>({
     lat: "0.0000",
     lon: "0.0000",
-    karnfaifa: null
+    karnfaifa: null,
   });
   const [snackBar, setSnackBar] = useState<snackBar>({
     sevirity: "success",
@@ -130,24 +120,23 @@ export default function App() {
         setGeolocation({
           lat: "0.0000",
           lon: "0.0000",
-          karnfaifa: null
-        } );
+          karnfaifa: null,
+        });
       },
     );
-
-  },[])
+  }, []);
 
   const handleCapture = useCallback(() => {
     const imageSrc = webcamRef.current?.getScreenshot();
     if (imageSrc) {
       setUrl(imageSrc);
     }
-    console.log(imageSrc)
+    console.log(imageSrc);
   }, [webcamRef]);
 
   const handleSubmit = async (e: ChangeEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setProgress(true)
+    setProgress(true);
 
     const form = formRef.current;
     if (!form) {
@@ -212,11 +201,11 @@ export default function App() {
     setGeolocation({
       lat: "0.0000",
       lon: "0.0000",
-      karnfaifa: null
+      karnfaifa: null,
     });
     setUrl(null);
     formRef.current?.reset();
-    setLocation()
+    setLocation();
   };
 
   const handleGeolocationError = (error: GeolocationPositionError) => {
@@ -233,9 +222,9 @@ export default function App() {
     }
   };
 
-  useEffect(()=>{
-    setLocation()
-  },[])
+  useEffect(() => {
+    setLocation();
+  }, []);
 
   return (
     <>
@@ -244,117 +233,124 @@ export default function App() {
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
       </Head>
       <form onSubmit={handleSubmit} ref={formRef}>
-        <Box sx={{ maxWidth: "430px", margin: "1rem auto 0", display:"flex", flexDirection:"column",alignItems:"center"}}>
-        {!url?(
-          <>
-          <Button
-            component="label"
-            variant="contained"
-            sx={{ width: "100%", marginBottom: "1rem" }}
-            startIcon={<AddAPhotoIcon />}
-            onClick={handleCapture}
-          >
-            Capture Photo
-          </Button>
-            
-          
-          <Webcam
-              audio={false}
-              ref={webcamRef}
-              screenshotFormat="image/jpeg"
-              videoConstraints={videoConstraints}
-            />
-          </>
-        ):(<>
-        <Button
-            component="label"
-            variant="contained"
-            sx={{ width: "100%", marginBottom: "1rem" }}
-            startIcon={<DeleteIcon />}
-            onClick={() => {
-              setUrl(null);
+        <Box
+          sx={{
+            maxWidth: "430px",
+            margin: "1rem auto 0",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          {!url ? (
+            <>
+              <Button
+                component="label"
+                variant="contained"
+                sx={{ width: "100%", marginBottom: "1rem" }}
+                startIcon={<AddAPhotoIcon />}
+                onClick={handleCapture}
+              >
+                Capture Photo
+              </Button>
+
+              <Webcam
+                audio={false}
+                ref={webcamRef}
+                screenshotFormat="image/jpeg"
+                videoConstraints={videoConstraints}
+              />
+            </>
+          ) : (
+            <>
+              <Button
+                component="label"
+                variant="contained"
+                sx={{ width: "100%", marginBottom: "1rem" }}
+                startIcon={<DeleteIcon />}
+                onClick={() => {
+                  setUrl(null);
+                }}
+              >
+                Delete Photo
+              </Button>
+              <div>
+                <img src={url} alt="Screenshot" />
+              </div>
+            </>
+          )}
+          <Card
+            sx={{
+              width: "100%",
+              margin: "1rem auto 0",
+              padding: "1rem 0.5rem 0.5rem",
+              fontSize: "14px",
             }}
           >
-            Delete Photo
-          </Button>
-        <div>
-            <img src={url} alt="Screenshot" />
-          </div>
-          
-        </>)}
-        <Card
-              sx={{
-                width: "100%",
-                margin: "1rem auto 0",
-                padding: "1rem 0.5rem 0.5rem",
-                fontSize: "14px",
-              }}
-            >
-              {geolocation && (
-                <CardContent>
-                  <Grid container spacing={2}>
-                    <Grid item xs={1}>
-                      <LocationOnIcon color="primary" />
-                    </Grid>
-                    <Grid item xs={11}>
-                      ตำแหน่ง: {geolocation.lat},{geolocation.lon}
-                    </Grid>
-                    <Grid item xs={1}>
-                      <BusinessIcon color="primary" />
-                    </Grid>
-                    <Grid item xs={11}>
-                      {geolocation.karnfaifa
-                        ? geolocation.karnfaifa.fullName
-                        : "ตำแหน่งจุดเสี่ยงอยู่นอกพิ้นที่การไฟฟ้าเขต ยะลา"}
-                    </Grid>
-                    <Grid item xs={12} sx={{ paddingTop: "0" }}>
-                      <TextField
-                        disabled = {!geolocation.karnfaifa?true:false}
-                        name="riskPoint"
-                        required
-                        type="text"
-                        variant="standard"
-                        label="จุดเสี่ยงที่พบ"
-                        sx={{ maxWidth: "100%", fontSize: "14px" }}
-                      />
-                    </Grid>
-                    <Grid item xs={12} sx={{ paddingTop: "0" }}>
-                      <TextField
-                        disabled = {!geolocation.karnfaifa?true:false}
-                        name="place"
-                        required
-                        type="text"
-                        variant="standard"
-                        label="หมายเลขเสา/สถานที่"
-                        sx={{ maxWidth: "100%", fontSize: "14px" }}
-                      />
-                    </Grid>
+            {geolocation && (
+              <CardContent>
+                <Grid container spacing={2}>
+                  <Grid item xs={1}>
+                    <LocationOnIcon color="primary" />
                   </Grid>
-                </CardContent>
-              )}
-              {positionError && (
-                <CardContent>
-                  <Grid container spacing={2}>
-                    <Grid item xs={1}>
-                      <LocationOffIcon color="error" />
-                    </Grid>
-                    <Grid item xs={11}>
-                      {positionError}{" "}
-                    </Grid>
+                  <Grid item xs={11}>
+                    ตำแหน่ง: {geolocation.lat},{geolocation.lon}
                   </Grid>
-                </CardContent>
+                  <Grid item xs={1}>
+                    <BusinessIcon color="primary" />
+                  </Grid>
+                  <Grid item xs={11}>
+                    {geolocation.karnfaifa
+                      ? geolocation.karnfaifa.fullName
+                      : "ตำแหน่งจุดเสี่ยงอยู่นอกพิ้นที่การไฟฟ้าเขต ยะลา"}
+                  </Grid>
+                  <Grid item xs={12} sx={{ paddingTop: "0" }}>
+                    <TextField
+                      disabled={!geolocation.karnfaifa ? true : false}
+                      name="riskPoint"
+                      required
+                      type="text"
+                      variant="standard"
+                      label="จุดเสี่ยงที่พบ"
+                      sx={{ maxWidth: "100%", fontSize: "14px" }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sx={{ paddingTop: "0" }}>
+                    <TextField
+                      disabled={!geolocation.karnfaifa ? true : false}
+                      name="place"
+                      required
+                      type="text"
+                      variant="standard"
+                      label="หมายเลขเสา/สถานที่"
+                      sx={{ maxWidth: "100%", fontSize: "14px" }}
+                    />
+                  </Grid>
+                </Grid>
+              </CardContent>
+            )}
+            {positionError && (
+              <CardContent>
+                <Grid container spacing={2}>
+                  <Grid item xs={1}>
+                    <LocationOffIcon color="error" />
+                  </Grid>
+                  <Grid item xs={11}>
+                    {positionError}{" "}
+                  </Grid>
+                </Grid>
+              </CardContent>
+            )}
+            <CardActions sx={{ direction: "flex", justifyContent: "end" }}>
+              {geolocation.karnfaifa && url && !positionError && (
+                <Button type="submit">Send</Button>
               )}
-              <CardActions sx={{ direction: "flex", justifyContent: "end" }}>
-                {geolocation.karnfaifa && url && !positionError && (
-                  <Button type="submit">Send</Button>
-                )}
-              </CardActions>
-            </Card>
-        
+            </CardActions>
+          </Card>
         </Box>
       </form>
-      <AlertSnackBar setSnackBar={setSnackBar} snackBar={snackBar}/>
-      <LoadingBackDrop setProgress={setProgress} progress={progress}/>  
+      <AlertSnackBar setSnackBar={setSnackBar} snackBar={snackBar} />
+      <LoadingBackDrop setProgress={setProgress} progress={progress} />
     </>
   );
-};
+}
