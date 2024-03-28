@@ -39,12 +39,9 @@ export async function getServerSideProps(context: any) {
   try {
     const query = {
       businessName: session.pea.karnfaifa,
-      changePlanRequest: {
-        $not: {
-          $elemMatch: {
-            status: "progress",
-          },
-        },
+      planName: {
+        $ne: null,
+        $exists: true,
       },
     };
     const options = {
@@ -62,7 +59,7 @@ export async function getServerSideProps(context: any) {
 
     const preventData = (await mongoClient
       .db("prevent")
-      .collection("plan")
+      .collection("showPlan")
       .find(query, options)
       .toArray()) as unknown as PreventData[];
 
