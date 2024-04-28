@@ -83,8 +83,7 @@ export default async function handler(
 
 async function sendMessageToReporter(data: RequestDataForSendToReporter) {
   const lineApiUrl = "https://api.line.me/v2/bot/message/push";
-  const accessToken =
-    "Cnps9+Xgzybwu7N36fvxzef+iWWZAHAIW71klZ72y6fHaEOQH2xrlC5ELes26j77qXtSaTX2wsBAwVMk9shh3HA4+3yZ7O/eEMmkY3vRM5OMylg/QZakY3LwXibylLfI5rQZNf0LKOS3zEJH7BG3uQdB04t89/1O/w1cDnyilFU=";
+  const accessToken = process.env.NEXT_PUBLIC_MESSAGING_TOKEN as string
 
   const headers = new Headers({
     "Content-Type": "application/json",
@@ -109,7 +108,7 @@ async function sendMessageToReporter(data: RequestDataForSendToReporter) {
             {
               type: "uri",
               label: "รายละเอียดเพิ่มเติม",
-              uri: `${process.env.NEXTAUTH_URL}/maintenance/pm-vine/${data.id}`,
+              uri: `${data.img}`,
             },
           ],
         },

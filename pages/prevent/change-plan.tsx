@@ -25,7 +25,6 @@ import MuiAccordionDetails from "@mui/material/AccordionDetails";
 import { getSession } from "next-auth/react";
 import { GetServerSidePropsContext } from "next/types";
 import { FormEventHandler, useEffect, useState } from "react";
-import plan from "../plan-lv/plan";
 import { useRouter } from "next/router";
 import AlertSnackBar from "@/components/alert-snack-bar";
 import ChangePlanPreventFormDialog from "@/components/prevent/change-plan/form-dialog";

@@ -187,6 +187,7 @@ export default function MaintenanceDetail({ doc }: { doc: ImgMediaCardProp }) {
       massege: "สำเร็จ",
       open: true,
     });
+    router.push("/maintenance/pm-vine")
   };
 
   return (

@@ -4,7 +4,6 @@ import authOptions from "../auth/authoption";
 import NextAuth from "next-auth/next";
 import clientPromise from "@/lib/mongodb";
 import { Collection, ObjectId } from "mongodb";
-import { ChangePlanLV, PlanLV } from "@/types/plan-lv";
 import { peaUser } from "@/types/next-auth";
 
 type Data = {

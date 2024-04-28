@@ -14,6 +14,7 @@ export let theme = createTheme({
   typography: {
     fontFamily: mitr.style.fontFamily,
   },
+  
 });
 
 export default function App({

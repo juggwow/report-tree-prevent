@@ -1,5 +1,3 @@
-import plan from "@/pages/plan-lv/plan";
-import { ChangePlanLV } from "@/types/plan-lv";
 import {
   Autocomplete,
   Button,
