@@ -326,6 +326,27 @@ export default function ChangePlanReqList({ sentReq }: { sentReq: SentReq[] }) {
     );
   };
 
+  const handleCancelRequest = async (ids: SentReq) => {
+    const res = await fetch("/api/tree/send-request", {
+      method: "PUT",
+      body: JSON.stringify(ids),
+    });
+    if (res.status != 200) {
+      setSnackBar({
+        massege: "เกิดข้อผิดพลาด",
+        sevirity: "error",
+        open: true,
+      });
+      return;
+    }
+    setSnackBar({
+      massege: "สำเร็จ",
+      sevirity: "success",
+      open: true,
+    }),
+      router.reload();
+  };
+
   const businessNameOptions: string[] = useMemo(() => {
     let autoComplete: string[] = [];
     sentReq.forEach((val) => {
@@ -450,6 +471,12 @@ export default function ChangePlanReqList({ sentReq }: { sentReq: SentReq[] }) {
                       secondary={`version: ${val._id}`}
                       primary={`เพิ่ม: ${val.add}, เปลี่ยนแปลง: ${val.change}, ยกเลิก: ${val.cancel}, วงเงินเปลี่ยนแปลง:${val.changeBudget.toLocaleString("th-TH", { style: "currency", currency: "THB" })}`}
                     />
+                    <Button
+                      disabled={selectedVer == val._id}
+                      onClick={() => handleCancelRequest(val)}
+                    >
+                      ยกเลิกการส่ง
+                    </Button>
                     <Button
                       disabled={gsheetSentReq.includes(val)}
                       onClick={() => handleAddtoGsheet(val)}

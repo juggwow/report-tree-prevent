@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import authOptions from "../auth/authoption";
 import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
-import { IdsHasSentPlanTreeRequest } from "@/types/report-tree";
+import { IdsHasSentPlanTreeRequest, SentReq } from "@/types/report-tree";
 
 type Data = {
   name: string;
@@ -75,7 +75,7 @@ export default async function handler(
         return;
       }
       case "PUT": {
-        const body: IdsHasSentPlanTreeRequest = JSON.parse(req.body);
+        const body: IdsHasSentPlanTreeRequest | SentReq = JSON.parse(req.body);
         const mongoClient = await clientPromise;
         await mongoClient.connect();
         let doc = await mongoClient
