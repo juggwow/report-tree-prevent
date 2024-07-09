@@ -103,7 +103,7 @@ async function sendMessageToReporter(data: RequestDataForSendToReporter) {
           imageSize: "contain",
           imageBackgroundColor: "#F3E6E6",
           title: "สิ่งผิดปกติของคุณได้รับการแก้ไขแล้ว",
-          text: `สิ่งผิดปกติ: ${data.riskPoint}\nหมายเลขเสา/สถานที่: ${data.place}\nได้รับการแก้ไขแล้ว`,
+          text: `ตำแหน่ง ${data.place}`,
           actions: [
             {
               type: "uri",
